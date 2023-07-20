@@ -1,0 +1,20 @@
+When adding a new function to this package, take the following steps.
+
+1. Add a new file to the R folder
+2. Write the new function.
+      a. The first argument must be a vector of inputs called x.
+      b. The second argument must be called scale01 (even if not used).
+	- The intent of scale01 is that inputs can be passed in on a (0, 1) scale
+	  and scaling of the inputs is done internally (for scale01=TRUE)
+      c. Additional arguments are allowed but must be optional
+3. Document the function
+      a. Try to be as consistent as possible with previous documentation
+4. In the same file, add a private function called quackquack_<FUNCTION_NAME>. This
+   function should return a named list with fields (in this order)
+      a. input_dim - the number of input dimensions
+      b. input_cat - logical. Does the function have categorical inputs?
+      c. response_type - a member of the set c("uni", "multi", "func")
+      d. a px2 matrix of ranges for each input
+        NOTE: if the ranges are not (0, 1), the function should internally change the input
+        values when scale01 is TRUE
+5. In the quackquack.R file, add the function and its info to the master list.

@@ -1,0 +1,15 @@
+Package: duqling
+Type: Package
+Title: Library of UQ Test Functions 
+Version: 1.0.0
+Author: Kellin Rumsey
+Maintainer: Kellin Rumsey <knrumsey@lanl.gov>
+Description: A virtual library of UQ test functions and a method to create reproducible simulation studies for comparing emulators. The package is meant to provide a consistent way to call common UQ test functions without needing to repeatedly look up input ranges and function definitions. It also provides a mechanism for simulation study which allows emulators to be compared even across different papers. 
+License: BSD_3_clause + file LICENSE
+Imports: 
+    lhs,
+    stats,
+    tictoc
+Suggests: BASS
+Encoding: UTF-8
+RoxygenNote: 7.2.3
