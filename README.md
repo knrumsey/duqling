@@ -27,7 +27,7 @@ To install the `duqling` package, type
 
 ``` r
 # install.packages("devtools")
-devtools::install_gitlab("knrumsey-lanl/duqling")
+devtools::install_github("knrumsey/duqling")
 library(duqling)
 ```
 
