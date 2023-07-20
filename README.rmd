@@ -24,7 +24,7 @@ v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/li
 The `duqling` R package contains a wide variety of test functions for UQ. The goal of `duqling` is to facilitate reproducible UQ research by providing a large number of popular test functions which
 
    1. Can be called quickly and easily in the exact same manner every time
-   2. Allow for inputs to be generated on the unit hyper-grid. All `duqling` functions have (optional) internal scaling.
+   2. Allow for inputs to be generated on the unit hyper-rectangel. All `duqling` functions have (optional) internal scaling.
    
 Additionally, the package provides a `run_simulation_study()` function which makes it easy to perform simulation studies for emulators (non-linear regression algorithms). Moreover, this package makes it easier than ever to compare the performance on methods, even across papers! 
 
