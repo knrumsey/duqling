@@ -7,12 +7,23 @@
 v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![](https://img.shields.io/badge/devel%20version-1.0.1-purple.svg)](https://github.com/knrumsey/duqling)
 
+<div class="figure">
+
+<img src="inst/logos/DUQLING.png" alt="This logo was designed by Imagine AI Art Studio" width="40%" />
+<p class="caption">
+This logo was designed by Imagine AI Art Studio
+</p>
+
+</div>
+
+### Description
+
 The `duqling` R package contains a wide variety of test functions for
 UQ. The goal of `duqling` is to facilitate reproducible UQ research by
 providing a large number of popular test functions which
 
 1.  Can be called quickly and easily in the exact same manner every time
-2.  Allow for inputs to be generated on the unit hyper-grid. All
+2.  Allow for inputs to be generated on the unit hyper-rectangel. All
     `duqling` functions have (optional) internal scaling.
 
 Additionally, the package provides a `run_simulation_study()` function
