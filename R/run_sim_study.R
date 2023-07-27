@@ -2,8 +2,8 @@
 #'
 #' Reproducible code for simulation studies.
 #'
-#' @param my_fit If \code{my_pred} is specified, then \code{my_fit} should take two arguments called \code{X_train} and \code{y_train}, and should return an object which will be passed to \code{my_pred}. Otherwise, \code{my_fit} should take a third argument, \code{X_test}, and should return predictions as specified below.
-#' @param my_pred A function taking three arguments, the object returned by \code{my_fit}, \code{X_test} and a confidence level \code{alpha} (if coverage is a desired metric, \code{interval = TRUE}). If coverage is to be computed, \code{my_pred} should return a matrix with columns names c("preds", "lb", "ub"). Otherwise, it should rturn a vector of predictions.
+#' @param my_fit If \code{my_pred} is specified, then \code{my_fit} should take two arguments called \code{X_train} and \code{y_train}, and should return a fitted model object which will be passed to \code{my_pred}. Otherwise, \code{my_fit} should take a third and fourth argument, \code{X_test, conf_level}, and should return predictions as specified below.
+#' @param my_pred A function taking three arguments, the object returned by \code{my_fit}, \code{X_test} and a confidence level \code{alpha} (if coverage is a desired metric, \code{interval = TRUE}). If coverage is to be computed, \code{my_pred} should return a matrix with columns names c("preds", "lb", "ub"). Otherwise, it should return a vector of predictions.
 #' @param fnames A vector of function names from the \code{duqling} package. See \code{quack()} for details.
 #' @param interval Do we track interval estimates (or just point estimates)?
 #' @param n_train the sample size (or vector of sample sizes) for each training set
@@ -12,7 +12,7 @@
 #' @param design_type How should the training and testing designs be generated? Options are "LHS", "grid" and "random"
 #' @param replications How many replications should be repeated for each data set?
 #' @param seed Seed for random number generators. For reproducibility, we discourage the use of this argument.
-#' @param alpha Confidence level for interval estimates.
+#' @param conf_level Confidence level for interval estimates. If \code{length(conf_level) > 1}, then \code{my_pred} should return a matrix with \code{1 + 2*length(conf_level)} columns, with 2 columns of lower and upper bounds for each value in \code{conf_}
 #' @param verbose should progress be reported?
 #' @return See details
 #' @details Code to conduct a reproducible simulation study to compare emulators. By reporting the parameters to the study, other authors can compare their results directly.
@@ -36,7 +36,7 @@
 #' }
 #'
 #' run_sim_study(my_fit, my_pred,
-#'    fnames=c("dms_additive", "dms_simple"),
+#'    fnames=get_sim_functions_tiny(),
 #'    n_train=50)
 run_sim_study <- quack_off <- function(my_fit, my_pred=NULL,
                           fnames=quack(input_dims = 1)$fname,
@@ -47,7 +47,7 @@ run_sim_study <- quack_off <- function(my_fit, my_pred=NULL,
                           design_type = "LHS",
                           replications = 1,
                           seed = 42,
-                          alpha = 0.95,
+                          conf_level = 0.95,
                           verbose=TRUE){
 
   # error handling here
@@ -74,7 +74,8 @@ run_sim_study <- quack_off <- function(my_fit, my_pred=NULL,
 
 
             # Generate training data
-            set.seed(seed + rr - 1)
+            seed_t <- transform_seed(seed, n, design_type[kk], NSR[jj], rr)
+            set.seed(seed_t)
             if(design_type[kk] == "LHS"){
               if(n_train[ii] <= 1200){
                 X_train <- lhs::maximinLHS(n, p)
@@ -109,7 +110,7 @@ run_sim_study <- quack_off <- function(my_fit, my_pred=NULL,
             # Call my_fit()
             if(is.null(my_pred)){
               tictoc::tic()
-              preds <- my_fit(X_train, y_train, X_test, alpha)
+              preds <- my_fit(X_train, y_train, X_test, conf_level)
               t_tot <- tictoc::toc()
 
               DF_curr$t_tot <- t_tot$toc - t_tot$tic
@@ -119,7 +120,7 @@ run_sim_study <- quack_off <- function(my_fit, my_pred=NULL,
               t_fit <- tictoc::toc()
 
               tictoc::tic()
-              preds <- my_pred(fitted_object, X_test, alpha)
+              preds <- my_pred(fitted_object, X_test, conf_level)
               t_pred <- tictoc::toc()
 
               DF_curr$t_fit <- t_fit$toc - t_fit$tic
@@ -128,10 +129,22 @@ run_sim_study <- quack_off <- function(my_fit, my_pred=NULL,
 
             # RMSE and coverage
             if(interval == TRUE){
-              DF_curr$RMSE <- rmsef(y_test, preds[,1])
-              DF_curr$COVR <- mean((y_test >= preds[,2]) * (y_test <= preds[,3]))
+              rmse_curr <- rmsef(y_test, preds[,1])
+              DF_curr$RMSE <- rmse_curr
+              DF_curr$FVU  <- rmse_curr^2/var(y_test)
+
+              # Compute empirical coverage for each value in conf_level
+              n_conf <- length(conf_level)
+              nms <- names(DF_curr)
+              for(iii in 1:n_conf){
+                 DF_curr[,ncol(DF_curr)+1] <- mean((y_test >= preds[,2*iii]) * (y_test <= preds[,2*iii+1]))
+              }
+              colnames(DF_curr) <- c(nms, lapply(as.character(conf_level), function(zz) paste0("CONF", zz)))
+
             }else{
-              DF_curr$RMSE <- rmsef(y_test, preds)
+              rmse_curr <- rmsef(y_test, preds)
+              DF_curr$RMSE <- rmse_curr
+              DF_curr$FVU  <- rmse_curr^2/var(y_test)
             }
 
             # Store data
@@ -174,6 +187,13 @@ rmsef <- function(x, y){
 }
 
 
+transform_seed <- function(seed, n, dt, NSR, rr){
+  design_num <- switch(dt, LHS = 1, grid = 2, random = 3)
+  SNR_num    <- ifelse(round(1/NSR) == Inf, 0, round(1/NSR))
+  BASE <- max(rr, n, SNR_num, 3) + 1
+  seed_transform <- (n + BASE*seed + BASE^2*SNR_num + BASE^3*rr + BASE^4*design_num) %% 100030001
+  return(seed_transform)
+}
 
 
 

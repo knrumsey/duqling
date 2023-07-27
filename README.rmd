@@ -173,9 +173,12 @@ get_sim_functions_2d()       #12 functions
 
 ### To Do List
 
-   1. Modify code so that multiple methods can be run at once (not recommended anyways).
+   1. Modify code so that multiple methods can be run at once.
+   2. DONE: Modify code so that multiple conf_levels can be returned
+   3. DONE: Make custom seeds so that cases are always the same no matter how the sim study is specified.
    2. Add functions for plotting and making tables for output of `run_sim_study()`
-   3. Run a large comparison.
+   3. Add parallel capabilities (for replications only?)
+   4. Run a large comparison and store results. 
 
 ### Copyright Notice
 

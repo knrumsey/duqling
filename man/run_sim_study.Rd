@@ -15,14 +15,14 @@ run_sim_study(
   design_type = "LHS",
   replications = 1,
   seed = 42,
-  alpha = 0.95,
+  conf_level = 0.95,
   verbose = TRUE
 )
 }
 \arguments{
-\item{my_fit}{If \code{my_pred} is specified, then \code{my_fit} should take two arguments called \code{X_train} and \code{y_train}, and should return an object which will be passed to \code{my_pred}. Otherwise, \code{my_fit} should take a third argument, \code{X_test}, and should return predictions as specified below.}
+\item{my_fit}{If \code{my_pred} is specified, then \code{my_fit} should take two arguments called \code{X_train} and \code{y_train}, and should return a fitted model object which will be passed to \code{my_pred}. Otherwise, \code{my_fit} should take a third and fourth argument, \code{X_test, conf_level}, and should return predictions as specified below.}
 
-\item{my_pred}{A function taking three arguments, the object returned by \code{my_fit}, \code{X_test} and a confidence level \code{alpha} (if coverage is a desired metric, \code{interval = TRUE}). If coverage is to be computed, \code{my_pred} should return a matrix with columns names c("preds", "lb", "ub"). Otherwise, it should rturn a vector of predictions.}
+\item{my_pred}{A function taking three arguments, the object returned by \code{my_fit}, \code{X_test} and a confidence level \code{alpha} (if coverage is a desired metric, \code{interval = TRUE}). If coverage is to be computed, \code{my_pred} should return a matrix with columns names c("preds", "lb", "ub"). Otherwise, it should return a vector of predictions.}
 
 \item{fnames}{A vector of function names from the \code{duqling} package. See \code{quack()} for details.}
 
@@ -40,7 +40,7 @@ run_sim_study(
 
 \item{seed}{Seed for random number generators. For reproducibility, we discourage the use of this argument.}
 
-\item{alpha}{Confidence level for interval estimates.}
+\item{conf_level}{Confidence level for interval estimates. If \code{length(conf_level) > 1}, then \code{my_pred} should return a matrix with \code{1 + 2*length(conf_level)} columns, with 2 columns of lower and upper bounds for each value in \code{conf_}}
 
 \item{verbose}{should progress be reported?}
 }
@@ -70,7 +70,7 @@ my_pred <- function(obj, Xt, conf_level=0.95){
 }
 
 run_sim_study(my_fit, my_pred,
-   fnames=c("dms_additive", "dms_simple"),
+   fnames=get_sim_functions_tiny(),
    n_train=50)
 }
 \references{

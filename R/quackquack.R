@@ -115,8 +115,9 @@ quackquack <- function(fname=NULL, input_dims=NULL, input_cat=NULL, response_typ
   master_list <- rbind(master_list, new_func)
 
 
-  #master_list <- master_list[order(master_list$fname),]
+  master_list <- master_list[order(master_list$fname),]
   master_list <- master_list[order(master_list$input_dims),]
+  rownames(master_list) <- 1:nrow(master_list)
 
   return_list <- master_list
   #PROCESS FUNCTION DATA FRAME BASED ON REQUIREMENTS
