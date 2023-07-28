@@ -74,7 +74,7 @@ run_sim_study <- quack_off <- function(my_fit, my_pred=NULL,
 
 
             # Generate training data
-            seed_t <- transform_seed(seed, n, design_type[kk], NSR[jj], rr)
+            seed_t <- transform_seed(seed, n, design_type[kk], NSR[jj], fnum, rr)
             set.seed(seed_t)
             if(design_type[kk] == "LHS"){
               if(n_train[ii] <= 1200){
@@ -102,7 +102,11 @@ run_sim_study <- quack_off <- function(my_fit, my_pred=NULL,
             f <- get(fn, loadNamespace("duqling"))
 
             y_train <- apply(X_train, 1, f, scale01=TRUE)
-            noise_lvl <- sqrt(var(y_train) * NSR[jj])
+            if(var(y_train) == 0){
+              y_train <- noise_lvl <- 1
+            }else{
+              noise_lvl <- sqrt(var(y_train) * NSR[jj])
+            }
             y_train <- y_train + rnorm(n, 0, noise_lvl)
             y_test <- apply(X_test, 1, f, scale01=TRUE) # no noise for testing data
 
@@ -186,12 +190,11 @@ rmsef <- function(x, y){
   sqrt(mean((x-y)^2))
 }
 
-
-transform_seed <- function(seed, n, dt, NSR, rr){
+transform_seed <- function(seed, n, dt, NSR, fnum, rr){
   design_num <- switch(dt, LHS = 1, grid = 2, random = 3)
   SNR_num    <- ifelse(round(1/NSR) == Inf, 0, round(1/NSR))
   BASE <- max(rr, n, SNR_num, 3) + 1
-  seed_transform <- (n + BASE*seed + BASE^2*SNR_num + BASE^3*rr + BASE^4*design_num) %% 100030001
+  seed_transform <- (n + BASE*seed + BASE^2*SNR_num + BASE^3*fnum + BASE^4*rr + BASE^5*design_num) %% 100030001
   return(seed_transform)
 }
 

@@ -9,7 +9,7 @@ v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/li
 
 <div class="figure">
 
-<img src="inst/logos/DUQLING.png" alt="This logo was designed by Imagine AI Art Studio" width="40%" />
+<img src="inst/logos/DUQLING.png" alt="This logo was designed by Imagine AI Art Studio" width="50%" />
 <p class="caption">
 This logo was designed by Imagine AI Art Studio
 </p>
@@ -27,10 +27,9 @@ providing a large number of popular test functions which
     `duqling` functions have (optional) internal scaling.
 
 Additionally, the package provides a `run_simulation_study()` function
-which makes it easy to perform simulation studies for emulators
-(non-linear regression algorithms). Moreover, this package makes it
-easier than ever to compare the performance on methods, even across
-papers!
+which makes it easy to perform simulation studies for emulators (or
+non-linear regressors). This package makes it easier than ever to
+compare the performance on methods, even across papers!
 
 ## Installation
 
@@ -259,11 +258,14 @@ get_sim_functions_2d()       #12 functions
 
 ### To Do List
 
-1.  Modify code so that multiple methods can be run at once (not
-    recommended anyways).
-2.  Add functions for plotting and making tables for output of
+1.  Modify code so that multiple methods can be run at once.
+2.  DONE: Modify code so that multiple conf_levels can be returned
+3.  DONE: Make custom seeds so that cases are always the same no matter
+    how the sim study is specified.
+4.  Add functions for plotting and making tables for output of
     `run_sim_study()`
-3.  Run a large comparison.
+5.  Add parallel capabilities (for replications only?)
+6.  Run a large comparison and store results.
 
 ### Copyright Notice
 
