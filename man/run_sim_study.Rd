@@ -16,6 +16,8 @@ run_sim_study(
   replications = 1,
   seed = 42,
   conf_level = 0.95,
+  method_names = NULL,
+  mc_cores = 1,
   verbose = TRUE
 )
 }
@@ -41,6 +43,10 @@ run_sim_study(
 \item{seed}{Seed for random number generators. For reproducibility, we discourage the use of this argument.}
 
 \item{conf_level}{Confidence level for interval estimates. If \code{length(conf_level) > 1}, then \code{my_pred} should return a matrix with \code{1 + 2*length(conf_level)} columns, with 2 columns of lower and upper bounds for each value in \code{conf_}}
+
+\item{method_names}{A vector of method names, length equal to \code{length(my_fit)}. If NULL, the indexed names \code{my_method<i>} will be used.}
+
+\item{mc_cores}{How many cores to use for parallelization over replications.}
 
 \item{verbose}{should progress be reported?}
 }

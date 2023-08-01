@@ -13,6 +13,8 @@
 #' @param replications How many replications should be repeated for each data set?
 #' @param seed Seed for random number generators. For reproducibility, we discourage the use of this argument.
 #' @param conf_level Confidence level for interval estimates. If \code{length(conf_level) > 1}, then \code{my_pred} should return a matrix with \code{1 + 2*length(conf_level)} columns, with 2 columns of lower and upper bounds for each value in \code{conf_}
+#' @param method_names A vector of method names, length equal to \code{length(my_fit)}. If NULL, the indexed names \code{my_method<i>} will be used.
+#' @param mc_cores How many cores to use for parallelization over replications.
 #' @param verbose should progress be reported?
 #' @return See details
 #' @details Code to conduct a reproducible simulation study to compare emulators. By reporting the parameters to the study, other authors can compare their results directly.
@@ -48,6 +50,8 @@ run_sim_study <- quack_off <- function(my_fit, my_pred=NULL,
                           replications = 1,
                           seed = 42,
                           conf_level = 0.95,
+                          method_names=NULL,
+                          mc_cores=1,
                           verbose=TRUE){
 
   # error handling here
@@ -58,107 +62,41 @@ run_sim_study <- quack_off <- function(my_fit, my_pred=NULL,
   for(ff in seq_along(fnames)){
     fn <- fnames[ff]
     p <- quack(fn)$input_dim
+    fnum <- which(fn == quack()$fname)
     if(verbose) cat("Starting function", fn, "\n")
     for(ii in seq_along(n_train)){
       n <- n_train[ii]
       if(verbose) cat("\t Running all combinations and replications for n =", n, "\n")
       for(jj in seq_along(NSR)){
         for(kk in seq_along(design_type)){
-          for(rr in 1:replications){
-            # Store case
-            DF_curr <- data.frame(fname=fn, input_dim=p,
-                                  n=n_train[ii],
-                                  NSR=NSR[jj],
-                                  design_type=design_type[kk],
-                                  rep=rr)
 
+          if(mc_cores == 1){
+            results <- lapply(1:replications, run_one_sim_case,
+                   seed=seed, fn=fn, fnum=fnum, p=p, n=n, conf_level=conf_level,
+                   nsr=NSR[jj], dsgn=design_type[kk], n_test=n_test, interval=interval,
+                   my_fit=my_fit, my_pred=my_pred)
+          }else{
+            results <- parallel::mclapply(1:replications, run_one_sim_case,
+                              seed=seed, fn=fn, fnum=fnum, p=p, n=n, conf_level=conf_level,
+                              nsr=NSR[jj], dsgn=design_type[kk], n_test=n_test, interval=interval,
+                              my_fit=my_fit, my_pred=my_pred,
+                              mc.cores=mc_cores)
+          }
 
-            # Generate training data
-            seed_t <- transform_seed(seed, n, design_type[kk], NSR[jj], fnum, rr)
-            set.seed(seed_t)
-            if(design_type[kk] == "LHS"){
-              if(n_train[ii] <= 1200){
-                X_train <- lhs::maximinLHS(n, p)
-                X_test <- lhs::randomLHS(n_test, p)
-              }else{
-                X_train <- lhs::randomLHS(n, p)
-                X_test <- lhs::randomLHS(n_test, p)
-              }
-            }else{
-              if(design_type[kk] == "random"){
-                X_train <- matrix(runif(n*p), ncol=p)
-                X_test <- matrix(runif(n_test*p), ncol=p)
-              }else{ # grid
-                ni = ceiling(n^(1/p))
-                xx <- seq(0, 1, length.out = ni)
-                X_train <- expand_grid(xx, p)
-                n <- nrow(X_train)
-
-                nit = ceiling(n_test^(1/p))
-                xxt <- seq(0, 1, length.out = nit)
-                X_test <- expand_grid(xxt, p)
-              }
-            }
-            f <- get(fn, loadNamespace("duqling"))
-
-            y_train <- apply(X_train, 1, f, scale01=TRUE)
-            if(var(y_train) == 0){
-              y_train <- noise_lvl <- 1
-            }else{
-              noise_lvl <- sqrt(var(y_train) * NSR[jj])
-            }
-            y_train <- y_train + rnorm(n, 0, noise_lvl)
-            y_test <- apply(X_test, 1, f, scale01=TRUE) # no noise for testing data
-
-
-            # Call my_fit()
-            if(is.null(my_pred)){
-              tictoc::tic()
-              preds <- my_fit(X_train, y_train, X_test, conf_level)
-              t_tot <- tictoc::toc()
-
-              DF_curr$t_tot <- t_tot$toc - t_tot$tic
-            }else{
-              tictoc::tic()
-              fitted_object <- my_fit(X_train, y_train)
-              t_fit <- tictoc::toc()
-
-              tictoc::tic()
-              preds <- my_pred(fitted_object, X_test, conf_level)
-              t_pred <- tictoc::toc()
-
-              DF_curr$t_fit <- t_fit$toc - t_fit$tic
-              DF_curr$t_pred <- t_pred$toc - t_pred$tic
-            }
-
-            # RMSE and coverage
-            if(interval == TRUE){
-              rmse_curr <- rmsef(y_test, preds[,1])
-              DF_curr$RMSE <- rmse_curr
-              DF_curr$FVU  <- rmse_curr^2/var(y_test)
-
-              # Compute empirical coverage for each value in conf_level
-              n_conf <- length(conf_level)
-              nms <- names(DF_curr)
-              for(iii in 1:n_conf){
-                 DF_curr[,ncol(DF_curr)+1] <- mean((y_test >= preds[,2*iii]) * (y_test <= preds[,2*iii+1]))
-              }
-              colnames(DF_curr) <- c(nms, lapply(as.character(conf_level), function(zz) paste0("CONF", zz)))
-
-            }else{
-              rmse_curr <- rmsef(y_test, preds)
-              DF_curr$RMSE <- rmse_curr
-              DF_curr$FVU  <- rmse_curr^2/var(y_test)
-            }
-
-            # Store data
-            if(is.null(DF_full)){
-              DF_full <- DF_curr
-            }else{
-              DF_full <- rbind(DF_full, DF_curr)
+          # Collect results for current setting
+          DF_curr <- results[[1]]
+          if(length(results) >= 2){
+            for(rr in 2:length(results)){
+              DF_curr <- rbind(DF_curr, results[[rr]])
             }
           }
-        }
+          # Store data
+          if(is.null(DF_full)){
+            DF_full <- DF_curr
+          }else{
+            DF_full <- rbind(DF_full, DF_curr)
+          }
+                }
       }
     }
   }
@@ -199,4 +137,91 @@ transform_seed <- function(seed, n, dt, NSR, fnum, rr){
 }
 
 
+run_one_sim_case <- function(rr, seed, fn, fnum, p, n, nsr, dsgn, n_test, conf_level, interval, my_fit, my_pred){
+    # Store case
+    DF_curr <- data.frame(fname=fn, input_dim=p,
+                          n=n,
+                          NSR=nsr,
+                          design_type=dsgn,
+                          rep=rr)
 
+    # Generate training data
+    seed_t <- transform_seed(seed, n, dsgn, nsr, fnum, rr)
+    set.seed(seed_t)
+    if(dsgn == "LHS"){
+      if(n <= 1200){
+        X_train <- lhs::maximinLHS(n, p)
+        X_test  <- lhs::randomLHS(n_test, p)
+      }else{
+        X_train <- lhs::randomLHS(n, p)
+        X_test  <- lhs::randomLHS(n_test, p)
+      }
+    }else{
+      if(dsgn == "random"){
+        X_train <- matrix(runif(n*p), ncol=p)
+        X_test <- matrix(runif(n_test*p), ncol=p)
+      }else{ # grid
+        ni = ceiling(n^(1/p))
+        xx <- seq(0, 1, length.out = ni)
+        X_train <- expand_grid(xx, p)
+        n <- nrow(X_train)
+
+        nit = ceiling(n_test^(1/p))
+        xxt <- seq(0, 1, length.out = nit)
+        X_test <- expand_grid(xxt, p)
+      }
+    }
+    f <- get(fn, loadNamespace("duqling"))
+
+    y_train <- apply(X_train, 1, f, scale01=TRUE)
+    if(var(y_train) == 0){
+      noise_lvl <- 1 # Cannot make sense of SNR when there is no signal
+    }else{
+      noise_lvl <- sqrt(var(y_train) * nsr)
+    }
+    y_train <- y_train + rnorm(n, 0, noise_lvl)
+    y_test <- apply(X_test, 1, f, scale01=TRUE) # no noise for testing data
+
+
+    # Call my_fit()
+    if(is.null(my_pred)){
+      tictoc::tic()
+      preds <- my_fit(X_train, y_train, X_test, conf_level)
+      t_tot <- tictoc::toc()
+
+      DF_curr$t_tot <- t_tot$toc - t_tot$tic
+    }else{
+      tictoc::tic()
+      fitted_object <- my_fit(X_train, y_train)
+      t_fit <- tictoc::toc()
+
+      tictoc::tic()
+      preds <- my_pred(fitted_object, X_test, conf_level)
+      t_pred <- tictoc::toc()
+
+      DF_curr$t_fit <- t_fit$toc - t_fit$tic
+      DF_curr$t_pred <- t_pred$toc - t_pred$tic
+      DF_curr$t_tot <- DF_curr$t_fit + DF_curr$t_pred
+    }
+
+    # RMSE and coverage
+    if(interval == TRUE){
+      rmse_curr <- rmsef(y_test, preds[,1])
+      DF_curr$RMSE <- rmse_curr
+      DF_curr$FVU  <- rmse_curr^2/var(y_test)
+
+      # Compute empirical coverage for each value in conf_level
+      n_conf <- length(conf_level)
+      nms <- names(DF_curr)
+      for(iii in 1:n_conf){
+        DF_curr[,ncol(DF_curr)+1] <- mean((y_test >= preds[,2*iii]) * (y_test <= preds[,2*iii+1]))
+      }
+      colnames(DF_curr) <- c(nms, lapply(as.character(conf_level), function(zz) paste0("CONF", zz)))
+
+    }else{
+      rmse_curr <- rmsef(y_test, preds)
+      DF_curr$RMSE <- rmse_curr
+      DF_curr$FVU  <- rmse_curr^2/var(y_test)
+    }
+  return(DF_curr)
+}

@@ -26,5 +26,14 @@ data <- run_sim_study(my_fit, my_pred,
 tictoc::toc()
 
 
+data <- run_sim_study(my_fit, my_pred,
+                      fnames = c("dms_additive", "dms_simple"),
+                      n_train = 100,
+                      NSR = 0,
+                      design_type="LHS",
+                      replications=6, mc_cores=3)
+
+
+
 
 
