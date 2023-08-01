@@ -79,7 +79,7 @@ run_sim_study <- quack_off <- function(my_fit, my_pred=NULL,
             results <- parallel::mclapply(1:replications, run_one_sim_case,
                               seed=seed, fn=fn, fnum=fnum, p=p, n=n, conf_level=conf_level,
                               nsr=NSR[jj], dsgn=design_type[kk], n_test=n_test, interval=interval,
-                              my_fit=my_fit, my_pred=my_pred,
+                              method_names=method_names, my_fit=my_fit, my_pred=my_pred,
                               mc.cores=mc_cores)
           }
 
@@ -137,14 +137,7 @@ transform_seed <- function(seed, n, dt, NSR, fnum, rr){
 }
 
 
-run_one_sim_case <- function(rr, seed, fn, fnum, p, n, nsr, dsgn, n_test, conf_level, interval, my_fit, my_pred){
-    # Store case
-    DF_curr <- data.frame(fname=fn, input_dim=p,
-                          n=n,
-                          NSR=nsr,
-                          design_type=dsgn,
-                          rep=rr)
-
+run_one_sim_case <- function(rr, seed, fn, fnum, p, n, nsr, dsgn, n_test, conf_level, interval, method_names, my_fit, my_pred){
     # Generate training data
     seed_t <- transform_seed(seed, n, dsgn, nsr, fnum, rr)
     set.seed(seed_t)
@@ -183,45 +176,67 @@ run_one_sim_case <- function(rr, seed, fn, fnum, p, n, nsr, dsgn, n_test, conf_l
     y_test <- apply(X_test, 1, f, scale01=TRUE) # no noise for testing data
 
 
-    # Call my_fit()
-    if(is.null(my_pred)){
-      tictoc::tic()
-      preds <- my_fit(X_train, y_train, X_test, conf_level)
-      t_tot <- tictoc::toc()
 
-      DF_curr$t_tot <- t_tot$toc - t_tot$tic
-    }else{
-      tictoc::tic()
-      fitted_object <- my_fit(X_train, y_train)
-      t_fit <- tictoc::toc()
+    #' ==================================================
+    #' Fit models
+    #' ==================================================
+    for(ii in seq_along(my_pred)){
+      my_method <- ifelse(is.null(method_names[ii]), paste0("method", ii), method_names[ii])
+      DF_curr <- data.frame(method=my_method,
+                            fname=fn, input_dim=p,
+                            n=n,
+                            NSR=nsr,
+                            design_type=dsgn,
+                            rep=rr)
 
-      tictoc::tic()
-      preds <- my_pred(fitted_object, X_test, conf_level)
-      t_pred <- tictoc::toc()
+      my_fit_curr <- ifelse(is.function(my_fit), my_fit, my_fit[[ii]])
+      my_pred_curr <- ifelse(is.function(my_pred), my_pred, my_pred[[ii]])
 
-      DF_curr$t_fit <- t_fit$toc - t_fit$tic
-      DF_curr$t_pred <- t_pred$toc - t_pred$tic
-      DF_curr$t_tot <- DF_curr$t_fit + DF_curr$t_pred
-    }
+      # Call my_fit()
+      if(is.null(my_pred_curr)){
+        tictoc::tic()
+        preds <- my_fit_curr(X_train, y_train, X_test, conf_level)
+        t_tot <- tictoc::toc()
 
-    # RMSE and coverage
-    if(interval == TRUE){
-      rmse_curr <- rmsef(y_test, preds[,1])
-      DF_curr$RMSE <- rmse_curr
-      DF_curr$FVU  <- rmse_curr^2/var(y_test)
+        DF_curr$t_tot <- t_tot$toc - t_tot$tic
+      }else{
+        tictoc::tic()
+        fitted_object <- my_fit_curr(X_train, y_train)
+        t_fit <- tictoc::toc()
 
-      # Compute empirical coverage for each value in conf_level
-      n_conf <- length(conf_level)
-      nms <- names(DF_curr)
-      for(iii in 1:n_conf){
-        DF_curr[,ncol(DF_curr)+1] <- mean((y_test >= preds[,2*iii]) * (y_test <= preds[,2*iii+1]))
+        tictoc::tic()
+        preds <- my_pred_curr(fitted_object, X_test, conf_level)
+        t_pred <- tictoc::toc()
+
+        DF_curr$t_fit <- t_fit$toc - t_fit$tic
+        DF_curr$t_pred <- t_pred$toc - t_pred$tic
+        DF_curr$t_tot <- DF_curr$t_fit + DF_curr$t_pred
       }
-      colnames(DF_curr) <- c(nms, lapply(as.character(conf_level), function(zz) paste0("CONF", zz)))
 
-    }else{
-      rmse_curr <- rmsef(y_test, preds)
-      DF_curr$RMSE <- rmse_curr
-      DF_curr$FVU  <- rmse_curr^2/var(y_test)
-    }
-  return(DF_curr)
+      # RMSE and coverage
+      if(interval == TRUE){
+        rmse_curr <- rmsef(y_test, preds[,1])
+        DF_curr$RMSE <- rmse_curr
+        DF_curr$FVU  <- rmse_curr^2/var(y_test)
+
+        # Compute empirical coverage for each value in conf_level
+        n_conf <- length(conf_level)
+        nms <- names(DF_curr)
+        for(iii in 1:n_conf){
+          DF_curr[,ncol(DF_curr)+1] <- mean((y_test >= preds[,2*iii]) * (y_test <= preds[,2*iii+1]))
+        }
+        colnames(DF_curr) <- c(nms, lapply(as.character(conf_level), function(zz) paste0("CONF", zz)))
+
+      }else{
+        rmse_curr <- rmsef(y_test, preds)
+        DF_curr$RMSE <- rmse_curr
+        DF_curr$FVU  <- rmse_curr^2/var(y_test)
+      }
+      if(ii == 1){
+        DF_res <- DF_curr
+      }else{
+        DF_res <- rbind(DF_res, DF_curr)
+      }
+    }# End loop over methods
+  return(DF_res)
 }
