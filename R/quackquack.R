@@ -7,6 +7,7 @@
 #' @param input_cat logical, should functions with categorical inputs be included?
 #' @param response_type a string in the set c("all", "uni", "multi", "func") specifying which response type is requested.
 #' @param stochastic logical. Is function response stochastic?
+#' @param sorted Should results be sorted (by input dimension and then alphabetically)
 #' @return See details
 #' @details If fname is specified, this function returns a list with the number of input dimensions and a p x 2 matrix of input ranges. If fname is not specified, then `quackquack` returns a list of function names which satisfy the requirements specified by the other inputs. If no arguments are specified, then a list of all functions is returned.
 #' @references
@@ -16,12 +17,12 @@
 #' quack("borehole")
 #'
 #' quack(input_dims=c(1, 2), input_cat = FALSE, response_type = "uni")
-quack <- function(fname=NULL, input_dims=NULL, input_cat=NULL, response_type=NULL, stochastic=NULL){
-  quackquack(fname, input_dims, input_cat, response_type, stochastic)
+quack <- function(fname=NULL, input_dims=NULL, input_cat=NULL, response_type=NULL, stochastic=NULL, sorted=TRUE){
+  quackquack(fname, input_dims, input_cat, response_type, stochastic, sorted)
 }
 
 
-quackquack <- function(fname=NULL, input_dims=NULL, input_cat=NULL, response_type=NULL, stochastic=NULL){
+quackquack <- function(fname=NULL, input_dims=NULL, input_cat=NULL, response_type=NULL, stochastic=NULL, sorted=TRUE){
   tmp_fname <- fname
   tmp_input_dims <- input_dims
   tmp_input_cat <- input_cat
@@ -113,11 +114,16 @@ quackquack <- function(fname=NULL, input_dims=NULL, input_cat=NULL, response_typ
   # add sharkfin
   new_func <- data.frame(fname="sharkfin", input_dims=3, input_cat=FALSE, response_type="uni", stochastic="n")
   master_list <- rbind(master_list, new_func)
+  # add foursquare
+  new_func <- data.frame(fname="foursquare", input_dims=2, input_cat=FALSE, response_type="uni", stochastic="n")
+  master_list <- rbind(master_list, new_func)
 
+  if(sorted){
+    master_list <- master_list[order(master_list$fname),]
+    master_list <- master_list[order(master_list$input_dims),]
+    rownames(master_list) <- 1:nrow(master_list)
+  }
 
-  master_list <- master_list[order(master_list$fname),]
-  master_list <- master_list[order(master_list$input_dims),]
-  rownames(master_list) <- 1:nrow(master_list)
 
   return_list <- master_list
   #PROCESS FUNCTION DATA FRAME BASED ON REQUIREMENTS

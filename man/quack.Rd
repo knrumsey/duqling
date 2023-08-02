@@ -9,7 +9,8 @@ quack(
   input_dims = NULL,
   input_cat = NULL,
   response_type = NULL,
-  stochastic = NULL
+  stochastic = NULL,
+  sorted = TRUE
 )
 }
 \arguments{
@@ -22,6 +23,8 @@ quack(
 \item{response_type}{a string in the set c("all", "uni", "multi", "func") specifying which response type is requested.}
 
 \item{stochastic}{logical. Is function response stochastic?}
+
+\item{sorted}{Should results be sorted (by input dimension and then alphabetically)}
 }
 \value{
 See details

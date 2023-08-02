@@ -65,4 +65,8 @@ data <- run_sim_study(my_fit, my_pred,
 
 
 
+X <- lhs::randomLHS(1000, 10)
+y <- apply(X, 1, borehole, scale01=TRUE)
+
+
 

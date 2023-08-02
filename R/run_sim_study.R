@@ -62,7 +62,7 @@ run_sim_study <- quack_off <- function(my_fit, my_pred=NULL,
   for(ff in seq_along(fnames)){
     fn <- fnames[ff]
     p <- quack(fn)$input_dim
-    fnum <- which(fn == quack()$fname)
+    fnum <- which(fn == quack(sorted=FALSE)$fname)
     if(verbose) cat("Starting function", fn, "\n")
     for(ii in seq_along(n_train)){
       n <- n_train[ii]
