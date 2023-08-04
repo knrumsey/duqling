@@ -20,7 +20,8 @@ run_one_sim_case(
   interval,
   method_names,
   my_fit,
-  my_pred
+  my_pred,
+  verbose
 )
 }
 \description{

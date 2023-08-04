@@ -7,7 +7,7 @@
 micwicz(x, scale01 = FALSE, m = 10, active_dim = length(x))
 }
 \arguments{
-\item{x}{Inputs of dimension (at least) 7. See below for details.}
+\item{x}{Inputs of dimension (at least) 2. See below for details.}
 
 \item{scale01}{When TRUE, inputs are expected to be given on unit interval and are internally adjusted to their native range. Default is FALSE}
 

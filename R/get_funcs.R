@@ -19,7 +19,7 @@ get_sim_functions_2d <- function(){
 #' @export
 get_sim_functions_medium <- function(){
   c("dms_additive", "dms_simple", "dms_radial", "dms_harmonic", "dms_complicated",
-    "squiggle", "twin_galaxies", "micwicz", "detpep_curve", "const_fn3",
+    "squiggle", "twin_galaxies", "micwicz", "foursquare", "pollutant_uni",
     "piston", "circuit", "borehole", "robot", "wingweight", "detpep8", "friedman",
     "friedman10", "const_fn15", "welch20")
 }

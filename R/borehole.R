@@ -47,7 +47,6 @@ borehole <- function(x, scale01=FALSE, adjust_fidelity = 0){
   Kw <- x[8]
 
   frac1 <- (2 * pi - adjust_fidelity*1.283185)  * Tu * (Hu-Hl)
-
   frac2a <- 2*L*Tu / (log(r/rw)*rw^2*Kw)
   frac2b <- Tu / Tl
   frac2 <- log(r/rw) * (1+ adjust_fidelity/2 +frac2a+frac2b)

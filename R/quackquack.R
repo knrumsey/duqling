@@ -56,7 +56,7 @@ quackquack <- function(fname=NULL, input_dims=NULL, input_cat=NULL, response_typ
   new_func <- data.frame(fname=c("pollutant", "pollutant_uni"), input_dims=c(4,4), input_cat=c(FALSE, FALSE), response_type=c("func", "uni"), stochastic=c("n", "n"))
   master_list <- rbind(master_list, new_func)
   # add grlee functions
-  new_func <- data.frame(fname=c("grlee1", "grlee2", "grlee4"), input_dims=c(1,2,4), input_cat=rep(FALSE,3), response_type=rep("uni",3), stochastic=rep("n", 3))
+  new_func <- data.frame(fname=c("grlee1", "grlee2", "grlee6"), input_dims=c(1,2,6), input_cat=rep(FALSE,3), response_type=rep("uni",3), stochastic=rep("n", 3))
   master_list <- rbind(master_list, new_func)
   # add lim functions
   new_func <- data.frame(fname=c("lim_polynomial", "lim_non_polynomial"), input_dims=c(2,2), input_cat=c(FALSE, FALSE), response_type=c("uni", "uni"), stochastic=c("n", "n"))

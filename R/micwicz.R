@@ -2,7 +2,7 @@
 #'
 #' Dimension: Default is 2, but can be any dimension. For inert variables, \code{active_dim} must be specified.
 #'
-#' @param x Inputs of dimension (at least) 7. See below for details.
+#' @param x Inputs of dimension (at least) 2. See below for details.
 #' @param scale01 When TRUE, inputs are expected to be given on unit interval and are internally adjusted to their native range. Default is FALSE
 #' @param m A larger m leads to a more difficult search (steeper valleys/ridges).
 #' @param active_dim Only the first \code{min(active_dim, length(x))} variables will be used. All other variables are inert.
