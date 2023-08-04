@@ -117,6 +117,9 @@ quackquack <- function(fname=NULL, input_dims=NULL, input_cat=NULL, response_typ
   # add foursquare
   new_func <- data.frame(fname="foursquare", input_dims=2, input_cat=FALSE, response_type="uni", stochastic="n")
   master_list <- rbind(master_list, new_func)
+  # add Rosenbrocks banana
+  new_func <- data.frame(fname="banana", input_dims=2, input_cat=FALSE, response_type="uni", stochastic="n")
+  master_list <- rbind(master_list, new_func)
 
   if(sorted){
     master_list <- master_list[order(master_list$fname),]

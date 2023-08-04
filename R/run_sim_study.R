@@ -68,7 +68,7 @@ run_sim_study <- quack_off <- function(my_fit, my_pred=NULL,
     fn <- fnames[ff]
     p <- quack(fn)$input_dim
     fnum <- which(fn == quack(sorted=FALSE)$fname)
-    if(verbose) cat("Starting function", fn, "\n")
+    if(verbose) cat("Starting function ", ff, "/", length(fnames), ": ", fn, "\n")
     for(ii in seq_along(n_train)){
       n <- n_train[ii]
       if(verbose) cat("\t Running all combinations and replications for n =", n, "\n")

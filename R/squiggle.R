@@ -2,7 +2,7 @@
 #'
 #' @param x Inputs of dimension (at least) 2. See below for details.
 #' @param scale01  (No effect) When TRUE, inputs are expected to be given on unit interval.
-#' @param noise Standard deviation is noise times the product of x1 and x2 (commonly set to 0.05)
+#' @param sigma A scaling parameter
 #' @details A bivariate squiggle function which has regions of low activity as well as low activity regions.
 #' When noise != 0, the function is stochastic with a heteroskedastic error function.
 #'
@@ -18,8 +18,8 @@
 #' y <- apply(X, 1, squiggle)
 #' image(matrix(y, nrow=length(X)), zlim=c(-1,3.5))
 #' @export
-squiggle <- function(x, scale01=TRUE, noise = 0) {
-  dnorm(x[2], mean = sin(2 * pi * x[1] ^ 2) / 4 - x[1] / 10 + .5, sd = noise)*x[1]*x[2]
+squiggle <- function(x, scale01=TRUE, noise = 0.05) {
+  dnorm(x[2], mean = sin(2 * pi * x[1] ^ 2) / 4 - x[1] / 10 + .5, sd = sigma)*x[1]*x[2]
 }
 
 quackquack_squiggle <- function(){

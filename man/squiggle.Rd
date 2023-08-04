@@ -4,14 +4,14 @@
 \alias{squiggle}
 \title{The Squiggle Function}
 \usage{
-squiggle(x, scale01 = TRUE, noise = 0)
+squiggle(x, scale01 = TRUE, noise = 0.05)
 }
 \arguments{
 \item{x}{Inputs of dimension (at least) 2. See below for details.}
 
 \item{scale01}{(No effect) When TRUE, inputs are expected to be given on unit interval.}
 
-\item{noise}{Standard deviation is noise times the product of x1 and x2 (commonly set to 0.05)}
+\item{sigma}{A scaling parameter}
 }
 \description{
 The Squiggle Function

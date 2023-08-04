@@ -82,3 +82,8 @@ results_gg <- quack::ggsummary(results, measurevar="FVU", groupvars=c("method", 
 ggplot(results_gg, aes(x=fname, y=mean, fill=method)) +
   geom_bar(linewidth=1, stat="identity", col="black", position="dodge") +
   geom_errorbar(aes(ymin=mean-ci, ymax=mean+ci), linetype=1, lwd=1, width=0.25, position=position_dodge(0.9))
+
+
+
+
+
