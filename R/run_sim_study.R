@@ -68,7 +68,7 @@ run_sim_study <- quack_off <- function(my_fit, my_pred=NULL,
     fn <- fnames[ff]
     p <- quack(fn)$input_dim
     fnum <- which(fn == quack(sorted=FALSE)$fname)
-    if(verbose) cat("Starting function ", ff, "/", length(fnames), ": ", fn, "\n")
+    if(verbose) cat("Starting function ", ff, "/", length(fnames), ": ", fn, "\n", sep="")
     for(ii in seq_along(n_train)){
       n <- n_train[ii]
       if(verbose) cat("\t Running all combinations and replications for n =", n, "\n")
@@ -134,12 +134,23 @@ rmsef <- function(x, y){
 }
 
 transform_seed <- function(seed, n, dt, NSR, fnum, rr){
-  design_num <- switch(dt, LHS = 1, grid = 2, random = 3)
-  SNR_num    <- ifelse(round(1/NSR) == Inf, 0, round(1/NSR))
-  BASE <- max(rr, n, SNR_num, 3) + 1
-  seed_transform <- (n + BASE*seed + BASE^2*SNR_num + BASE^3*fnum + BASE^4*rr + BASE^5*design_num) %% 100030001
-  return(seed_transform)
+ s1 <- seed
+ s2 <- round(log(n))
+ s3 <- round(100*(log(n) %% 1))
+ s4 <- switch(dt, LHS = 1, grid = 2, random = 3)
+ s5 <- fnum
+ s6 <- round(100*NSR)
+ s7 <- round(100*((100*NSR) %% 1))
+ s8 <- floor(rr/100)
+ s8 <- rr %% 100
+ B <- 101
+ ss <- 0
+ for(i in 1:8) ss <- ss + B^(i-1)*get(paste0("s", i))
+ ss <- ss %% 100030001
+ return(ss)
 }
+
+
 
 
 run_one_sim_case <- function(rr, seed, fn, fnum, p, n, nsr, dsgn, n_test, conf_level, interval, method_names, my_fit, my_pred, verbose){

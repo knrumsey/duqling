@@ -18,7 +18,7 @@
 #' n <- 10
 #' p <- 2
 #' x <- matrix(runif(p*n), nrow=n)
-#' y <- apply(x, 1, piston, scale01=TRUE)
+#' y <- apply(x, 1, foursquare, scale01=TRUE)
 foursquare <- function(x, scale01=TRUE){
   ind1 <- x[1] > 0.5
   ind2 <- x[2] > 0.5

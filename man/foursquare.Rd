@@ -31,5 +31,5 @@ The function response is $y = f1 + f2 + f3 + f4$ where
 n <- 10
 p <- 2
 x <- matrix(runif(p*n), nrow=n)
-y <- apply(x, 1, piston, scale01=TRUE)
+y <- apply(x, 1, foursquare, scale01=TRUE)
 }

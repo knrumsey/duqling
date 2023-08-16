@@ -4,7 +4,7 @@
 \alias{squiggle}
 \title{The Squiggle Function}
 \usage{
-squiggle(x, scale01 = TRUE, noise = 0.05)
+squiggle(x, scale01 = TRUE, sigma = 0.05)
 }
 \arguments{
 \item{x}{Inputs of dimension (at least) 2. See below for details.}

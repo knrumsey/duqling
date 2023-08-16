@@ -4,7 +4,7 @@
 \alias{ripples}
 \title{Ripples Function}
 \usage{
-ripples(x, scale01 = FALSE, fixed_coeff = FALSE, input_dims = 2, seed = NULL)
+ripples(x, scale01 = FALSE, fixed_coeff = TRUE, input_dims = 2, seed = NULL)
 }
 \arguments{
 \item{x}{Inputs of dimension (at least) 8. See below for details.}

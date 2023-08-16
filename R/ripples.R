@@ -16,7 +16,7 @@
 #' n <- 10
 #' x <- matrix(runif(2*n), nrow=n)
 #' y <- apply(x, 1, ripples)
-ripples <- function(x, scale01=FALSE, fixed_coeff=FALSE, input_dims=2, seed=NULL){
+ripples <- function(x, scale01=FALSE, fixed_coeff=TRUE, input_dims=2, seed=NULL){
   if(!is.null(seed)) set.seed(seed)
   if(fixed_coeff == TRUE & input_dims != 2) warning("Cannot have fixed coefficients when input_dims != 2.")
 
@@ -25,7 +25,7 @@ ripples <- function(x, scale01=FALSE, fixed_coeff=FALSE, input_dims=2, seed=NULL
                c(1.905, 1.520, -1.533, 0.185, -1.440))
   }
   if(!fixed_coeff | input_dims != 2){
-    W <- matrix(rnorm(5*input_dims), ncol=input_dims)
+    W <- matrix(rnorm(5*input_dims, -2, 2), ncol=input_dims)
   }
 
   z <- W%*%matrix(x[1:input_dims], nrow=input_dims)

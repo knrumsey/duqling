@@ -18,7 +18,7 @@
 #' y <- apply(X, 1, squiggle)
 #' image(matrix(y, nrow=length(X)), zlim=c(-1,3.5))
 #' @export
-squiggle <- function(x, scale01=TRUE, noise = 0.05) {
+squiggle <- function(x, scale01=TRUE, sigma = 0.05) {
   dnorm(x[2], mean = sin(2 * pi * x[1] ^ 2) / 4 - x[1] / 10 + .5, sd = sigma)*x[1]*x[2]
 }
 
