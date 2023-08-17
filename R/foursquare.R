@@ -38,12 +38,17 @@ foursquare <- function(x, scale01=TRUE){
   f3 <- 8.16*a*b
 
   # func 4
-  z <- (x[1:2] - c(0.5, 0))*2
-  sh <- sharkfin(z, steps=2)
-  f4 <- (sh + 1)/2
+  #z <- (x[1:2] - c(0.5, 0))*2
+  #sh <- sharkfin(z, steps=2)
+  #f4 <- (sh + 1)/2
+  fa <- 0.33*(x[1] > 0.75)
+  fb <- 0.27*(x[1] > 0.75)*(x[2] > 0.25)
+  fc <- 0.19*(x[1] > 0.75)*(x[1] < 0.85)*(x[2] > 0.25)
+  fd <- 0.45*(x[1] > 0.5)*(x[2] < 0.5)
+  f4 <- (fa + fb + fc + fd)
 
   # Put functions togethers
-  y <- ind1*ind2*f1 + (1-ind1)*ind2*f2 + (1-ind1)*(1-ind2)*f3 + ind1*(1-ind2)*f4
+  #y <- ind1*ind2*f1 + (1-ind1)*ind2*f2 + (1-ind1)*(1-ind2)*f3 + ind1*(1-ind2)*f4
   y <- f1 + f2 + f3 + ind1*(1-ind2)*f4
   return(y)
 }
