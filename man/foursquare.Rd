@@ -4,7 +4,7 @@
 \alias{foursquare}
 \title{The Foursquare Function}
 \usage{
-foursquare(x, scale01 = TRUE)
+foursquare(x, scale01 = TRUE, ftype = "all")
 }
 \arguments{
 \item{x}{Inputs of dimension (at least) 7. See below for details.}

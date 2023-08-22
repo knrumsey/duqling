@@ -21,6 +21,8 @@ banana <- function(x, scale01=FALSE, ab=c(1, 100)){
     RR <- cbind(c(-2,-1), c(2, 3))
     x[1:2] <- x[1:2]*(RR[,2] - RR[,1]) + RR[,1]
   }
+  a <- ab[1]
+  b <- ab[2]
   z <- (a-x[1])^2 + b*(x[2]-x[1]^2)^2
   return(z)
 }
