@@ -19,13 +19,14 @@
 #' p <- 2
 #' x <- matrix(runif(p*n), nrow=n)
 #' y <- apply(x, 1, foursquare, scale01=TRUE)
-foursquare <- function(x, scale01=TRUE){
+foursquare <- function(x, scale01=TRUE, ftype="all"){
   ind1 <- x[1] > 0.5
   ind2 <- x[2] > 0.5
 
   # func 1
   mu <- matrix((x - c(0.75, 0.75)), ncol=2)
-  Sigma <- matrix(c(1, -0.5, -0.5, 1), nrow=2, byrow=TRUE)
+  #Sigma <- matrix(c(1, -0.5, -0.5, 1), nrow=2, byrow=TRUE)
+  Sigma <- matrix(c(1, 0, 0, 1), nrow=2, byrow=TRUE)
   f1 <- exp(- 30*mu%*%solve(Sigma)%*%t(mu))
 
   # func 2
@@ -43,13 +44,19 @@ foursquare <- function(x, scale01=TRUE){
   #f4 <- (sh + 1)/2
   fa <- 0.33*(x[1] > 0.75)
   fb <- 0.27*(x[1] > 0.75)*(x[2] > 0.25)
-  fc <- 0.19*(x[1] > 0.75)*(x[1] < 0.85)*(x[2] > 0.25)
-  fd <- 0.45*(x[1] > 0.5)*(x[2] < 0.5)
-  f4 <- (fa + fb + fc + fd)
+  fc <- 0.09*(x[1] > 0.75)*(x[2] > 0.25)
+  fd <- 0.10*(x[1] > 0.85)*(x[2] > 0.25)
+  fe <- 0.45*(x[1] > 0.50)*(x[2] < 0.50)
+  f4 <- (fa + fb + fc + fd + fe)
 
   # Put functions togethers
   #y <- ind1*ind2*f1 + (1-ind1)*ind2*f2 + (1-ind1)*(1-ind2)*f3 + ind1*(1-ind2)*f4
-  y <- f1 + f2 + f3 + ind1*(1-ind2)*f4
+
+  if(ftype == "all"){
+    y <- f1 + f2 + f3 + f4
+  }else{
+    y <- get(paste0("f", ftype))
+  }
   return(y)
 }
 
