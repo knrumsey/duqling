@@ -1,4 +1,4 @@
-#' duq
+#' Do UQ
 #'
 #' Call functions from duqling namespace
 #'
@@ -13,9 +13,10 @@
 #' @export
 #' @examples
 #' n <- 100
-#' p <- 10
+#' p <- 2
 #' X <- lhs::randomLHS(n, p)
-#' duq(X, borehole)
+#' f_list <- quack(input_dim=2)$fname
+#' duq(X, f_list[1])
 duq <- function(x, f, scale01=TRUE, ...){
   if(is.null(nrow(x))){
     x <- matrix(x, nrow=1)

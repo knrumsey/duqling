@@ -2,7 +2,7 @@
 % Please edit documentation in R/duq.R
 \name{duq}
 \alias{duq}
-\title{duq}
+\title{Do UQ}
 \usage{
 duq(x, f, scale01 = TRUE, ...)
 }
@@ -26,9 +26,10 @@ A shortcut for calling funtions in the duqling package
 }
 \examples{
 n <- 100
-p <- 10
+p <- 2
 X <- lhs::randomLHS(n, p)
-duq(X, borehole)
+f_list <- quack(input_dim=2)$fname
+duq(X, f_list[1])
 }
 \references{
 Surjanovic, Sonja, and Derek Bingham. "Virtual library of simulation experiments: test functions and datasets." Simon Fraser University, Burnaby, BC, Canada, accessed May 13 (2013): 2015.
