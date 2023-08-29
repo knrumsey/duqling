@@ -3,7 +3,7 @@
 #' Returns information about the functions found in this package.
 #'
 #' @param fname A string, the name of a function in this package
-#' @param input_dims a vector specifying the input dimension of the function
+#' @param input_dim a vector specifying the input dimension of the function
 #' @param input_cat logical, should functions with categorical inputs be included?
 #' @param response_type a string in the set c("all", "uni", "multi", "func") specifying which response type is requested.
 #' @param stochastic logical. Is function response stochastic?
@@ -16,15 +16,15 @@
 #' @examples
 #' quack("borehole")
 #'
-#' quack(input_dims=c(1, 2), input_cat = FALSE, response_type = "uni")
-quack <- function(fname=NULL, input_dims=NULL, input_cat=NULL, response_type=NULL, stochastic=NULL, sorted=TRUE){
-  quackquack(fname, input_dims, input_cat, response_type, stochastic, sorted)
+#' quack(input_dim=c(1, 2), input_cat = FALSE, response_type = "uni")
+quack <- function(fname=NULL, input_dim=NULL, input_cat=NULL, response_type=NULL, stochastic=NULL, sorted=TRUE){
+  quackquack(fname, input_dim, input_cat, response_type, stochastic, sorted)
 }
 
 
-quackquack <- function(fname=NULL, input_dims=NULL, input_cat=NULL, response_type=NULL, stochastic=NULL, sorted=TRUE){
+quackquack <- function(fname=NULL, input_dim=NULL, input_cat=NULL, response_type=NULL, stochastic=NULL, sorted=TRUE){
   tmp_fname <- fname
-  tmp_input_dims <- input_dims
+  tmp_input_dim <- input_dim
   tmp_input_cat <- input_cat
   tmp_response_type <- response_type
   tmp_stochastic <- stochastic
@@ -38,101 +38,101 @@ quackquack <- function(fname=NULL, input_dims=NULL, input_cat=NULL, response_typ
 
   # CREATE MASTER LIST OF FUNCTIONS
   # add function borehole
-  master_list <- data.frame(fname="borehole", input_dims=8, input_cat=FALSE, response_type="uni", stochastic="n")
+  master_list <- data.frame(fname="borehole", input_dim=8, input_cat=FALSE, response_type="uni", stochastic="n")
   # add function borehole_low_fidelity
-  new_func <- data.frame(fname="borehole_low_fidelity", input_dims=8, input_cat=FALSE, response_type="uni", stochastic="n")
+  new_func <- data.frame(fname="borehole_low_fidelity", input_dim=8, input_cat=FALSE, response_type="uni", stochastic="n")
   master_list <- rbind(master_list, new_func)
   # add functions dms
   new_func <- data.frame(fname=c("dms_simple", "dms_radial", "dms_harmonic", "dms_additive", "dms_complicated"),
-                         input_dims=rep(2, 5), input_cat=rep(FALSE, 5), response_type=rep("uni", 5), stochastic=rep("n", 5))
+                         input_dim=rep(2, 5), input_cat=rep(FALSE, 5), response_type=rep("uni", 5), stochastic=rep("n", 5))
   master_list <- rbind(master_list, new_func)
   # add function piston
-  new_func <- data.frame(fname="piston", input_dims=7, input_cat=FALSE, response_type="uni", stochastic="n")
+  new_func <- data.frame(fname="piston", input_dim=7, input_cat=FALSE, response_type="uni", stochastic="n")
   master_list <- rbind(master_list, new_func)
   # add function stochastic_piston
-  new_func <- data.frame(fname="stochastic_piston", input_dims=5, input_cat=FALSE, response_type="uni", stochastic="y")
+  new_func <- data.frame(fname="stochastic_piston", input_dim=5, input_cat=FALSE, response_type="uni", stochastic="y")
   master_list <- rbind(master_list, new_func)
   # add pollutant functions
-  new_func <- data.frame(fname=c("pollutant", "pollutant_uni"), input_dims=c(4,4), input_cat=c(FALSE, FALSE), response_type=c("func", "uni"), stochastic=c("n", "n"))
+  new_func <- data.frame(fname=c("pollutant", "pollutant_uni"), input_dim=c(4,4), input_cat=c(FALSE, FALSE), response_type=c("func", "uni"), stochastic=c("n", "n"))
   master_list <- rbind(master_list, new_func)
   # add grlee functions
-  new_func <- data.frame(fname=c("grlee1", "grlee2", "grlee6"), input_dims=c(1,2,6), input_cat=rep(FALSE,3), response_type=rep("uni",3), stochastic=rep("n", 3))
+  new_func <- data.frame(fname=c("grlee1", "grlee2", "grlee6"), input_dim=c(1,2,6), input_cat=rep(FALSE,3), response_type=rep("uni",3), stochastic=rep("n", 3))
   master_list <- rbind(master_list, new_func)
   # add lim functions
-  new_func <- data.frame(fname=c("lim_polynomial", "lim_non_polynomial"), input_dims=c(2,2), input_cat=c(FALSE, FALSE), response_type=c("uni", "uni"), stochastic=c("n", "n"))
+  new_func <- data.frame(fname=c("lim_polynomial", "lim_non_polynomial"), input_dim=c(2,2), input_cat=c(FALSE, FALSE), response_type=c("uni", "uni"), stochastic=c("n", "n"))
   master_list <- rbind(master_list, new_func)
   # add ripples function
-  new_func <- data.frame(fname="ripples", input_dims=2, input_cat = FALSE, response_type="uni", stochastic="n")
+  new_func <- data.frame(fname="ripples", input_dim=2, input_cat = FALSE, response_type="uni", stochastic="n")
   master_list <- rbind(master_list, new_func)
   # add twin_galaxies function
-  new_func <- data.frame(fname="twin_galaxies", input_dims=2, input_cat = FALSE, response_type="uni", stochastic="n")
+  new_func <- data.frame(fname="twin_galaxies", input_dim=2, input_cat = FALSE, response_type="uni", stochastic="n")
   master_list <- rbind(master_list, new_func)
   # add simple machine functions
-  new_func <- data.frame(fname=c("simple_machine", "simple_machine_cm"), input_dims=c(3, 5), input_cat = rep(FALSE,2), response_type=rep("func",2), stochastic=c("n", "n"))
+  new_func <- data.frame(fname=c("simple_machine", "simple_machine_cm"), input_dim=c(3, 5), input_cat = rep(FALSE,2), response_type=rep("func",2), stochastic=c("n", "n"))
   master_list <- rbind(master_list, new_func)
   # add ocean circ
-  new_func <- data.frame(fname="ocean_circ", input_dims=4, input_cat = FALSE, response_type="uni", stochastic="y")
+  new_func <- data.frame(fname="ocean_circ", input_dim=4, input_cat = FALSE, response_type="uni", stochastic="y")
   master_list <- rbind(master_list, new_func)
   # add squiggle function
-  new_func <- data.frame(fname="squiggle", input_dims=2, input_cat=FALSE, response_type="uni", stochastic = "n")
+  new_func <- data.frame(fname="squiggle", input_dim=2, input_cat=FALSE, response_type="uni", stochastic = "n")
   master_list <- rbind(master_list, new_func)
   # add friedman function
-  new_func <- data.frame(fname="friedman", input_dims=5, input_cat=FALSE, response_type="uni", stochastic="n")
+  new_func <- data.frame(fname="friedman", input_dim=5, input_cat=FALSE, response_type="uni", stochastic="n")
   master_list <- rbind(master_list, new_func)
-  new_func <- data.frame(fname="friedman10", input_dims=10, input_cat=FALSE, response_type="uni", stochastic="n")
+  new_func <- data.frame(fname="friedman10", input_dim=10, input_cat=FALSE, response_type="uni", stochastic="n")
   master_list <- rbind(master_list, new_func)
-  new_func <- data.frame(fname="friedman20", input_dims=20, input_cat=FALSE, response_type="uni", stochastic="n")
+  new_func <- data.frame(fname="friedman20", input_dim=20, input_cat=FALSE, response_type="uni", stochastic="n")
   master_list <- rbind(master_list, new_func)
   # add sirs model
-  new_func <- data.frame(fname="dts_sirs", input_dims=9, input_cat=FALSE, response_type="func", stochastic="y")
+  new_func <- data.frame(fname="dts_sirs", input_dim=9, input_cat=FALSE, response_type="func", stochastic="y")
   master_list <- rbind(master_list, new_func)
   # add detpep functions
   new_func <- data.frame(fname=c("detpep_curve", "detpep8", "welch20"),
-                         input_dims=c(3, 8, 20), input_cat=c(FALSE, FALSE, FALSE),
+                         input_dim=c(3, 8, 20), input_cat=c(FALSE, FALSE, FALSE),
                          response_type=rep("uni", 3), stochastic=rep("n", 3))
   master_list <- rbind(master_list, new_func)
   # add circuit model
-  new_func <- data.frame(fname="circuit", input_dims=6, input_cat=FALSE, response_type="uni", stochastic="n")
+  new_func <- data.frame(fname="circuit", input_dim=6, input_cat=FALSE, response_type="uni", stochastic="n")
   master_list <- rbind(master_list, new_func)
   # add robot model
-  new_func <- data.frame(fname="robot", input_dims=8, input_cat=FALSE, response_type="uni", stochastic="n")
+  new_func <- data.frame(fname="robot", input_dim=8, input_cat=FALSE, response_type="uni", stochastic="n")
   master_list <- rbind(master_list, new_func)
   # add wingweight model
-  new_func <- data.frame(fname="wingweight", input_dims=10, input_cat=FALSE, response_type="uni", stochastic="n")
+  new_func <- data.frame(fname="wingweight", input_dim=10, input_cat=FALSE, response_type="uni", stochastic="n")
   master_list <- rbind(master_list, new_func)
   # add constant functions
   new_func <- data.frame(fname=c("const_fn", "const_fn3", "const_fn15"),
-                         input_dims=c(1, 3, 15), input_cat=c(FALSE, FALSE, FALSE),
+                         input_dim=c(1, 3, 15), input_cat=c(FALSE, FALSE, FALSE),
                          response_type=rep("uni", 3), stochastic=rep("n", 3))
   master_list <- rbind(master_list, new_func)
   # add michalewicz model
-  new_func <- data.frame(fname="micwicz", input_dims=2, input_cat=FALSE, response_type="uni", stochastic="n")
+  new_func <- data.frame(fname="micwicz", input_dim=2, input_cat=FALSE, response_type="uni", stochastic="n")
   master_list <- rbind(master_list, new_func)
   # add vinet eos model
-  new_func <- data.frame(fname="vinet", input_dims=3, input_cat=FALSE, response_type="func", stochastic="n")
+  new_func <- data.frame(fname="vinet", input_dim=3, input_cat=FALSE, response_type="func", stochastic="n")
   master_list <- rbind(master_list, new_func)
   # add sharkfin
-  new_func <- data.frame(fname="sharkfin", input_dims=3, input_cat=FALSE, response_type="uni", stochastic="n")
+  new_func <- data.frame(fname="sharkfin", input_dim=3, input_cat=FALSE, response_type="uni", stochastic="n")
   master_list <- rbind(master_list, new_func)
   # add foursquare
-  new_func <- data.frame(fname="foursquare", input_dims=2, input_cat=FALSE, response_type="uni", stochastic="n")
+  new_func <- data.frame(fname="foursquare", input_dim=2, input_cat=FALSE, response_type="uni", stochastic="n")
   master_list <- rbind(master_list, new_func)
   # add Rosenbrocks banana
-  new_func <- data.frame(fname="banana", input_dims=2, input_cat=FALSE, response_type="uni", stochastic="n")
+  new_func <- data.frame(fname="banana", input_dim=2, input_cat=FALSE, response_type="uni", stochastic="n")
   master_list <- rbind(master_list, new_func)
 
   if(sorted){
     master_list <- master_list[order(master_list$fname),]
-    master_list <- master_list[order(master_list$input_dims),]
+    master_list <- master_list[order(master_list$input_dim),]
     rownames(master_list) <- 1:nrow(master_list)
   }
 
 
   return_list <- master_list
   #PROCESS FUNCTION DATA FRAME BASED ON REQUIREMENTS
-  if(!is.null(tmp_input_dims)){
-    tmp <- tmp_input_dims
-    return_list <- subset(return_list, subset=input_dims %in% tmp)
+  if(!is.null(tmp_input_dim)){
+    tmp <- tmp_input_dim
+    return_list <- subset(return_list, subset=input_dim %in% tmp)
   }
 
   if(!is.null(tmp_input_cat)){

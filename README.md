@@ -48,61 +48,62 @@ found with the command
 
 ``` r
 duqling::quack()
-#>                    fname input_dims input_cat response_type stochastic
-#> 1               const_fn          1     FALSE           uni          n
-#> 2                 grlee1          1     FALSE           uni          n
-#> 3           dms_additive          2     FALSE           uni          n
-#> 4        dms_complicated          2     FALSE           uni          n
-#> 5           dms_harmonic          2     FALSE           uni          n
-#> 6             dms_radial          2     FALSE           uni          n
-#> 7             dms_simple          2     FALSE           uni          n
-#> 8             foursquare          2     FALSE           uni          n
-#> 9                 grlee2          2     FALSE           uni          n
-#> 10    lim_non_polynomial          2     FALSE           uni          n
-#> 11        lim_polynomial          2     FALSE           uni          n
-#> 12               micwicz          2     FALSE           uni          n
-#> 13               ripples          2     FALSE           uni          n
-#> 14              squiggle          2     FALSE           uni          n
-#> 15         twin_galaxies          2     FALSE           uni          n
-#> 16             const_fn3          3     FALSE           uni          n
-#> 17          detpep_curve          3     FALSE           uni          n
-#> 18              sharkfin          3     FALSE           uni          n
-#> 19        simple_machine          3     FALSE          func          n
-#> 20                 vinet          3     FALSE          func          n
-#> 21            ocean_circ          4     FALSE           uni          y
-#> 22             pollutant          4     FALSE          func          n
-#> 23         pollutant_uni          4     FALSE           uni          n
-#> 24              friedman          5     FALSE           uni          n
-#> 25     simple_machine_cm          5     FALSE          func          n
-#> 26     stochastic_piston          5     FALSE           uni          y
-#> 27               circuit          6     FALSE           uni          n
-#> 28                grlee6          6     FALSE           uni          n
-#> 29                piston          7     FALSE           uni          n
-#> 30              borehole          8     FALSE           uni          n
-#> 31 borehole_low_fidelity          8     FALSE           uni          n
-#> 32               detpep8          8     FALSE           uni          n
-#> 33                 robot          8     FALSE           uni          n
-#> 34              dts_sirs          9     FALSE          func          y
-#> 35            friedman10         10     FALSE           uni          n
-#> 36            wingweight         10     FALSE           uni          n
-#> 37            const_fn15         15     FALSE           uni          n
-#> 38            friedman20         20     FALSE           uni          n
-#> 39               welch20         20     FALSE           uni          n
+#>                    fname input_dim input_cat response_type stochastic
+#> 1               const_fn         1     FALSE           uni          n
+#> 2                 grlee1         1     FALSE           uni          n
+#> 3                 banana         2     FALSE           uni          n
+#> 4           dms_additive         2     FALSE           uni          n
+#> 5        dms_complicated         2     FALSE           uni          n
+#> 6           dms_harmonic         2     FALSE           uni          n
+#> 7             dms_radial         2     FALSE           uni          n
+#> 8             dms_simple         2     FALSE           uni          n
+#> 9             foursquare         2     FALSE           uni          n
+#> 10                grlee2         2     FALSE           uni          n
+#> 11    lim_non_polynomial         2     FALSE           uni          n
+#> 12        lim_polynomial         2     FALSE           uni          n
+#> 13               micwicz         2     FALSE           uni          n
+#> 14               ripples         2     FALSE           uni          n
+#> 15              squiggle         2     FALSE           uni          n
+#> 16         twin_galaxies         2     FALSE           uni          n
+#> 17             const_fn3         3     FALSE           uni          n
+#> 18          detpep_curve         3     FALSE           uni          n
+#> 19              sharkfin         3     FALSE           uni          n
+#> 20        simple_machine         3     FALSE          func          n
+#> 21                 vinet         3     FALSE          func          n
+#> 22            ocean_circ         4     FALSE           uni          y
+#> 23             pollutant         4     FALSE          func          n
+#> 24         pollutant_uni         4     FALSE           uni          n
+#> 25              friedman         5     FALSE           uni          n
+#> 26     simple_machine_cm         5     FALSE          func          n
+#> 27     stochastic_piston         5     FALSE           uni          y
+#> 28               circuit         6     FALSE           uni          n
+#> 29                grlee6         6     FALSE           uni          n
+#> 30                piston         7     FALSE           uni          n
+#> 31              borehole         8     FALSE           uni          n
+#> 32 borehole_low_fidelity         8     FALSE           uni          n
+#> 33               detpep8         8     FALSE           uni          n
+#> 34                 robot         8     FALSE           uni          n
+#> 35              dts_sirs         9     FALSE          func          y
+#> 36            friedman10        10     FALSE           uni          n
+#> 37            wingweight        10     FALSE           uni          n
+#> 38            const_fn15        15     FALSE           uni          n
+#> 39            friedman20        20     FALSE           uni          n
+#> 40               welch20        20     FALSE           uni          n
 ```
 
 A list of all functions meeting certain criterion can be found with the
 command
 
 ``` r
-duqling::quack(input_dims=4:7, stochastic="n")
-#>                fname input_dims input_cat response_type stochastic
-#> 22         pollutant          4     FALSE          func          n
-#> 23     pollutant_uni          4     FALSE           uni          n
-#> 24          friedman          5     FALSE           uni          n
-#> 25 simple_machine_cm          5     FALSE          func          n
-#> 27           circuit          6     FALSE           uni          n
-#> 28            grlee6          6     FALSE           uni          n
-#> 29            piston          7     FALSE           uni          n
+duqling::quack(input_dim=4:7, stochastic="n")
+#>                fname input_dim input_cat response_type stochastic
+#> 23         pollutant         4     FALSE          func          n
+#> 24     pollutant_uni         4     FALSE           uni          n
+#> 25          friedman         5     FALSE           uni          n
+#> 26 simple_machine_cm         5     FALSE          func          n
+#> 28           circuit         6     FALSE           uni          n
+#> 29            grlee6         6     FALSE           uni          n
+#> 30            piston         7     FALSE           uni          n
 ```
 
 A detailed description of each function (the `borehole()` function, for
@@ -144,8 +145,10 @@ p <- 8
 X <- matrix(runif(n*p), nrow=n, ncol=p)
 
 # This is how duqling functions are generally called
-y <- apply(X, 1, 
-           duqling::borehole) # scale01 = TRUE, by default
+y <- duqling::duq(X, "borehole")
+
+# Or equivalently
+y <- apply(X, 1, duqling::borehole, scale01=TRUE) 
 ```
 
 ## Reproducible Simulation Studies
@@ -259,15 +262,9 @@ get_sim_functions_2d()       #12 functions
 
 ### To Do List
 
-1.  DONE: Modify code so that multiple methods can be run at once.
-2.  DONE: Modify code so that multiple conf_levels can be returned
-3.  DONE: Make custom seeds so that cases are always the same no matter
-    how the sim study is specified.
-4.  Add functions for plotting and making tables for output of
-    `run_sim_study()`
-5.  DONE: Add parallel capabilities (for replications only?)
-6.  Run a large comparison and store results.
-7.  Rigorous argument handling for `run_sim_study()`
+1.  Add rigorous argument handling.
+2.  Add functions to assess performance
+3.  Run/store results of a simulation study
 
 ### Copyright Notice
 

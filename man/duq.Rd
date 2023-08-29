@@ -4,12 +4,14 @@
 \alias{duq}
 \title{duq}
 \usage{
-duq(x, f, ...)
+duq(x, f, scale01 = TRUE, ...)
 }
 \arguments{
 \item{x}{An nxp matrix of inputs.}
 
-\item{f}{A function, usually from the duqling package}
+\item{f}{A string (of a function name) or a function, usually from the duqling package}
+
+\item{scale01}{When TRUE, inputs are expected on the (0, 1) scale.}
 
 \item{...}{additional functions to be passed to f}
 }
@@ -20,7 +22,7 @@ See details
 Call functions from duqling namespace
 }
 \details{
-If fname is specified, this function returns a list with the number of input dimensions and a p x 2 matrix of input ranges. If fname is not specified, then `quackquack` returns a list of function names which satisfy the requirements specified by the other inputs. If no arguments are specified, then a list of all functions is returned.
+A shortcut for calling funtions in the duqling package
 }
 \examples{
 n <- 100

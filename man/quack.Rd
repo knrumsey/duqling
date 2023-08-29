@@ -6,7 +6,7 @@
 \usage{
 quack(
   fname = NULL,
-  input_dims = NULL,
+  input_dim = NULL,
   input_cat = NULL,
   response_type = NULL,
   stochastic = NULL,
@@ -16,7 +16,7 @@ quack(
 \arguments{
 \item{fname}{A string, the name of a function in this package}
 
-\item{input_dims}{a vector specifying the input dimension of the function}
+\item{input_dim}{a vector specifying the input dimension of the function}
 
 \item{input_cat}{logical, should functions with categorical inputs be included?}
 
@@ -38,7 +38,7 @@ If fname is specified, this function returns a list with the number of input dim
 \examples{
 quack("borehole")
 
-quack(input_dims=c(1, 2), input_cat = FALSE, response_type = "uni")
+quack(input_dim=c(1, 2), input_cat = FALSE, response_type = "uni")
 }
 \references{
 Surjanovic, Sonja, and Derek Bingham. "Virtual library of simulation experiments: test functions and datasets." Simon Fraser University, Burnaby, BC, Canada, accessed May 13 (2013): 2015.

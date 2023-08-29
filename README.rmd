@@ -54,7 +54,7 @@ duqling::quack()
 
 A list of all functions meeting certain criterion can be found with the command
 ```{R, eval=TRUE}
-duqling::quack(input_dims=4:7, stochastic="n")
+duqling::quack(input_dim=4:7, stochastic="n")
 ```
 
 A detailed description of each function (the `borehole()` function, for example) can be found with the command
@@ -73,9 +73,10 @@ p <- 8
 X <- matrix(runif(n*p), nrow=n, ncol=p)
 
 # This is how duqling functions are generally called
-y <- apply(X, 1, 
-           duqling::borehole) # scale01 = TRUE, by default
+y <- duqling::duq(X, "borehole")
 
+# Or equivalently
+y <- apply(X, 1, duqling::borehole, scale01=TRUE) 
 ```
 
 ## Reproducible Simulation Studies
@@ -167,7 +168,6 @@ get_sim_functions_medium()   #20 functions
 get_sim_functions_short()    #10 functions
 get_sim_functions_tiny()     #4  functions
 get_sim_functions_2d()       #12 functions
-
 ```
 
 
