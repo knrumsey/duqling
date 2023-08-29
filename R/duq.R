@@ -24,5 +24,5 @@ duq <- function(x, f, scale01=TRUE, ...){
   if(is.character(f)){
     f <- get(f)
   }
-  apply(x, 1, f, ...)
+  apply(x, 1, f, scale01=scale01, ...)
 }
