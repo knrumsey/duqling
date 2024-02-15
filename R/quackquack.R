@@ -120,12 +120,43 @@ quackquack <- function(fname=NULL, input_dim=NULL, input_cat=NULL, response_type
   # add Rosenbrocks banana
   new_func <- data.frame(fname="banana", input_dim=2, input_cat=FALSE, response_type="uni", stochastic="n")
   master_list <- rbind(master_list, new_func)
+  # add ishigami function
+  new_func <- data.frame(fname="ishigami", input_dim=3, input_cat=FALSE, response_type="uni", stochastic="n")
+  master_list <- rbind(master_list, new_func)
 
   if(sorted){
     master_list <- master_list[order(master_list$fname),]
     master_list <- master_list[order(master_list$input_dim),]
     rownames(master_list) <- 1:nrow(master_list)
   }
+
+  ## Add noise levels
+  recompute_noise <- FALSE
+  if(recompute_noise){
+    tab <- master_list
+    Nsims <- 1000
+    X <- lhs::randomLHS(Nsims, 20)
+    noise_vec <- rep(NA, nrow(tab))
+    for(i in 1:nrow(tab)){
+      fname <- tab$fname[i]
+      ff <- get(fname, envir=asNamespace("duqling"))
+      tmp <- get(paste0("quackquack_", fname), envir=asNamespace("duqling"))
+      if(tmp()$response_type == "uni"){
+        XX <- X[,1:tmp()$input_dim, drop=FALSE]
+        y <- apply(XX, 1, ff, scale01=TRUE)
+        noise_vec[i] <- sd(y)
+      }
+    }
+    master_list$noise <- round(noise_vec, 4)
+  }else{
+    #for(i in 1:length(noise_vec)) cat(noise_vec[i], ", ")
+    noise_vec <- c(0 , 1.305591 , 382.8365 , 0.9990205 , 1.000312 , 0.8914117 , 0.9676698 , 0.9584453 , 0.3778348 , 0.0797625 , 1.953745 , 1.656121 , 0.3556549 , 0.07766645 , 0.5170478 , 1.014202 , 0 , 36.0843 , 3.614111 , 0.2919366 , NA , NA , 13.7329 , NA , 0.8356449 , 4.85332 , NA , 0.1364493 , 1.145048 , 0.7317478 , 0.1363301 , 113.339 , 90.19176 , 36.56249 , 0.5527308 , NA , 4.85332 , 48.75375 , 0 , 4.85332 , 2.226949)
+    master_list$noise <- round(noise_vec, 4)
+  }
+
+
+
+
 
 
   return_list <- master_list
@@ -155,6 +186,11 @@ quackquack <- function(fname=NULL, input_dim=NULL, input_cat=NULL, response_type
     return(return_list)
   }
 }
+
+
+
+
+
 
 
 

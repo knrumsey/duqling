@@ -56,7 +56,7 @@ dts_sirs <- function(x, scale01=TRUE, Tf=90, N0= 1000){
 }
 
 
-quackquack_friedman <- function(){
+quackquack_dts_sirs <- function(){
   out <- list(input_dim=5)
   out$input_cat <- FALSE
   out$response_type <- c("mult")
