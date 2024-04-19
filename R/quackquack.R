@@ -123,6 +123,9 @@ quackquack <- function(fname=NULL, input_dim=NULL, input_cat=NULL, response_type
   # add ishigami function
   new_func <- data.frame(fname="ishigami", input_dim=3, input_cat=FALSE, response_type="uni", stochastic="n")
   master_list <- rbind(master_list, new_func)
+  # add simple poly
+  new_func <- data.frame(fname="simple_poly", input_dim=2, input_cat=FALSE, response_type="uni", stochastic="n")
+  master_list <- rbind(master_list, new_func)
 
   if(sorted){
     master_list <- master_list[order(master_list$fname),]
@@ -148,9 +151,10 @@ quackquack <- function(fname=NULL, input_dim=NULL, input_cat=NULL, response_type
       }
     }
     master_list$noise <- round(noise_vec, 4)
+    for(i in 1:length(noise_vec)) cat(noise_vec[i], ", ")
+    return(TRUE)
   }else{
-    #for(i in 1:length(noise_vec)) cat(noise_vec[i], ", ")
-    noise_vec <- c(0 , 1.305591 , 382.8365 , 0.9990205 , 1.000312 , 0.8914117 , 0.9676698 , 0.9584453 , 0.3778348 , 0.0797625 , 1.953745 , 1.656121 , 0.3556549 , 0.07766645 , 0.5170478 , 1.014202 , 0 , 36.0843 , 3.614111 , 0.2919366 , NA , NA , 13.7329 , NA , 0.8356449 , 4.85332 , NA , 0.1364493 , 1.145048 , 0.7317478 , 0.1363301 , 113.339 , 90.19176 , 36.56249 , 0.5527308 , NA , 4.85332 , 48.75375 , 0 , 4.85332 , 2.226949)
+    noise_vec <- c(0 , 1.305875 , 360.2585 , 1.006089 , 1.00005 , 0.9132416 , 1.009811 , 0.9707915 , 0.3843342 , 0.08473954 , 1.91615 , 1.633466 , 0.354706 , 0.0797161 , 0.4775317 , 0.5098403 , 1.011876 , 0 , 35.84058 , 3.721238 , 0.2873336 , NA , NA , 13.5659 , NA , 0.8257302 , 4.857915 , NA , 0.1355501 , 1.174008 , 0.7268092 , 0.1357079 , 112.6912 , 89.67627 , 36.31331 , 0.5275391 , NA , 4.857915 , 46.78881 , 0 , 4.857915 , 2.089928)
     master_list$noise <- round(noise_vec, 4)
   }
 
