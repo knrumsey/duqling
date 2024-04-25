@@ -10,6 +10,8 @@ foursquare(x, scale01 = TRUE, ftype = "all")
 \item{x}{Inputs of dimension (at least) 7. See below for details.}
 
 \item{scale01}{When TRUE, inputs are expected to be given on unit interval and are internally adjusted to their native range. Default is FALSE}
+
+\item{ftype}{default is "all". Can also set to 1,2,3 or 4 to activate just one of the four functions.}
 }
 \value{
 The response C is cycle time (the time it takes to complete one cycle), in seconds

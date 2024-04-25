@@ -13,7 +13,7 @@ get_sim_functions_full <- function(){
 #' @rdname get_funcs
 #' @export
 get_sim_functions_2d <- function(){
-  quack(input_cat = FALSE, response_type="uni", stochastic="n", input_dims=2)$fname
+  quack(input_cat = FALSE, response_type="uni", stochastic="n", input_dim=2)$fname
 }
 #' @rdname get_funcs
 #' @export

@@ -7,6 +7,7 @@
 #' @param ncol number of colors used in plot
 #' @param pal palette passed to hcl.colors
 #' @param dims length must be 2. Which dimensions should be plotted?
+#' @param ... additional arguments passed to function.
 #' @return A figure
 #' @details Plots 2 dimensions of a specified test functions
 #' @export

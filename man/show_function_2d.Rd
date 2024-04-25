@@ -16,6 +16,8 @@ show_function_2d(fname, nx = 201, ncol = 100, pal = "terrain", dims = 1:2, ...)
 \item{pal}{palette passed to hcl.colors}
 
 \item{dims}{length must be 2. Which dimensions should be plotted?}
+
+\item{...}{additional arguments passed to function.}
 }
 \value{
 A figure

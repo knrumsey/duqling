@@ -40,7 +40,7 @@
 #' run_sim_study(my_fit, my_pred,
 #'    fnames=get_sim_functions_tiny(),
 #'    n_train=50)
-run_sim_study <- quack_off <- function(my_fit, my_pred=NULL,
+run_sim_study <- function(my_fit, my_pred=NULL,
                           fnames=quack(input_dims = 1)$fname,
                           interval=TRUE,
                           n_train = 100,
@@ -59,15 +59,12 @@ run_sim_study <- quack_off <- function(my_fit, my_pred=NULL,
       method_names <- names(my_fit)
   }
 
-
-
-
-
   DF_full <- NULL
   for(ff in seq_along(fnames)){
     fn <- fnames[ff]
     p <- quack(fn)$input_dim
-    fnum <- which(fn == quack(sorted=FALSE)$fname)
+    #fnum <- which(fn == quack(sorted=FALSE)$fname)
+    fnum <- str2num(fn)
     if(verbose) cat("Starting function ", ff, "/", length(fnames), ": ", fn, "\n", sep="")
     for(ii in seq_along(n_train)){
       n <- n_train[ii]
@@ -129,6 +126,10 @@ expand_grid <- function(xx, k){
   return(X)
 }
 
+str2num <- function(str){
+  sum((1:nchar(str))*as.numeric(unlist(iconv(str, to="ASCII", toRaw=TRUE))))
+}
+
 rmsef <- function(x, y){
   sqrt(mean((x-y)^2))
 }
@@ -149,9 +150,6 @@ transform_seed <- function(seed, n, dt, NSR, fnum, rr){
  ss <- ss %% 100030001
  return(ss)
 }
-
-
-
 
 run_one_sim_case <- function(rr, seed, fn, fnum, p, n, nsr, dsgn, n_test, conf_level, interval, method_names, my_fit, my_pred, verbose){
     # Generate training data
@@ -191,11 +189,9 @@ run_one_sim_case <- function(rr, seed, fn, fnum, p, n, nsr, dsgn, n_test, conf_l
     y_train <- y_train + rnorm(n, 0, noise_lvl)
     y_test <- apply(X_test, 1, f, scale01=TRUE) # no noise for testing data
 
-
-
-    #' ==================================================
-    #' Fit models
-    #' ==================================================
+    # ==================================================
+    # Fit models
+    # ==================================================
     for(ii in seq_along(my_fit)){
       my_method <- ifelse(is.null(method_names[ii]), paste0("method", ii), method_names[ii])
       #browser()
