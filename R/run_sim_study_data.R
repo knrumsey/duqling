@@ -5,9 +5,8 @@
 #' @param my_fit If \code{my_pred} is specified, then \code{my_fit} should take two arguments called \code{X_train} and \code{y_train}, and should return a fitted model object which will be passed to \code{my_pred}. Otherwise, \code{my_fit} should take a third and fourth argument, \code{X_test, conf_level}, and should return predictions as specified below.
 #' @param my_pred A function taking three arguments, the object returned by \code{my_fit}, \code{X_test} and a confidence level \code{alpha} (if coverage is a desired metric, \code{interval = TRUE}). If coverage is to be computed, \code{my_pred} should return a matrix with columns names c("preds", "lb", "ub"). Otherwise, it should return a vector of predictions.
 #' @param dnames A vector of dataset names from the \code{duqling} package. See \code{data_quack()} for details.
-#' @param interval Do we track interval estimates (or just point estimates)?
 #' @param folds Number of folds in cross validation. Can be a scalar or a vector (with \code{length(folds) == length(dnames)}).
-#' @param replications How many replications should be repeated for each data set?
+#' @param interval Do we track interval estimates (or just point estimates)?
 #' @param seed Seed for random number generators. For reproducibility, we discourage the use of this argument.
 #' @param conf_level Confidence level for interval estimates. If \code{length(conf_level) > 1}, then \code{my_pred} should return a matrix with \code{1 + 2*length(conf_level)} columns, with 2 columns of lower and upper bounds for each value in \code{conf_}
 #' @param method_names A vector of method names, length equal to \code{length(my_fit)}. If NULL, the indexed names \code{my_method<i>} will be used.
@@ -39,9 +38,8 @@
 #'    folds=c(5, 10))
 run_sim_study_data <- function(my_fit, my_pred=NULL,
                           dnames=c("strontium_plume_p104", "pbx9501_gold"),
-                          interval=TRUE,
                           folds=20,
-                          replications = 1,
+                          interval=TRUE,
                           seed = 42,
                           conf_level = 0.95,
                           method_names=NULL,

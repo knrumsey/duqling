@@ -19,12 +19,17 @@ get_UQdata <- function(dname, control=list()){
     data <- read.table(url, header=TRUE)
     return(data)
   }
-
   if(dname == "pbx9501"){
     url <- "https://dataverse.harvard.edu/api/access/datafile/10223920"
     data <- read.table(url, header=TRUE)
     return(data)
   }
+  if(dname == "stochastic_sir"){
+    url <- "https://dataverse.harvard.edu/api/access/datafile/10228544"
+    data <- read.table(url, header=TRUE)
+    return(data)
+  }
+
   warning("Found no dataset by that name")
   return(FALSE)
 }
@@ -86,6 +91,12 @@ get_emulation_data <- function(dname){
     res$y <- tmp$v5
     return(res)
   }
+  if(dname == "stochastic_sir"){
+    tmp <- get_UQdata("stochastic_sir")
+    res$X <- tmp[,-1]
+    res$y <- tmp[,1]
+    return(res)
+  }
 
   warning("Found no dataset by that name")
   return(FALSE)
@@ -111,7 +122,7 @@ get_emulation_data <- function(dname){
 #'
 #' tab <- data_quack(raw=FALSE)
 #' get_emulation_data(tab$dname[1])
-data_quack <- function(raw=TRUE, dname=NULL, input_dim=NULL, input_cat_dim=NULL, n=NULL, output_dim=NULL){
+data_quack <- function(raw=FALSE, dname=NULL, input_dim=NULL, input_cat_dim=NULL, n=NULL, output_dim=NULL){
   if(raw){
     data_quack_raw(dname)
   }else{
@@ -136,7 +147,14 @@ data_quack_emulator <- function(dname, input_dim=NULL, input_cat_dim=NULL, n=NUL
   tmp <- data.frame(dname="pbx9501_uranium", input_dim=6, input_cat_dim=0, n=500)
   tab <- rbind(tab, tmp)
 
+  tmp <- data.frame(dname="stochastic_sir", input_dim=4, input_cat_dim=0, n=2000)
+  tab <- rbind(tab, tmp)
+
+
+
   # Subset the master table
+  ord <- order(tab$input_dim)
+  tab <- tab[ord,]
   res <- tab
   if(!is.null(dname)){
     tmp <- dname
@@ -167,8 +185,13 @@ data_quack_raw <- function(dname=NULL, input_dim=NULL, output_dim=NULL, n=NULL, 
   tmp <- data.frame(dname="pbx9501", input_dim=6, output_dim=10, n=7000, input_cat_dim=1)
   tab <- rbind(tab, tmp)
 
+  tmp <- data.frame(dname="stochastic_sir", input_dim=4, output_dim=1, n=2000, input_cat_dim=0)
+  tab <- rbind(tab, tmp)
+
 
   # Subset the master table
+  ord <- order(tab$input_dim)
+  tab <- tab[ord,]
   res <- tab
   if(!is.null(dname)){
     tmp <- dname
@@ -194,6 +217,10 @@ data_quack_raw <- function(dname=NULL, input_dim=NULL, output_dim=NULL, n=NULL, 
 }
 
 
-
+# Workflow
+# Add data to UQDataverse (harvard)
+# Add data read to get_UQdata
+# Add wrappers for get_emulation_data
+# Add function info to both data_quack_raw() and data_quack_emulation().
 
 

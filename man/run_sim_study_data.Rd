@@ -8,9 +8,8 @@ run_sim_study_data(
   my_fit,
   my_pred = NULL,
   dnames = c("strontium_plume_p104", "pbx9501_gold"),
-  interval = TRUE,
   folds = 20,
-  replications = 1,
+  interval = TRUE,
   seed = 42,
   conf_level = 0.95,
   method_names = NULL,
@@ -25,11 +24,9 @@ run_sim_study_data(
 
 \item{dnames}{A vector of dataset names from the \code{duqling} package. See \code{data_quack()} for details.}
 
-\item{interval}{Do we track interval estimates (or just point estimates)?}
-
 \item{folds}{Number of folds in cross validation. Can be a scalar or a vector (with \code{length(folds) == length(dnames)}).}
 
-\item{replications}{How many replications should be repeated for each data set?}
+\item{interval}{Do we track interval estimates (or just point estimates)?}
 
 \item{seed}{Seed for random number generators. For reproducibility, we discourage the use of this argument.}
 

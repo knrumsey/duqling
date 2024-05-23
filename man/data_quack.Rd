@@ -5,7 +5,7 @@
 \title{Get UQ data for emulation}
 \usage{
 data_quack(
-  raw = TRUE,
+  raw = FALSE,
   dname = NULL,
   input_dim = NULL,
   input_cat_dim = NULL,
