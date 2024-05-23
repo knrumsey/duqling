@@ -98,7 +98,7 @@ run_sim_study <- function(my_fit, my_pred=NULL,
           }else{
             DF_full <- rbind(DF_full, DF_curr)
           }
-                }
+        }
       }
     }
   }
