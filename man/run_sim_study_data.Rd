@@ -7,7 +7,7 @@
 run_sim_study_data(
   my_fit,
   my_pred = NULL,
-  dnames = c("strontium_plume_p104", "pbx9501_gold"),
+  dnames = get_sim_data_tiny(),
   folds = 20,
   interval = TRUE,
   seed = 42,

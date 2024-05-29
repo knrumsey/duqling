@@ -20,16 +20,19 @@ This logo was designed by Imagine AI Art Studio
 
 The `duqling` R package contains a wide variety of test functions for
 UQ. The goal of `duqling` is to facilitate reproducible UQ research by
-providing a large number of popular test functions which
+providing a large number of test functions, datasets, and automated
+simulation studies. The main functionality of `duqling` includes.
 
-1.  Can be called quickly and easily in the exact same manner every time
-2.  Allow for inputs to be generated on the unit hyper-rectangel. All
-    `duqling` functions have (optional) internal scaling.
-
-Additionally, the package provides a `run_simulation_study()` function
-which makes it easy to perform simulation studies for emulators (or
-non-linear regressors). This package makes it easier than ever to
-compare the performance on methods, even across papers!
+1.  A large library of test functions (see `quack()` function) with
+    consistent usage and (optional) internal scaling which allows for
+    inputs to be generated on the unit hyper-rectangle.
+2.  A large library of UQ datasets (see `data_quack()` function) which
+    are stored in the affiliated
+    [UQDataverse](https://dataverse.harvard.edu/dataverse/UQdataverse/).
+3.  Automated simulation studies for emulation (see `run_sim_study()`
+    for test functions and `run_sim_study_data()` for datasets) which
+    internally generates unique random seeds, allowing for direct
+    comparison of results across papers and time.
 
 ## Installation
 
@@ -48,47 +51,49 @@ found with the command
 
 ``` r
 duqling::quack()
-#>                    fname input_dim input_cat response_type stochastic
-#> 1               const_fn         1     FALSE           uni          n
-#> 2                 grlee1         1     FALSE           uni          n
-#> 3                 banana         2     FALSE           uni          n
-#> 4           dms_additive         2     FALSE           uni          n
-#> 5        dms_complicated         2     FALSE           uni          n
-#> 6           dms_harmonic         2     FALSE           uni          n
-#> 7             dms_radial         2     FALSE           uni          n
-#> 8             dms_simple         2     FALSE           uni          n
-#> 9             foursquare         2     FALSE           uni          n
-#> 10                grlee2         2     FALSE           uni          n
-#> 11    lim_non_polynomial         2     FALSE           uni          n
-#> 12        lim_polynomial         2     FALSE           uni          n
-#> 13               micwicz         2     FALSE           uni          n
-#> 14               ripples         2     FALSE           uni          n
-#> 15              squiggle         2     FALSE           uni          n
-#> 16         twin_galaxies         2     FALSE           uni          n
-#> 17             const_fn3         3     FALSE           uni          n
-#> 18          detpep_curve         3     FALSE           uni          n
-#> 19              sharkfin         3     FALSE           uni          n
-#> 20        simple_machine         3     FALSE          func          n
-#> 21                 vinet         3     FALSE          func          n
-#> 22            ocean_circ         4     FALSE           uni          y
-#> 23             pollutant         4     FALSE          func          n
-#> 24         pollutant_uni         4     FALSE           uni          n
-#> 25              friedman         5     FALSE           uni          n
-#> 26     simple_machine_cm         5     FALSE          func          n
-#> 27     stochastic_piston         5     FALSE           uni          y
-#> 28               circuit         6     FALSE           uni          n
-#> 29                grlee6         6     FALSE           uni          n
-#> 30                piston         7     FALSE           uni          n
-#> 31              borehole         8     FALSE           uni          n
-#> 32 borehole_low_fidelity         8     FALSE           uni          n
-#> 33               detpep8         8     FALSE           uni          n
-#> 34                 robot         8     FALSE           uni          n
-#> 35              dts_sirs         9     FALSE          func          y
-#> 36            friedman10        10     FALSE           uni          n
-#> 37            wingweight        10     FALSE           uni          n
-#> 38            const_fn15        15     FALSE           uni          n
-#> 39            friedman20        20     FALSE           uni          n
-#> 40               welch20        20     FALSE           uni          n
+#>                    fname input_dim input_cat response_type stochastic    noise
+#> 1               const_fn         1     FALSE           uni          n   0.0000
+#> 2                 grlee1         1     FALSE           uni          n   1.3059
+#> 3                 banana         2     FALSE           uni          n 360.2585
+#> 4           dms_additive         2     FALSE           uni          n   1.0061
+#> 5        dms_complicated         2     FALSE           uni          n   1.0001
+#> 6           dms_harmonic         2     FALSE           uni          n   0.9132
+#> 7             dms_radial         2     FALSE           uni          n   1.0098
+#> 8             dms_simple         2     FALSE           uni          n   0.9708
+#> 9             foursquare         2     FALSE           uni          n   0.3843
+#> 10                grlee2         2     FALSE           uni          n   0.0847
+#> 11    lim_non_polynomial         2     FALSE           uni          n   1.9162
+#> 12        lim_polynomial         2     FALSE           uni          n   1.6335
+#> 13               micwicz         2     FALSE           uni          n   0.3547
+#> 14               ripples         2     FALSE           uni          n   0.0797
+#> 15           simple_poly         2     FALSE           uni          n   0.4775
+#> 16              squiggle         2     FALSE           uni          n   0.5098
+#> 17         twin_galaxies         2     FALSE           uni          n   1.0119
+#> 18             const_fn3         3     FALSE           uni          n   0.0000
+#> 19          detpep_curve         3     FALSE           uni          n  35.8406
+#> 20              ishigami         3     FALSE           uni          n   3.7212
+#> 21              sharkfin         3     FALSE           uni          n   0.2873
+#> 22        simple_machine         3     FALSE          func          n       NA
+#> 23                 vinet         3     FALSE          func          n       NA
+#> 24            ocean_circ         4     FALSE           uni          y  13.5659
+#> 25             pollutant         4     FALSE          func          n       NA
+#> 26         pollutant_uni         4     FALSE           uni          n   0.8257
+#> 27              friedman         5     FALSE           uni          n   4.8579
+#> 28     simple_machine_cm         5     FALSE          func          n       NA
+#> 29     stochastic_piston         5     FALSE           uni          y   0.1356
+#> 30               circuit         6     FALSE           uni          n   1.1740
+#> 31                grlee6         6     FALSE           uni          n   0.7268
+#> 32                piston         7     FALSE           uni          n   0.1357
+#> 33              borehole         8     FALSE           uni          n 112.6912
+#> 34 borehole_low_fidelity         8     FALSE           uni          n  89.6763
+#> 35               detpep8         8     FALSE           uni          n  36.3133
+#> 36                 robot         8     FALSE           uni          n   0.5275
+#> 37              dts_sirs         9     FALSE          func          y       NA
+#> 38            friedman10        10     FALSE           uni          n   4.8579
+#> 39            wingweight        10     FALSE           uni          n  46.7888
+#> 40            const_fn15        15     FALSE           uni          n   0.0000
+#> 41            friedman20        20     FALSE           uni          n   4.8579
+#> 42               welch20        20     FALSE           uni          n   2.0899
 ```
 
 A list of all functions meeting certain criterion can be found with the
@@ -96,14 +101,14 @@ command
 
 ``` r
 duqling::quack(input_dim=4:7, stochastic="n")
-#>                fname input_dim input_cat response_type stochastic
-#> 23         pollutant         4     FALSE          func          n
-#> 24     pollutant_uni         4     FALSE           uni          n
-#> 25          friedman         5     FALSE           uni          n
-#> 26 simple_machine_cm         5     FALSE          func          n
-#> 28           circuit         6     FALSE           uni          n
-#> 29            grlee6         6     FALSE           uni          n
-#> 30            piston         7     FALSE           uni          n
+#>                fname input_dim input_cat response_type stochastic  noise
+#> 25         pollutant         4     FALSE          func          n     NA
+#> 26     pollutant_uni         4     FALSE           uni          n 0.8257
+#> 27          friedman         5     FALSE           uni          n 4.8579
+#> 28 simple_machine_cm         5     FALSE          func          n     NA
+#> 30           circuit         6     FALSE           uni          n 1.1740
+#> 31            grlee6         6     FALSE           uni          n 0.7268
+#> 32            piston         7     FALSE           uni          n 0.1357
 ```
 
 A detailed description of each function (the `borehole()` function, for
@@ -240,7 +245,7 @@ arguments will be run for `replications` replications.
 An example call would be
 
 ``` r
-my_data <- run_sim_study(my_fit, my_pred,
+results <- run_sim_study(my_fit, my_pred,
                          fnames = c("dms_additive", "borehole", "welch20"),
                          interval = TRUE,
                          n_train = c(100, 500),
@@ -260,11 +265,65 @@ get_sim_functions_tiny()     #4  functions
 get_sim_functions_2d()       #12 functions
 ```
 
-### To Do List
+## Datasets and duqling
 
-1.  Add rigorous argument handling.
-2.  Add functions to assess performance
-3.  Run/store results of a simulation study
+All data sets are hosted at our affiliated
+[UQDataverse](https://dataverse.harvard.edu/dataverse/UQdataverse/). For
+a full list of the unprocessed datasets, type
+
+``` r
+duqling::data_quack(raw=TRUE)
+#>             dname input_dim output_dim      n input_cat_dim
+#> 4            e3sm         2          1  48602             1
+#> 3  stochastic_sir         4          1   2000             0
+#> 2         pbx9501         6         10   7000             1
+#> 1 strontium_plume        20         10    300             0
+#> 5    fair_climate        46          1 168168             1
+```
+
+Some datasets have been processed for univariate emulation. These can be
+found with the command
+
+``` r
+duqling::data_quack()
+#>                             dname input_dim input_cat_dim     n
+#> 8                            e3sm         2             0 48602
+#> 7                  stochastic_sir         4             0  2000
+#> 3                    pbx9501_gold         6             0   500
+#> 4                   pbx9501_ss304         6             0   500
+#> 5                  pbx9501_nickel         6             0   500
+#> 6                 pbx9501_uranium         6             0   500
+#> 1             strontium_plume_p4b        20             0   300
+#> 2            strontium_plume_p104        20             0   300
+#> 12 fair_climate_ssp1-2.6_year2200        45             0  1001
+#> 13 fair_climate_ssp2-4.5_year2200        45             0  1001
+#> 14 fair_climate_ssp3-7.0_year2200        45             0  1001
+#> 9           fair_climate_ssp1-2.6        46             0 56056
+#> 10          fair_climate_ssp2-4.5        46             0 56056
+#> 11          fair_climate_ssp3-7.0        46             0 56056
+```
+
+Raw datasets can be read (via the internet) with the function
+`get_UQ_data()` and the processed data with the function
+`get_emulation_data()`. For example,
+
+``` r
+data <- duqling::get_UQ_data("strontium_plume")
+
+data <- duqling::get_emulation_data("strontium_plume_p4b")
+X <- data$X
+y <- data$y
+```
+
+Akin to the `run_sim_study()` function, automated simulation studies can
+be run with cross-validation using the datasets in duqling. See the
+previous section on simulation studies for details.
+
+``` r
+results <- run_sim_study_data(my_fit, my_pred,
+                dnames=c("pbx9501_gold", "strontium_plume_p104"),
+                folds=c(5, 10))
+```
 
 ### Copyright Notice
 

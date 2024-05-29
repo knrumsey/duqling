@@ -28,12 +28,12 @@ knitr::include_graphics("inst/logos/DUQLING.png")
 
 ### Description 
 
-The `duqling` R package contains a wide variety of test functions for UQ. The goal of `duqling` is to facilitate reproducible UQ research by providing a large number of popular test functions which
+The `duqling` R package contains a wide variety of test functions for UQ. The goal of `duqling` is to facilitate reproducible UQ research by providing a large number of test functions, datasets, and automated simulation studies. The main functionality of `duqling` includes.
 
-   1. Can be called quickly and easily in the exact same manner every time
-   2. Allow for inputs to be generated on the unit hyper-rectangel. All `duqling` functions have (optional) internal scaling.
-   
-Additionally, the package provides a `run_simulation_study()` function which makes it easy to perform simulation studies for emulators (or non-linear regressors). This package makes it easier than ever to compare the performance on methods, even across papers! 
+   1. A large library of test functions (see `quack()` function) with consistent usage and (optional) internal scaling which allows for inputs to be generated on the unit hyper-rectangle.
+   2. A large library of UQ datasets (see `data_quack()` function) which are stored in the affiliated [UQDataverse](https://dataverse.harvard.edu/dataverse/UQdataverse/).
+   3. Automated simulation studies for emulation (see `run_sim_study()` for test functions and `run_sim_study_data()` for datasets) which internally generates unique random seeds, allowing for direct comparison of results across papers and time. 
+
 
 ## Installation
 
@@ -151,7 +151,7 @@ When `run_sim_study` is called, each combination of the following arguments will
    
 An example call would be
 ```{R, eval=FALSE}
-my_data <- run_sim_study(my_fit, my_pred,
+results <- run_sim_study(my_fit, my_pred,
                          fnames = c("dms_additive", "borehole", "welch20"),
                          interval = TRUE,
                          n_train = c(100, 500),
@@ -171,11 +171,35 @@ get_sim_functions_2d()       #12 functions
 ```
 
 
-### To Do List
+## Datasets and duqling
 
-   1. Add rigorous argument handling.
-   2. Add functions to assess performance
-   3. Run/store results of a simulation study
+All data sets are hosted at our affiliated [UQDataverse](https://dataverse.harvard.edu/dataverse/UQdataverse/). For a full list of the unprocessed datasets, type
+```{R, eval=TRUE}
+duqling::data_quack(raw=TRUE)
+```
+
+Some datasets have been processed for univariate emulation. These can be found with the command
+```{R, eval=TRUE}
+duqling::data_quack()
+```
+
+Raw datasets can be read (via the internet) with the function `get_UQ_data()` and the processed data with the function `get_emulation_data()`. For example,
+```{R, eval=FALSE}
+data <- duqling::get_UQ_data("strontium_plume")
+
+data <- duqling::get_emulation_data("strontium_plume_p4b")
+X <- data$X
+y <- data$y
+```
+
+Akin to the `run_sim_study()` function, automated simulation studies can be run with cross-validation using the datasets in duqling. See the previous section on simulation studies for details. 
+```{R, eval=FALSE}
+results <- run_sim_study_data(my_fit, my_pred,
+                dnames=c("pbx9501_gold", "strontium_plume_p104"),
+                folds=c(5, 10))
+```
+
+
 
 ### Copyright Notice
 
