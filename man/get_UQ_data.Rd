@@ -7,9 +7,9 @@
 get_UQ_data(dname, control = list())
 }
 \arguments{
-\item{control}{A list of control variables (currently not used)}
+\item{dname}{String. Name of dataset (see documentation)}
 
-\item{name}{String. Name of dataset (see documentation)}
+\item{control}{A list of control variables (currently not used)}
 }
 \value{
 Data frame

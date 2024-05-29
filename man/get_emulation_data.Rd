@@ -7,7 +7,7 @@
 get_emulation_data(dname)
 }
 \arguments{
-\item{name}{String. Name of dataset (see documentation)}
+\item{dname}{String. Name of dataset (see documentation)}
 }
 \value{
 A list with elements `y` (a univariate response) and `X` (a matrix of inputs).
