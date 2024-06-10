@@ -2,18 +2,17 @@
 #'
 #' Reproducible code for simulation studies.
 #'
-#' @param my_fit If \code{my_pred} is specified, then \code{my_fit} should take two arguments called \code{X_train} and \code{y_train}, and should return a fitted model object which will be passed to \code{my_pred}. Otherwise, \code{my_fit} should take a third and fourth argument, \code{X_test, conf_level}, and should return predictions as specified below.
-#' @param my_pred A function taking three arguments, the object returned by \code{my_fit}, \code{X_test} and a confidence level \code{alpha} (if coverage is a desired metric, \code{interval = TRUE}). If coverage is to be computed, \code{my_pred} should return a matrix with columns names c("preds", "lb", "ub"). Otherwise, it should return a vector of predictions.
+#' @param fit_func If \code{pred_func} is specified, the \code{fit_func} should take two arguments called \code{X_train} and \code{y_train}, and should return an object which will be passed to \code{pred_func}. If \code{pred_func} is NOT specified, then \code{fit_func} should take a third argument called \code{X_test}, and should return a named list as specified below.
+#' @param pred_func A function taking two arguments: (i) the object returned by \code{fit_func} and a matrix \code{X_test}. The function should return a named list with possible fields: \code{preds} (a n-vector), \code{intervals} (an nx2xk array of bounds, where k is \code{length(conf_level)}), and \code{samples} (a nxm matrix).
 #' @param fnames A vector of function names from the \code{duqling} package. See \code{quack()} for details.
-#' @param interval Do we track interval estimates (or just point estimates)?
+#' @param conf_level A vector of confidence levels. When specified, \code{pred_func()} must contain the field \code{intervals}.
 #' @param n_train the sample size (or vector of sample sizes) for each training set
 #' @param n_test the sample size for each testing set
 #' @param NSR the noise to signal ratio (inverse of the more-standard signal to noise ratio).
 #' @param design_type How should the training and testing designs be generated? Options are "LHS", "grid" and "random"
 #' @param replications How many replications should be repeated for each data set?
 #' @param seed Seed for random number generators. For reproducibility, we discourage the use of this argument.
-#' @param conf_level Confidence level for interval estimates. If \code{length(conf_level) > 1}, then \code{my_pred} should return a matrix with \code{1 + 2*length(conf_level)} columns, with 2 columns of lower and upper bounds for each value in \code{conf_}
-#' @param method_names A vector of method names, length equal to \code{length(my_fit)}. If NULL, the indexed names \code{my_method<i>} will be used.
+#' @param method_names A vector of method names, length equal to \code{length(fit_func)}. If NULL, the indexed names \code{my_method<i>} will be used.
 #' @param mc_cores How many cores to use for parallelization over replications.
 #' @param verbose should progress be reported?
 #' @return See details
@@ -24,11 +23,11 @@
 #' @examples
 #' library(BASS)
 #'
-#' my_fit <- function(X, y){
+#' fit_func <- function(X, y){
 #'   bass(X, y, g1=0.001, g2=0.001)
 #' }
 #'
-#' my_pred <- function(obj, Xt, conf_level=0.95){
+#' pred_func <- function(obj, Xt, conf_level=0.95){
 #'   alpha <- 1 - conf_level
 #'   preds <- predict(obj, Xt)
 #'   yhat <- apply(preds, 2, mean)
@@ -37,26 +36,25 @@
 #'   return(res)
 #' }
 #'
-#' run_sim_study(my_fit, my_pred,
+#' run_sim_study(fit_func, pred_func,
 #'    fnames=get_sim_functions_tiny(),
 #'    n_train=50)
-run_sim_study <- function(my_fit, my_pred=NULL,
+run_sim_study <- function(fit_func, pred_func=NULL,
                           fnames=quack(input_dims = 1)$fname,
-                          interval=TRUE,
+                          conf_level = NULL,
                           n_train = 100,
                           n_test = 1e4,
                           NSR = 0,
                           design_type = "LHS",
                           replications = 1,
                           seed = 42,
-                          conf_level = 0.95,
                           method_names=NULL,
                           mc_cores=1,
                           verbose=TRUE){
 
   # error handling here
   if(is.null(method_names)){
-      method_names <- names(my_fit)
+      method_names <- names(fit_func)
   }
 
   DF_full <- NULL
@@ -75,13 +73,13 @@ run_sim_study <- function(my_fit, my_pred=NULL,
           if(mc_cores == 1){
             results <- lapply(1:replications, run_one_sim_case,
                    seed=seed, fn=fn, fnum=fnum, p=p, n=n, conf_level=conf_level,
-                   nsr=NSR[jj], dsgn=design_type[kk], n_test=n_test, interval=interval,
-                   method_names=method_names, my_fit=my_fit, my_pred=my_pred, verbose=verbose)
+                   nsr=NSR[jj], dsgn=design_type[kk], n_test=n_test,
+                   method_names=method_names, fit_func=fit_func, pred_func=pred_func, verbose=verbose)
           }else{
             results <- parallel::mclapply(1:replications, run_one_sim_case,
                               seed=seed, fn=fn, fnum=fnum, p=p, n=n, conf_level=conf_level,
-                              nsr=NSR[jj], dsgn=design_type[kk], n_test=n_test, interval=interval,
-                              method_names=method_names, my_fit=my_fit, my_pred=my_pred, verbose=verbose,
+                              nsr=NSR[jj], dsgn=design_type[kk], n_test=n_test,
+                              method_names=method_names, fit_func=fit_func, pred_func=pred_func, verbose=verbose,
                               mc.cores=mc_cores)
           }
 
@@ -151,7 +149,7 @@ transform_seed <- function(seed, n, dt, NSR, fnum, rr){
  return(ss)
 }
 
-run_one_sim_case <- function(rr, seed, fn, fnum, p, n, nsr, dsgn, n_test, conf_level, interval, method_names, my_fit, my_pred, verbose){
+run_one_sim_case <- function(rr, seed, fn, fnum, p, n, nsr, dsgn, n_test, conf_level, method_names, fit_func, pred_func, verbose){
     # Generate training data
     seed_t <- transform_seed(seed, n, dsgn, nsr, fnum, rr)
     set.seed(seed_t)
@@ -192,7 +190,7 @@ run_one_sim_case <- function(rr, seed, fn, fnum, p, n, nsr, dsgn, n_test, conf_l
     # ==================================================
     # Fit models
     # ==================================================
-    for(ii in seq_along(my_fit)){
+    for(ii in seq_along(fit_func)){
       my_method <- ifelse(is.null(method_names[ii]), paste0("method", ii), method_names[ii])
       #browser()
       DF_curr <- data.frame(method=my_method,
@@ -202,31 +200,31 @@ run_one_sim_case <- function(rr, seed, fn, fnum, p, n, nsr, dsgn, n_test, conf_l
                             design_type=dsgn,
                             rep=rr)
 
-      my_fit_curr <- ifelse(is.function(my_fit), my_fit, my_fit[[ii]])
-      if(is.function(my_pred)){
-        my_pred_curr <- my_pred
+      fit_func_curr <- ifelse(is.function(fit_func), fit_func, fit_func[[ii]])
+      if(is.function(pred_func)){
+        pred_func_curr <- pred_func
       }else{
-        if(is.null(my_pred[[ii]])){
-          my_pred_curr <- NULL
+        if(is.null(pred_func[[ii]])){
+          pred_func_curr <- NULL
         }else{
-          my_pred_curr <- my_pred[[ii]]
+          pred_func_curr <- pred_func[[ii]]
         }
       }
       #browser()
-      # Call my_fit()
-      if(is.null(my_pred_curr)){
+      # Call fit_func()
+      if(is.null(pred_func_curr)){
         tictoc::tic()
-        preds <- my_fit_curr(X_train, y_train, X_test, conf_level)
+        preds <- fit_func_curr(X_train, y_train, X_test, conf_level)
         t_tot <- tictoc::toc(quiet=!verbose)
 
         DF_curr$t_tot <- t_tot$toc - t_tot$tic
       }else{
         tictoc::tic()
-        fitted_object <- my_fit_curr(X_train, y_train)
+        fitted_object <- fit_func_curr(X_train, y_train)
         t_fit <- tictoc::toc(quiet=!verbose)
 
         tictoc::tic()
-        preds <- my_pred_curr(fitted_object, X_test, conf_level)
+        preds <- pred_func_curr(fitted_object, X_test, conf_level)
         t_pred <- tictoc::toc(quiet=!verbose)
 
         DF_curr$t_fit <- t_fit$toc - t_fit$tic
@@ -235,26 +233,101 @@ run_one_sim_case <- function(rr, seed, fn, fnum, p, n, nsr, dsgn, n_test, conf_l
       }
 
       #browser()
-      # RMSE and coverage
-      if(interval == TRUE){
-        rmse_curr <- rmsef(y_test, preds[,1])
-        DF_curr$RMSE <- rmse_curr
-        DF_curr$FVU  <- rmse_curr^2/var(y_test)
-
-        # Compute empirical coverage for each value in conf_level
-        n_conf <- length(conf_level)
-        nms <- names(DF_curr)
-        for(iii in 1:n_conf){
-          DF_curr[,ncol(DF_curr)+1] <- mean((y_test >= preds[,2*iii]) * (y_test <= preds[,2*iii+1]))
-        }
-        colnames(DF_curr) <- c(nms, lapply(as.character(conf_level), function(zz) paste0("CONF", zz)))
-
-      }else{
-        rmse_curr <- rmsef(y_test, preds)
-        DF_curr$RMSE <- rmse_curr
-        DF_curr$FVU  <- rmse_curr^2/var(y_test)
+      # Compute RMSE, coverage(s), and CRPS
+      # CASE: function returns matrix or vector of predictions
+      if(!is.numeric(preds) & !is.list(preds)){
+        stop("fit/pred functions must return a vector, matrix, or a list. See help file for details. ")
       }
-      #browser()
+      if(is.numeric(preds)){
+        if(is.null(dim(preds))){
+          preds <- matrix(preds, ncol=1)
+        }
+        # CALCULATE RMSE
+        y_hat <- rowMeans(preds)
+        rmse_curr <- rmsef(y_test, y_hat)
+        DF_curr$RMSE <- rmse_curr
+        DF_curr$FVU  <- rmse_curr^2/var(y_test)
+
+        # CALCULATE COVERAGES
+        n_conf <- length(conf_level)
+        if(n_conf > 0){
+          nms <- names(DF_curr)
+          for(iii in seq_along(conf_level)){
+            alpha_curr <- 1 - conf_level[iii]
+            bounds <- apply(preds, 1, quantile, probs=c(alpha_curr/2, 1-alpha_curr/2))
+            DF_curr[,ncol(DF_curr)+1] <- mean((y_test >= bounds[1,]) * (y_test <= bounds[2,]))
+          }
+          colnames(DF_curr) <- c(nms, unlist(lapply(as.character(round(conf_level, 10)), function(zz) paste0("CONF", zz))))
+        }
+
+        # CALUCLATE CRPS
+        CRPS_vec <- rep(NA, n_test)
+        for(iii in 1:n_test){
+          y_pred <- preds[iii,]
+          range_curr <- range(c(y_pred, y_test[iii]))
+          xx <- matrix(seq(range_curr[1]*(1-1e-7), range_curr[2], length.out=1000), ncol=1)
+          Fhat <- apply(xx, 1, function(xx) mean(y_pred <= xx))
+          Ihat <- as.numeric(xx >= y_test[iii])
+          CRPS_vec[iii] <- mean((Fhat-Ihat)^2)
+        }
+        DF_curr$CRPS <- mean(CRPS_vec)
+        DF_curr$CRPS_sd <- sd(CRPS_vec)
+      }
+
+      # CASE: Function returns a named list
+      if(is.list(preds)){
+        if(is.null(preds$samples)){
+          stop("If pred/fit function returns a list, the samples field must be specified.")
+        }
+        if(is.null(preds$preds)){
+          preds$preds <- rowMeans(preds$samples)
+        }
+        if(is.null(preds$intervals)){
+          n_conf <- length(conf_level)
+          intervals <- array(NA, dim=c(2, n_test, n_conf))
+          for(iii in seq_along(conf_level)){
+            alpha_curr <- 1 - conf_level[iii]
+            intervals[,,iii] <- apply(preds$samples, 1, quantile, probs=c(alpha_curr/2, 1-alpha_curr/2))
+          }
+          if(n_conf == 1) intervals <- intervals[,,1]
+          preds$intervals <- intervals
+        }
+
+        # CALCULATE RMSE
+        y_hat <- preds$preds
+        rmse_curr <- rmsef(y_test, y_hat)
+        DF_curr$RMSE <- rmse_curr
+        DF_curr$FVU  <- rmse_curr^2/var(y_test)
+
+        # CALCULATE COVERAGES
+        n_conf <- length(conf_level)
+        if(n_conf > 0){
+          nms <- names(DF_curr)
+          for(iii in seq_along(conf_level)){
+            alpha_curr <- 1 - conf_level[iii]
+            if(is.matrix(preds$intervals)){
+              bounds <- preds$intervals
+            }else{
+              bounds <- preds$intervals[,,iii]
+            }
+            DF_curr[,ncol(DF_curr)+1] <- mean((y_test >= bounds[1,]) * (y_test <= bounds[2,]))
+          }
+          colnames(DF_curr) <- c(nms, unlist(lapply(as.character(round(conf_level, 10)), function(zz) paste0("CONF", zz))))
+        }
+
+        # CALCULATE CRPS
+        CRPS_vec <- rep(NA, n_test)
+        for(iii in 1:n_test){
+          y_pred <- preds$samples[iii,]
+          range_curr <- range(c(y_pred, y_test[iii]))
+          xx <- matrix(seq(range_curr[1]*(1-1e-7), range_curr[2], length.out=1000), ncol=1)
+          Fhat <- apply(xx, 1, function(xx) mean(y_pred <= xx))
+          Ihat <- as.numeric(xx >= y_test[iii])
+          CRPS_vec[iii] <- mean((Fhat-Ihat)^2)
+        }
+        DF_curr$CRPS <- mean(CRPS_vec)
+        DF_curr$CRPS_sd <- sd(CRPS_vec)
+      }
       if(ii == 1){
         DF_res <- DF_curr
       }else{
@@ -263,3 +336,18 @@ run_one_sim_case <- function(rr, seed, fn, fnum, p, n, nsr, dsgn, n_test, conf_l
     }# End loop over methods
   return(DF_res)
 }
+
+#' Details:
+#'
+#' fit_func can return any of the following
+#'   A) an n by M matrix of predictive samples (recommended)
+#'   B) a n-vector of predictions (will be converted to an n by 1 matrix)
+#'   C) a named list with fields
+#'      - preds: An n-vector of predictions. If NULL, then rowMeans(samples) will be used.
+#'      - intervals: A 2 by n by K array (or a matrix, if K = 1) where K = length(conf_level). If NULL, then quantiles of the samples field will be used.
+#'      - samples: An n by M matrix of samples from the predictive distribution
+
+
+
+
+

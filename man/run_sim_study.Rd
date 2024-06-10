@@ -5,30 +5,29 @@
 \title{Reproducible Simulation Study}
 \usage{
 run_sim_study(
-  my_fit,
-  my_pred = NULL,
+  fit_func,
+  pred_func = NULL,
   fnames = quack(input_dims = 1)$fname,
-  interval = TRUE,
+  conf_level = NULL,
   n_train = 100,
   n_test = 10000,
   NSR = 0,
   design_type = "LHS",
   replications = 1,
   seed = 42,
-  conf_level = 0.95,
   method_names = NULL,
   mc_cores = 1,
   verbose = TRUE
 )
 }
 \arguments{
-\item{my_fit}{If \code{my_pred} is specified, then \code{my_fit} should take two arguments called \code{X_train} and \code{y_train}, and should return a fitted model object which will be passed to \code{my_pred}. Otherwise, \code{my_fit} should take a third and fourth argument, \code{X_test, conf_level}, and should return predictions as specified below.}
+\item{fit_func}{If \code{pred_func} is specified, the \code{fit_func} should take two arguments called \code{X_train} and \code{y_train}, and should return an object which will be passed to \code{pred_func}. If \code{pred_func} is NOT specified, then \code{fit_func} should take a third argument called \code{X_test}, and should return a named list as specified below.}
 
-\item{my_pred}{A function taking three arguments, the object returned by \code{my_fit}, \code{X_test} and a confidence level \code{alpha} (if coverage is a desired metric, \code{interval = TRUE}). If coverage is to be computed, \code{my_pred} should return a matrix with columns names c("preds", "lb", "ub"). Otherwise, it should return a vector of predictions.}
+\item{pred_func}{A function taking two arguments: (i) the object returned by \code{fit_func} and a matrix \code{X_test}. The function should return a named list with possible fields: \code{preds} (a n-vector), \code{intervals} (an nx2xk array of bounds, where k is \code{length(conf_level)}), and \code{samples} (a nxm matrix).}
 
 \item{fnames}{A vector of function names from the \code{duqling} package. See \code{quack()} for details.}
 
-\item{interval}{Do we track interval estimates (or just point estimates)?}
+\item{conf_level}{A vector of confidence levels. When specified, \code{pred_func()} must contain the field \code{intervals}.}
 
 \item{n_train}{the sample size (or vector of sample sizes) for each training set}
 
@@ -42,9 +41,7 @@ run_sim_study(
 
 \item{seed}{Seed for random number generators. For reproducibility, we discourage the use of this argument.}
 
-\item{conf_level}{Confidence level for interval estimates. If \code{length(conf_level) > 1}, then \code{my_pred} should return a matrix with \code{1 + 2*length(conf_level)} columns, with 2 columns of lower and upper bounds for each value in \code{conf_}}
-
-\item{method_names}{A vector of method names, length equal to \code{length(my_fit)}. If NULL, the indexed names \code{my_method<i>} will be used.}
+\item{method_names}{A vector of method names, length equal to \code{length(fit_func)}. If NULL, the indexed names \code{my_method<i>} will be used.}
 
 \item{mc_cores}{How many cores to use for parallelization over replications.}
 
@@ -62,11 +59,11 @@ Code to conduct a reproducible simulation study to compare emulators. By reporti
 \examples{
 library(BASS)
 
-my_fit <- function(X, y){
+fit_func <- function(X, y){
   bass(X, y, g1=0.001, g2=0.001)
 }
 
-my_pred <- function(obj, Xt, conf_level=0.95){
+pred_func <- function(obj, Xt, conf_level=0.95){
   alpha <- 1 - conf_level
   preds <- predict(obj, Xt)
   yhat <- apply(preds, 2, mean)
@@ -75,7 +72,7 @@ my_pred <- function(obj, Xt, conf_level=0.95){
   return(res)
 }
 
-run_sim_study(my_fit, my_pred,
+run_sim_study(fit_func, pred_func,
    fnames=get_sim_functions_tiny(),
    n_train=50)
 }

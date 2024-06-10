@@ -68,6 +68,7 @@ data_quack_raw <- function(dname=NULL, input_dim=NULL, output_dim=NULL, n=NULL, 
     tmp <- n
     res <- subset(res, res$n %in% tmp)
   }
+  rownames(res) <- 1:nrow(res)
   return(res)
 }
 
@@ -127,6 +128,7 @@ data_quack_emulator <- function(dname, input_dim=NULL, input_cat_dim=NULL, n=NUL
     tmp <- response_type
     res <- subset(res, res$response_type %in% tmp)
   }
+  rownames(res) <- 1:nrow(res)
   return(res)
 }
 

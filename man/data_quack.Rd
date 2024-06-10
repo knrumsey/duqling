@@ -2,7 +2,7 @@
 % Please edit documentation in R/data_quack.R
 \name{data_quack}
 \alias{data_quack}
-\title{Get UQ data for emulation}
+\title{Get UQ Data for Emulation}
 \usage{
 data_quack(
   raw = FALSE,

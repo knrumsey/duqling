@@ -1,0 +1,121 @@
+---
+title: "Datasets in the `duqling` Package"
+author: "Kellin Rumsey"
+format: 
+  html:
+    toc: true
+    toc-depth: 1
+    html-math-method: katex
+    css: styles.css
+editor: visual
+---
+
+```{R, include=FALSE}
+library(duqling)
+library(stargazer)
+```
+
+# Energy exascale earth system model (E3SM)
+
+#### Description
+
+This dataset contains simulations of the temperature at various spatial locations, using the Department of Energy E3SM climate model. The "partition" column indicates the partition scheme used in Rumsey et al (2023).
+
+#### Keywords
+
+-   Emulation
+
+-   Spatial
+
+#### R Info (Raw)
+
+```{R, echo=FALSE, warnings=FALSE}
+stargazer(data_quack(raw=TRUE, dname="e3sm"), summary=FALSE, type="text", rownames=FALSE)
+```
+
+#### R Info (Processed)
+
+```{R, echo=FALSE}
+stargazer(data_quack(raw=FALSE, dname="e3sm"), summary=FALSE, type="text", rownames=FALSE)
+```
+
+#### References
+
+-   Grosskopf, M., Lawrence, E., Biswas, A., Tang, L., Rumsey, K., Van Roekel, L., & Urban, N. (2021). In-situ spatial inference on climate simulations with sparse gaussian processes. In ISAV'21: In Situ Infrastructures for Enabling Extreme-Scale Analysis and Visualization (pp. 31-36).
+
+-   Rumsey, K., Grosskopf, M., Lawrence, E., Biswas, A., & Urban, N. (2022, October). A hierarchical sparse Gaussian process for in situ inference in expensive physics simulations. In *Applications of machine learning 2022* (Vol. 12227, pp. 126-138). SPIE.
+
+-   Golaz, J. C., Van Roekel, L. P., Zheng, X., Roberts, A. F., Wolfe, J. D., Lin, W., \... & Bader, D. C. (2022). The DOE E3SM Model Version 2: Overview of the physical model and initial model evaluation. *Journal of Advances in Modeling Earth Systems*, *14*(12), e2022MS003156.
+
+#### Notes
+
+This dataset is a part of the [UQDataverse](https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/LMXIFG).
+
+# Stochastic SIR Data (Influenza)
+
+#### Keywords
+
+-   Emulation
+
+-   Stochastic computer model
+
+#### R Info (Raw)
+
+```{R, echo=FALSE, warnings=FALSE}
+stargazer(data_quack(raw=TRUE, dname="stochastic_sir"), summary=FALSE, type="text", rownames=FALSE)
+```
+
+#### R Info (Processed)
+
+```{R, echo=FALSE}
+stargazer(data_quack(raw=FALSE, dname="stochastic_sir"), summary=FALSE, type="text", rownames=FALSE)
+```
+
+#### Description
+
+Data from a stochastic susceptible-infectious-recovered (SIR) model which simulates the spread of an infectious disease. Simulations are performed using the "EpiModel" R package (Jenness et al. 2018). We consider a closed population of $5000$ susceptible people and a single infectious individual on day zero. During each potentially transmissible interaction (PTI), an infectious individual will infect a susceptible individual with probability $x_1$ and all individuals in the population interact at random with an average of $x_2$ PTIs per person per day. Each day, infectious individuals will recover from the disease with probability $x_3$. After $14$ days, an intervention with efficacy $x_4$ is implemented. The response variable is taken to be the cumulative number of infected individuals at the end of a $21$ day period. The relevant simulation inputs, and their ranges, are described in Rumsey et al. (2023).
+
+#### References
+
+-   Rumsey, K., Francom, D., & Shen, A. (2023). Generalized bayesian mars: Tools for emulating stochastic computer models. arXiv preprint arXiv:2306.01911.
+
+-   Jenness, S. M., Goodreau, S. M., & Morris, M. (2018). EpiModel: an R package for mathematical modeling of infectious disease over networks. *Journal of statistical software*, *84*.
+
+#### Notes
+
+This dataset is a part of the [UQDataverse](https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/A3EHIT).
+
+# PBX9501 Rate Stick Experiments
+
+#### Keywords
+
+-   Emulation
+
+-   Adjacent computer models
+
+#### R Info (Raw)
+
+```{R, echo=FALSE, warnings=FALSE}
+stargazer(data_quack(raw=TRUE, dname="pbx9501"), summary=FALSE, type="text", rownames=FALSE)
+```
+
+#### R Info (Processed)
+
+```{R, echo=FALSE}
+dnames <- c("pbx9501_gold", "pbx9501_ss304", "pbx9501_nickel", "pbx9501_uranium")
+stargazer(data_quack(raw=FALSE, dname=dnames), summary=FALSE, type="text", rownames=FALSE)
+```
+
+#### Description
+
+Data from a stochastic susceptible-infectious-recovered (SIR) model which simulates the spread of an infectious disease. Simulations are performed using the "EpiModel" R package (Jenness et al. 2018). We consider a closed population of $5000$ susceptible people and a single infectious individual on day zero. During each potentially transmissible interaction (PTI), an infectious individual will infect a susceptible individual with probability $x_1$ and all individuals in the population interact at random with an average of $x_2$ PTIs per person per day. Each day, infectious individuals will recover from the disease with probability $x_3$. After $14$ days, an intervention with efficacy $x_4$ is implemented. The response variable is taken to be the cumulative number of infected individuals at the end of a $21$ day period. The relevant simulation inputs, and their ranges, are described in Rumsey et al. (2023).
+
+#### References
+
+-   Rumsey, K., Francom, D., & Shen, A. (2023). Generalized bayesian mars: Tools for emulating stochastic computer models. arXiv preprint arXiv:2306.01911.
+
+-   Jenness, S. M., Goodreau, S. M., & Morris, M. (2018). EpiModel: an R package for mathematical modeling of infectious disease over networks. *Journal of statistical software*, *84*.
+
+#### Notes
+
+This dataset is a part of the [UQDataverse](https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/A3EHIT).
