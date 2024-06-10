@@ -1,7 +1,7 @@
 Package: duqling
 Type: Package
 Title: Library of UQ Test Functions 
-Version: 1.0.0
+Version: 2.0.0
 Author: Kellin Rumsey
 Maintainer: Kellin Rumsey <knrumsey@lanl.gov>
 Description: An R package for reproducible UQ research. A virtual library of UQ test functions and standardized simulation studies for comparing emulators (even across papers). 
