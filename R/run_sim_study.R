@@ -257,7 +257,6 @@ run_one_sim_case <- function(rr, seed, fn, fnum, p, n, nsr, dsgn, n_test, conf_l
         # CALUCLATE CRPS
         CRPS_vec <- rep(NA, n_test)
         for(iii in 1:n_test){
-          print(preds[,iii])
           y_pred <- preds[,iii]
           range_curr <- range(c(y_pred, y_test[iii]))
           xx <- matrix(seq(range_curr[1]*(1-1e-7), range_curr[2], length.out=1000), ncol=1)
