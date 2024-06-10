@@ -2,14 +2,13 @@
 % Please edit documentation in R/run_sim_study_data.R
 \name{run_sim_study_data}
 \alias{run_sim_study_data}
-\title{Reproducible Simulation Study}
+\title{Reproducible Simulation Study (Data)}
 \usage{
 run_sim_study_data(
-  my_fit,
-  my_pred = NULL,
+  fit_func,
+  pred_func = NULL,
   dnames = get_sim_data_tiny(),
   folds = 20,
-  interval = TRUE,
   seed = 42,
   conf_level = 0.95,
   method_names = NULL,
@@ -18,21 +17,19 @@ run_sim_study_data(
 )
 }
 \arguments{
-\item{my_fit}{If \code{my_pred} is specified, then \code{my_fit} should take two arguments called \code{X_train} and \code{y_train}, and should return a fitted model object which will be passed to \code{my_pred}. Otherwise, \code{my_fit} should take a third and fourth argument, \code{X_test, conf_level}, and should return predictions as specified below.}
+\item{fit_func}{If \code{pred_func} is specified, the \code{fit_func} should take two arguments called \code{X_train} and \code{y_train}, and should return an object which will be passed to \code{pred_func}. If \code{pred_func} is NOT specified, then \code{fit_func} should take a third argument called \code{X_test}, and should return predictive samples (see pred_func documentation).}
 
-\item{my_pred}{A function taking three arguments, the object returned by \code{my_fit}, \code{X_test} and a confidence level \code{alpha} (if coverage is a desired metric, \code{interval = TRUE}). If coverage is to be computed, \code{my_pred} should return a matrix with columns names c("preds", "lb", "ub"). Otherwise, it should return a vector of predictions.}
+\item{pred_func}{A function taking two arguments: (i) the object returned by \code{fit_func} and a matrix \code{X_test}. The function should return an matrix of samples from the predictive distribution, with one column per test point. For additional flexibility, see the details below.}
 
 \item{dnames}{A vector of dataset names from the \code{duqling} package. See \code{data_quack()} for details.}
 
 \item{folds}{Number of folds in cross validation. Can be a scalar or a vector (with \code{length(folds) == length(dnames)}).}
 
-\item{interval}{Do we track interval estimates (or just point estimates)?}
-
 \item{seed}{Seed for random number generators. For reproducibility, we discourage the use of this argument.}
 
-\item{conf_level}{Confidence level for interval estimates. If \code{length(conf_level) > 1}, then \code{my_pred} should return a matrix with \code{1 + 2*length(conf_level)} columns, with 2 columns of lower and upper bounds for each value in \code{conf_}}
+\item{conf_level}{Confidence level for interval estimates. If \code{length(conf_level) > 1}, then \code{pred_func} should return a matrix with \code{1 + 2*length(conf_level)} columns, with 2 columns of lower and upper bounds for each value in \code{conf_}}
 
-\item{method_names}{A vector of method names, length equal to \code{length(my_fit)}. If NULL, the indexed names \code{my_method<i>} will be used.}
+\item{method_names}{A vector of method names, length equal to \code{length(fit_func)}. If NULL, the indexed names \code{my_method<i>} will be used.}
 
 \item{mc_cores}{How many cores to use for parallelization over replications.}
 
@@ -42,10 +39,11 @@ run_sim_study_data(
 See details
 }
 \description{
-Reproducible code for simulation studies.
+Reproducible code for simulation studies with real data sets.
 }
 \details{
 Code to conduct a reproducible simulation study to compare emulators. By reporting the parameters to the study, other authors can compare their results directly.
+Only \code{fit_func} needs to be specified, but only the total time will be reported. The simplest (and recommended) approach is that the \code{fit_func} (or \code{pred_func}) should return a matrix of posterior samples, with one column per test point (e.g., per row in \code{X_test}). Any number of rows (predictive samples) is allowed. In this case, the mean of the samples is used as a prediction and the R \code{quantile} function is used to construct confidence intervals. This default behavior can be changed by instead allowing \code{fit_func} (or \code{pred_func}) to return a named list with fields i) \code{samples} (required), ii) \code{preds} (optional; a vector of predictions), and iii) intervals (optional; a 2 by n by k array of interval bounds where n is the number of test points and k is \code{length(conf_level)}).
 }
 \examples{
 library(BASS)
@@ -53,19 +51,13 @@ library(BASS)
 my_fit <- function(X, y){
   bass(X, y, g1=0.001, g2=0.001)
 }
-
-my_pred <- function(obj, Xt, conf_level=0.95){
-  alpha <- 1 - conf_level
-  preds <- predict(obj, Xt)
-  yhat <- apply(preds, 2, mean)
-  sd <- sqrt(apply(preds, 2, var) + mean(obj$s2))
-  res <- cbind(yhat, yhat-2*sd, yhat + 2*sd)
-  return(res)
+my_pred <- function(obj, Xt){
+  predict(obj, Xt)
 }
 
-run_sim_study_data(my_fit, my_pred,
+run_sim_study_data(fit_func, pred_func,
    dnames=c("pbx9501_gold", "strontium_plume_p104"),
-   folds=c(5, 10))
+   folds=c(2, 3))
 }
 \references{
 Surjanovic, Sonja, and Derek Bingham. "Virtual library of simulation experiments: test functions and datasets." Simon Fraser University, Burnaby, BC, Canada, accessed May 13 (2013): 2015.

@@ -2,7 +2,7 @@
 % Please edit documentation in R/run_sim_study.R
 \name{run_sim_study}
 \alias{run_sim_study}
-\title{Reproducible Simulation Study}
+\title{Reproducible Simulation Study (Test Functions)}
 \usage{
 run_sim_study(
   fit_func,
@@ -21,13 +21,13 @@ run_sim_study(
 )
 }
 \arguments{
-\item{fit_func}{If \code{pred_func} is specified, the \code{fit_func} should take two arguments called \code{X_train} and \code{y_train}, and should return an object which will be passed to \code{pred_func}. If \code{pred_func} is NOT specified, then \code{fit_func} should take a third argument called \code{X_test}, and should return a named list as specified below.}
+\item{fit_func}{If \code{pred_func} is specified, the \code{fit_func} should take two arguments called \code{X_train} and \code{y_train}, and should return an object which will be passed to \code{pred_func}. If \code{pred_func} is NOT specified, then \code{fit_func} should take a third argument called \code{X_test}, and should return predictive samples (see pred_func documentation).}
 
-\item{pred_func}{A function taking two arguments: (i) the object returned by \code{fit_func} and a matrix \code{X_test}. The function should return a named list with possible fields: \code{preds} (a n-vector), \code{intervals} (an nx2xk array of bounds, where k is \code{length(conf_level)}), and \code{samples} (a nxm matrix).}
+\item{pred_func}{A function taking two arguments: (i) the object returned by \code{fit_func} and a matrix \code{X_test}. The function should return an matrix of samples from the predictive distribution, with one column per test point. For additional flexibility, see the details below.}
 
 \item{fnames}{A vector of function names from the \code{duqling} package. See \code{quack()} for details.}
 
-\item{conf_level}{A vector of confidence levels. When specified, \code{pred_func()} must contain the field \code{intervals}.}
+\item{conf_level}{A vector of confidence levels.}
 
 \item{n_train}{the sample size (or vector of sample sizes) for each training set}
 
@@ -55,26 +55,20 @@ Reproducible code for simulation studies.
 }
 \details{
 Code to conduct a reproducible simulation study to compare emulators. By reporting the parameters to the study, other authors can compare their results directly.
+Only \code{fit_func} needs to be specified, but only the total time will be reported. The simplest (and recommended) approach is that the \code{fit_func} (or \code{pred_func}) should return a matrix of posterior samples, with one column per test point (e.g., per row in \code{X_test}). Any number of rows (predictive samples) is allowed. In this case, the mean of the samples is used as a prediction and the R \code{quantile} function is used to construct confidence intervals. This default behavior can be changed by instead allowing \code{fit_func} (or \code{pred_func}) to return a named list with fields i) \code{samples} (required), ii) \code{preds} (optional; a vector of predictions), and iii) intervals (optional; a 2 by n by k array of interval bounds where n is the number of test points and k is \code{length(conf_level)}).
 }
 \examples{
 library(BASS)
 
-fit_func <- function(X, y){
+my_fit <- function(X, y){
   bass(X, y, g1=0.001, g2=0.001)
 }
-
-pred_func <- function(obj, Xt, conf_level=0.95){
-  alpha <- 1 - conf_level
-  preds <- predict(obj, Xt)
-  yhat <- apply(preds, 2, mean)
-  sd <- sqrt(apply(preds, 2, var) + mean(obj$s2))
-  res <- cbind(yhat, yhat-2*sd, yhat + 2*sd)
-  return(res)
+my_pred <- function(obj, Xt){
+  predict(obj, Xt)
 }
-
-run_sim_study(fit_func, pred_func,
-   fnames=get_sim_functions_tiny(),
-   n_train=50)
+run_sim_study(my_fit, my_pred,
+             fnames=get_sim_functions_tiny()[1:2],
+             n_train=50)
 }
 \references{
 Surjanovic, Sonja, and Derek Bingham. "Virtual library of simulation experiments: test functions and datasets." Simon Fraser University, Burnaby, BC, Canada, accessed May 13 (2013): 2015.

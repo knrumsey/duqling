@@ -1,11 +1,11 @@
-#' Reproducible Simulation Study
+#' Reproducible Simulation Study (Test Functions)
 #'
 #' Reproducible code for simulation studies.
 #'
-#' @param fit_func If \code{pred_func} is specified, the \code{fit_func} should take two arguments called \code{X_train} and \code{y_train}, and should return an object which will be passed to \code{pred_func}. If \code{pred_func} is NOT specified, then \code{fit_func} should take a third argument called \code{X_test}, and should return a named list as specified below.
-#' @param pred_func A function taking two arguments: (i) the object returned by \code{fit_func} and a matrix \code{X_test}. The function should return a named list with possible fields: \code{preds} (a n-vector), \code{intervals} (an nx2xk array of bounds, where k is \code{length(conf_level)}), and \code{samples} (a nxm matrix).
+#' @param fit_func If \code{pred_func} is specified, the \code{fit_func} should take two arguments called \code{X_train} and \code{y_train}, and should return an object which will be passed to \code{pred_func}. If \code{pred_func} is NOT specified, then \code{fit_func} should take a third argument called \code{X_test}, and should return predictive samples (see pred_func documentation).
+#' @param pred_func A function taking two arguments: (i) the object returned by \code{fit_func} and a matrix \code{X_test}. The function should return an matrix of samples from the predictive distribution, with one column per test point. For additional flexibility, see the details below.
 #' @param fnames A vector of function names from the \code{duqling} package. See \code{quack()} for details.
-#' @param conf_level A vector of confidence levels. When specified, \code{pred_func()} must contain the field \code{intervals}.
+#' @param conf_level A vector of confidence levels.
 #' @param n_train the sample size (or vector of sample sizes) for each training set
 #' @param n_test the sample size for each testing set
 #' @param NSR the noise to signal ratio (inverse of the more-standard signal to noise ratio).
@@ -17,28 +17,22 @@
 #' @param verbose should progress be reported?
 #' @return See details
 #' @details Code to conduct a reproducible simulation study to compare emulators. By reporting the parameters to the study, other authors can compare their results directly.
-#' @references
-#' Surjanovic, Sonja, and Derek Bingham. "Virtual library of simulation experiments: test functions and datasets." Simon Fraser University, Burnaby, BC, Canada, accessed May 13 (2013): 2015.
+#' Only \code{fit_func} needs to be specified, but only the total time will be reported. The simplest (and recommended) approach is that the \code{fit_func} (or \code{pred_func}) should return a matrix of posterior samples, with one column per test point (e.g., per row in \code{X_test}). Any number of rows (predictive samples) is allowed. In this case, the mean of the samples is used as a prediction and the R \code{quantile} function is used to construct confidence intervals. This default behavior can be changed by instead allowing \code{fit_func} (or \code{pred_func}) to return a named list with fields i) \code{samples} (required), ii) \code{preds} (optional; a vector of predictions), and iii) intervals (optional; a 2 by n by k array of interval bounds where n is the number of test points and k is \code{length(conf_level)}).
+#'
+#' @references Surjanovic, Sonja, and Derek Bingham. "Virtual library of simulation experiments: test functions and datasets." Simon Fraser University, Burnaby, BC, Canada, accessed May 13 (2013): 2015.
 #' @export
 #' @examples
 #' library(BASS)
 #'
-#' fit_func <- function(X, y){
+#' my_fit <- function(X, y){
 #'   bass(X, y, g1=0.001, g2=0.001)
 #' }
-#'
-#' pred_func <- function(obj, Xt, conf_level=0.95){
-#'   alpha <- 1 - conf_level
-#'   preds <- predict(obj, Xt)
-#'   yhat <- apply(preds, 2, mean)
-#'   sd <- sqrt(apply(preds, 2, var) + mean(obj$s2))
-#'   res <- cbind(yhat, yhat-2*sd, yhat + 2*sd)
-#'   return(res)
+#' my_pred <- function(obj, Xt){
+#'   predict(obj, Xt)
 #' }
-#'
-#' run_sim_study(fit_func, pred_func,
-#'    fnames=get_sim_functions_tiny(),
-#'    n_train=50)
+#' run_sim_study(my_fit, my_pred,
+#'              fnames=get_sim_functions_tiny()[1:2],
+#'              n_train=50)
 run_sim_study <- function(fit_func, pred_func=NULL,
                           fnames=quack(input_dims = 1)$fname,
                           conf_level = NULL,
@@ -214,7 +208,7 @@ run_one_sim_case <- function(rr, seed, fn, fnum, p, n, nsr, dsgn, n_test, conf_l
       # Call fit_func()
       if(is.null(pred_func_curr)){
         tictoc::tic()
-        preds <- fit_func_curr(X_train, y_train, X_test, conf_level)
+        preds <- fit_func_curr(X_train, y_train, X_test)
         t_tot <- tictoc::toc(quiet=!verbose)
 
         DF_curr$t_tot <- t_tot$toc - t_tot$tic
@@ -224,7 +218,7 @@ run_one_sim_case <- function(rr, seed, fn, fnum, p, n, nsr, dsgn, n_test, conf_l
         t_fit <- tictoc::toc(quiet=!verbose)
 
         tictoc::tic()
-        preds <- pred_func_curr(fitted_object, X_test, conf_level)
+        preds <- pred_func_curr(fitted_object, X_test)
         t_pred <- tictoc::toc(quiet=!verbose)
 
         DF_curr$t_fit <- t_fit$toc - t_fit$tic
@@ -243,7 +237,7 @@ run_one_sim_case <- function(rr, seed, fn, fnum, p, n, nsr, dsgn, n_test, conf_l
           preds <- matrix(preds, ncol=1)
         }
         # CALCULATE RMSE
-        y_hat <- rowMeans(preds)
+        y_hat <- colMeans(preds)
         rmse_curr <- rmsef(y_test, y_hat)
         DF_curr$RMSE <- rmse_curr
         DF_curr$FVU  <- rmse_curr^2/var(y_test)
@@ -254,7 +248,7 @@ run_one_sim_case <- function(rr, seed, fn, fnum, p, n, nsr, dsgn, n_test, conf_l
           nms <- names(DF_curr)
           for(iii in seq_along(conf_level)){
             alpha_curr <- 1 - conf_level[iii]
-            bounds <- apply(preds, 1, quantile, probs=c(alpha_curr/2, 1-alpha_curr/2))
+            bounds <- apply(preds, 2, quantile, probs=c(alpha_curr/2, 1-alpha_curr/2))
             DF_curr[,ncol(DF_curr)+1] <- mean((y_test >= bounds[1,]) * (y_test <= bounds[2,]))
           }
           colnames(DF_curr) <- c(nms, unlist(lapply(as.character(round(conf_level, 10)), function(zz) paste0("CONF", zz))))
@@ -263,7 +257,8 @@ run_one_sim_case <- function(rr, seed, fn, fnum, p, n, nsr, dsgn, n_test, conf_l
         # CALUCLATE CRPS
         CRPS_vec <- rep(NA, n_test)
         for(iii in 1:n_test){
-          y_pred <- preds[iii,]
+          print(preds[,iii])
+          y_pred <- preds[,iii]
           range_curr <- range(c(y_pred, y_test[iii]))
           xx <- matrix(seq(range_curr[1]*(1-1e-7), range_curr[2], length.out=1000), ncol=1)
           Fhat <- apply(xx, 1, function(xx) mean(y_pred <= xx))
@@ -294,7 +289,7 @@ run_one_sim_case <- function(rr, seed, fn, fnum, p, n, nsr, dsgn, n_test, conf_l
         }
 
         # CALCULATE RMSE
-        y_hat <- preds$preds
+        y_hat <- colMeans(preds$preds)
         rmse_curr <- rmsef(y_test, y_hat)
         DF_curr$RMSE <- rmse_curr
         DF_curr$FVU  <- rmse_curr^2/var(y_test)
@@ -318,12 +313,12 @@ run_one_sim_case <- function(rr, seed, fn, fnum, p, n, nsr, dsgn, n_test, conf_l
         # CALCULATE CRPS
         CRPS_vec <- rep(NA, n_test)
         for(iii in 1:n_test){
-          y_pred <- preds$samples[iii,]
+          y_pred <- preds$samples[,iii]
           range_curr <- range(c(y_pred, y_test[iii]))
           xx <- matrix(seq(range_curr[1]*(1-1e-7), range_curr[2], length.out=1000), ncol=1)
           Fhat <- apply(xx, 1, function(xx) mean(y_pred <= xx))
           Ihat <- as.numeric(xx >= y_test[iii])
-          CRPS_vec[iii] <- mean((Fhat-Ihat)^2)
+          CRPS_vec[iii] <- mean((Fhat-Ihat)^2)*diff(range_curr)
         }
         DF_curr$CRPS <- mean(CRPS_vec)
         DF_curr$CRPS_sd <- sd(CRPS_vec)
@@ -340,7 +335,7 @@ run_one_sim_case <- function(rr, seed, fn, fnum, p, n, nsr, dsgn, n_test, conf_l
 #' Details:
 #'
 #' fit_func can return any of the following
-#'   A) an n by M matrix of predictive samples (recommended)
+#'   A) an M by n matrix of predictive samples (recommended)
 #'   B) a n-vector of predictions (will be converted to an n by 1 matrix)
 #'   C) a named list with fields
 #'      - preds: An n-vector of predictions. If NULL, then rowMeans(samples) will be used.
