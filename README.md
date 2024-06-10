@@ -286,21 +286,21 @@ found with the command
 
 ``` r
 duqling::data_quack()
-#>                             dname input_dim input_cat_dim     n
-#> 8                            e3sm         2             0 48602
-#> 7                  stochastic_sir         4             0  2000
-#> 3                    pbx9501_gold         6             0   500
-#> 4                   pbx9501_ss304         6             0   500
-#> 5                  pbx9501_nickel         6             0   500
-#> 6                 pbx9501_uranium         6             0   500
-#> 1             strontium_plume_p4b        20             0   300
-#> 2            strontium_plume_p104        20             0   300
-#> 12 fair_climate_ssp1-2.6_year2200        45             0  1001
-#> 13 fair_climate_ssp2-4.5_year2200        45             0  1001
-#> 14 fair_climate_ssp3-7.0_year2200        45             0  1001
-#> 9           fair_climate_ssp1-2.6        46             0 56056
-#> 10          fair_climate_ssp2-4.5        46             0 56056
-#> 11          fair_climate_ssp3-7.0        46             0 56056
+#>                             dname input_dim input_cat_dim     n response_type
+#> 8                            e3sm         2             0 48602           uni
+#> 7                  stochastic_sir         4             0  2000           uni
+#> 3                    pbx9501_gold         6             0   500           uni
+#> 4                   pbx9501_ss304         6             0   500           uni
+#> 5                  pbx9501_nickel         6             0   500           uni
+#> 6                 pbx9501_uranium         6             0   500           uni
+#> 1             strontium_plume_p4b        20             0   300           uni
+#> 2            strontium_plume_p104        20             0   300           uni
+#> 12 fair_climate_ssp1-2.6_year2200        45             0  1001           uni
+#> 13 fair_climate_ssp2-4.5_year2200        45             0  1001           uni
+#> 14 fair_climate_ssp3-7.0_year2200        45             0  1001           uni
+#> 9           fair_climate_ssp1-2.6        46             0 56056           uni
+#> 10          fair_climate_ssp2-4.5        46             0 56056           uni
+#> 11          fair_climate_ssp3-7.0        46             0 56056           uni
 ```
 
 Raw datasets can be read (via the internet) with the function
