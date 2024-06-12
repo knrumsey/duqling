@@ -9,8 +9,9 @@ run_sim_study(
   pred_func = NULL,
   fnames = quack(input_dims = 1)$fname,
   conf_level = NULL,
+  score = TRUE,
   n_train = 100,
-  n_test = 10000,
+  n_test = 1000,
   NSR = 0,
   design_type = "LHS",
   replications = 1,
@@ -28,6 +29,8 @@ run_sim_study(
 \item{fnames}{A vector of function names from the \code{duqling} package. See \code{quack()} for details.}
 
 \item{conf_level}{A vector of confidence levels.}
+
+\item{score}{Logical. Should CRPS be computed?}
 
 \item{n_train}{the sample size (or vector of sample sizes) for each training set}
 

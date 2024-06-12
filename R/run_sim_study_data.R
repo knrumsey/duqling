@@ -8,6 +8,7 @@
 #' @param folds Number of folds in cross validation. Can be a scalar or a vector (with \code{length(folds) == length(dnames)}).
 #' @param seed Seed for random number generators. For reproducibility, we discourage the use of this argument.
 #' @param conf_level Confidence level for interval estimates. If \code{length(conf_level) > 1}, then \code{pred_func} should return a matrix with \code{1 + 2*length(conf_level)} columns, with 2 columns of lower and upper bounds for each value in \code{conf_}
+#' @param score Logical. Should CRPS be computed?
 #' @param method_names A vector of method names, length equal to \code{length(fit_func)}. If NULL, the indexed names \code{my_method<i>} will be used.
 #' @param mc_cores How many cores to use for parallelization over replications.
 #' @param verbose should progress be reported?
@@ -36,6 +37,7 @@ run_sim_study_data <- function(fit_func, pred_func=NULL,
                           folds=20,
                           seed = 42,
                           conf_level = 0.95,
+                          score=TRUE,
                           method_names=NULL,
                           mc_cores=1,
                           verbose=TRUE){
@@ -65,14 +67,14 @@ run_sim_study_data <- function(fit_func, pred_func=NULL,
     if(mc_cores == 1){
       results <- lapply(X=1:K, FUN=run_one_sim_case_data,
                         XX=X, yy=y, groups=groups,
-                        dn=dn,
+                        dn=dn, score=score,
                         conf_level=conf_level,
                         method_names=method_names,
                         fit_func=fit_func, pred_func=pred_func, verbose=verbose)
     }else{
       results <- parallel::mclapply(1:K, run_one_sim_case_data,
                                     XX=X, yy=y, groups=groups,
-                                    dn=dn,
+                                    dn=dn, score=score,
                                     conf_level=conf_level,
                                     method_names=method_names,
                                     fit_func=fit_func, pred_func=pred_func, verbose=verbose,
@@ -103,7 +105,7 @@ k.chunks = function(n, K){
 }
 
 run_one_sim_case_data <- function(k, XX, yy, groups,
-                                  dn,
+                                  dn, score,
                                   conf_level, interval, method_names,
                                   fit_func, pred_func,
                                   verbose){
@@ -206,17 +208,18 @@ run_one_sim_case_data <- function(k, XX, yy, groups,
       }
 
       # CALUCLATE CRPS
-      CRPS_vec <- rep(NA, n_test)
-      for(iii in 1:n_test){
-        y_pred <- preds[,iii]
-        range_curr <- range(c(y_pred, y_test[iii]))
-        xx <- matrix(seq(range_curr[1]*(1-1e-7), range_curr[2], length.out=1000), ncol=1)
-        Fhat <- apply(xx, 1, function(xx) mean(y_pred <= xx))
-        Ihat <- as.numeric(xx >= y_test[iii])
-        CRPS_vec[iii] <- mean((Fhat-Ihat)^2)
+      if(score){
+        if(verbose) cat("Computing CRPS")
+        CRPS_vec <- unlist(lapply(1:n_test, function(i) crpsf(y_test[i], preds[,i])))
+        csumm <- summary(CRPS_vec)
+        DF_curr$CRPS <- csumm[4]
+        DF_curr$CRPS_min <- csumm[1]
+        DF_curr$CRPS_Q1 <- csumm[2]
+        DF_curr$CRPS_med <- csumm[3]
+        DF_curr$CRPS_Q3 <- csumm[5]
+        DF_curr$CRPS_max <- csumm[6]
+        if(verbose) cat("\nDone.")
       }
-      DF_curr$CRPS <- mean(CRPS_vec)
-      DF_curr$CRPS_sd <- sd(CRPS_vec)
     }
 
     # CASE: Function returns a named list
@@ -261,17 +264,18 @@ run_one_sim_case_data <- function(k, XX, yy, groups,
       }
 
       # CALCULATE CRPS
-      CRPS_vec <- rep(NA, n_test)
-      for(iii in 1:n_test){
-        y_pred <- preds$samples[,iii]
-        range_curr <- range(c(y_pred, y_test[iii]))
-        xx <- matrix(seq(range_curr[1]*(1-1e-7), range_curr[2], length.out=1000), ncol=1)
-        Fhat <- apply(xx, 1, function(xx) mean(y_pred <= xx))
-        Ihat <- as.numeric(xx >= y_test[iii])
-        CRPS_vec[iii] <- mean((Fhat-Ihat)^2)*diff(range_curr)
+      if(score){
+        if(verbose) cat("Computing CRPS")
+        CRPS_vec <- unlist(lapply(1:n_test, function(i) crpsf(y_test[i], preds[,i])))
+        csumm <- summary(CRPS_vec)
+        DF_curr$CRPS <- csumm[4]
+        DF_curr$CRPS_min <- csumm[1]
+        DF_curr$CRPS_Q1 <- csumm[2]
+        DF_curr$CRPS_med <- csumm[3]
+        DF_curr$CRPS_Q3 <- csumm[5]
+        DF_curr$CRPS_max <- csumm[6]
+        if(verbose) cat("\nDone.")
       }
-      DF_curr$CRPS <- mean(CRPS_vec)
-      DF_curr$CRPS_sd <- sd(CRPS_vec)
     }
     #browser()
     if(ii == 1){

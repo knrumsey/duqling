@@ -6,6 +6,7 @@
 #' @param pred_func A function taking two arguments: (i) the object returned by \code{fit_func} and a matrix \code{X_test}. The function should return an matrix of samples from the predictive distribution, with one column per test point. For additional flexibility, see the details below.
 #' @param fnames A vector of function names from the \code{duqling} package. See \code{quack()} for details.
 #' @param conf_level A vector of confidence levels.
+#' @param score Logical. Should CRPS be computed?
 #' @param n_train the sample size (or vector of sample sizes) for each training set
 #' @param n_test the sample size for each testing set
 #' @param NSR the noise to signal ratio (inverse of the more-standard signal to noise ratio).
@@ -36,8 +37,9 @@
 run_sim_study <- function(fit_func, pred_func=NULL,
                           fnames=quack(input_dims = 1)$fname,
                           conf_level = NULL,
+                          score = TRUE,
                           n_train = 100,
-                          n_test = 1e4,
+                          n_test = 1000,
                           NSR = 0,
                           design_type = "LHS",
                           replications = 1,
@@ -66,12 +68,12 @@ run_sim_study <- function(fit_func, pred_func=NULL,
 
           if(mc_cores == 1){
             results <- lapply(1:replications, run_one_sim_case,
-                   seed=seed, fn=fn, fnum=fnum, p=p, n=n, conf_level=conf_level,
+                   seed=seed, fn=fn, fnum=fnum, p=p, n=n, conf_level=conf_level, score=score,
                    nsr=NSR[jj], dsgn=design_type[kk], n_test=n_test,
                    method_names=method_names, fit_func=fit_func, pred_func=pred_func, verbose=verbose)
           }else{
             results <- parallel::mclapply(1:replications, run_one_sim_case,
-                              seed=seed, fn=fn, fnum=fnum, p=p, n=n, conf_level=conf_level,
+                              seed=seed, fn=fn, fnum=fnum, p=p, n=n, conf_level=conf_level, score=score,
                               nsr=NSR[jj], dsgn=design_type[kk], n_test=n_test,
                               method_names=method_names, fit_func=fit_func, pred_func=pred_func, verbose=verbose,
                               mc.cores=mc_cores)
@@ -126,6 +128,19 @@ rmsef <- function(x, y){
   sqrt(mean((x-y)^2))
 }
 
+crpsf <- function(y, x, w=0){
+  M <- length(x)
+  term1 <- mean(abs(x-y))
+  if(M <= 6500){
+    term2 <- sum(outer(x, x, function(a, b) abs(a-b))) # Fastest way for small M
+  }else{
+    idx <- unlist(lapply(2:M, function(i) 1:i))
+    term2 <- 2*sum(abs(x[rep(2:M, 2:M)] - x[idx]))     # Faster for big M
+  }
+  res <- term1 - (1 - w/M)*term2/(2*M*(M-1))
+  return(res)
+}
+
 transform_seed <- function(seed, n, dt, NSR, fnum, rr){
  s1 <- seed
  s2 <- round(log(n))
@@ -143,7 +158,7 @@ transform_seed <- function(seed, n, dt, NSR, fnum, rr){
  return(ss)
 }
 
-run_one_sim_case <- function(rr, seed, fn, fnum, p, n, nsr, dsgn, n_test, conf_level, method_names, fit_func, pred_func, verbose){
+run_one_sim_case <- function(rr, seed, fn, fnum, p, n, nsr, dsgn, n_test, conf_level, score, method_names, fit_func, pred_func, verbose){
     # Generate training data
     seed_t <- transform_seed(seed, n, dsgn, nsr, fnum, rr)
     set.seed(seed_t)
@@ -255,17 +270,18 @@ run_one_sim_case <- function(rr, seed, fn, fnum, p, n, nsr, dsgn, n_test, conf_l
         }
 
         # CALUCLATE CRPS
-        CRPS_vec <- rep(NA, n_test)
-        for(iii in 1:n_test){
-          y_pred <- preds[,iii]
-          range_curr <- range(c(y_pred, y_test[iii]))
-          xx <- matrix(seq(range_curr[1]*(1-1e-7), range_curr[2], length.out=1000), ncol=1)
-          Fhat <- apply(xx, 1, function(xx) mean(y_pred <= xx))
-          Ihat <- as.numeric(xx >= y_test[iii])
-          CRPS_vec[iii] <- mean((Fhat-Ihat)^2)
+        if(score){
+          if(verbose) cat("Computing CRPS")
+          CRPS_vec <- unlist(lapply(1:n_test, function(i) crpsf(y_test[i], preds[,i])))
+          csumm <- summary(CRPS_vec)
+          DF_curr$CRPS <- csumm[4]
+          DF_curr$CRPS_min <- csumm[1]
+          DF_curr$CRPS_Q1 <- csumm[2]
+          DF_curr$CRPS_med <- csumm[3]
+          DF_curr$CRPS_Q3 <- csumm[5]
+          DF_curr$CRPS_max <- csumm[6]
+          if(verbose) cat("\nDone.")
         }
-        DF_curr$CRPS <- mean(CRPS_vec)
-        DF_curr$CRPS_sd <- sd(CRPS_vec)
       }
 
       # CASE: Function returns a named list
@@ -310,17 +326,18 @@ run_one_sim_case <- function(rr, seed, fn, fnum, p, n, nsr, dsgn, n_test, conf_l
         }
 
         # CALCULATE CRPS
-        CRPS_vec <- rep(NA, n_test)
-        for(iii in 1:n_test){
-          y_pred <- preds$samples[,iii]
-          range_curr <- range(c(y_pred, y_test[iii]))
-          xx <- matrix(seq(range_curr[1]*(1-1e-7), range_curr[2], length.out=1000), ncol=1)
-          Fhat <- apply(xx, 1, function(xx) mean(y_pred <= xx))
-          Ihat <- as.numeric(xx >= y_test[iii])
-          CRPS_vec[iii] <- mean((Fhat-Ihat)^2)*diff(range_curr)
+        if(score){
+          if(verbose) cat("Computing CRPS")
+          CRPS_vec <- unlist(lapply(1:n_test, function(i) crpsf(y_test[i], preds[,i])))
+          csumm <- summary(CRPS_vec)
+          DF_curr$CRPS <- csumm[4]
+          DF_curr$CRPS_min <- csumm[1]
+          DF_curr$CRPS_Q1 <- csumm[2]
+          DF_curr$CRPS_med <- csumm[3]
+          DF_curr$CRPS_Q3 <- csumm[5]
+          DF_curr$CRPS_max <- csumm[6]
+          if(verbose) cat("\nDone.")
         }
-        DF_curr$CRPS <- mean(CRPS_vec)
-        DF_curr$CRPS_sd <- sd(CRPS_vec)
       }
       if(ii == 1){
         DF_res <- DF_curr
