@@ -117,8 +117,9 @@ run_one_sim_case_data <- function(k, XX, yy, groups,
   y_test <- yy[indx]
   X_train <- XX[-indx,]
   y_train <- yy[-indx]
-  n <- nrow(X_test)
+  n <- n_test <- nrow(X_test)
   p <- ncol(X_test)
+
 
   # Fit models
   for(ii in seq_along(fit_func)){

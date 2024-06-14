@@ -44,6 +44,12 @@ data_quack_raw <- function(dname=NULL, input_dim=NULL, output_dim=NULL, n=NULL, 
   tmp <- data.frame(dname="fair_climate", input_dim=46, output_dim=1, n=168168, input_cat_dim=1)
   tab <- rbind(tab, tmp)
 
+  tmp <- data.frame(dname="Z_machine_exp", input_dim=1, output_dim=1, n=23224, input_cat_dim=3)
+  tab <- rbind(tab, tmp)
+
+  tmp <- data.frame(dname="Z_machine_sim", input_dim=40, output_dim=9, n=5000000, input_cat_dim=0)
+  tab <- rbind(tab, tmp)
+
   # Subset the master table
   ord <- order(tab$input_dim)
   tab <- tab[ord,]
@@ -102,6 +108,13 @@ data_quack_emulator <- function(dname, input_dim=NULL, input_cat_dim=NULL, n=NUL
                data.frame(dname="fair_climate_ssp2-4.5_year2200", input_dim=45, input_cat_dim=0, n=1001, response_type="uni"),
                data.frame(dname="fair_climate_ssp3-7.0_year2200", input_dim=45, input_cat_dim=0, n=1001, response_type="uni")
   )
+  tab <- rbind(tab, tmp)
+
+  tmp <- data.frame(dname="Z_machine_max_vel1", input_dim=6, input_cat_dim=0, n=5000, response_type="uni")
+  tab <- rbind(tab, tmp)
+  tmp <- data.frame(dname="Z_machine_max_vel2", input_dim=6, input_cat_dim=0, n=5000, response_type="uni")
+  tab <- rbind(tab, tmp)
+  tmp <- data.frame(dname="Z_machine_max_vel_all", input_dim=30, input_cat_dim=0, n=5000, response_type="uni")
   tab <- rbind(tab, tmp)
 
   # Subset the master table

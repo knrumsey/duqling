@@ -16,28 +16,41 @@
 get_UQ_data <- function(dname, control=list()){
   if(dname == "strontium_plume"){
     url <- "https://dataverse.harvard.edu/api/access/datafile/10210723"
-    data <- read.table(url, header=TRUE)
+    data <- readr::read_table(url)
     return(data)
   }
   if(dname == "pbx9501"){
     url <- "https://dataverse.harvard.edu/api/access/datafile/10223920"
-    data <- read.table(url, header=TRUE)
+    data <- readr::read_table(url)
     return(data)
   }
   if(dname == "stochastic_sir"){
     url <- "https://dataverse.harvard.edu/api/access/datafile/10228544"
-    data <- read.table(url, header=TRUE)
+    data <- readr::read_table(url)
     return(data)
   }
   if(dname == "e3sm"){
     url <- "https://dataverse.harvard.edu/api/access/datafile/10232219"
-    data <- read.table(url, header=TRUE)
+    data <- readr::read_table(url)
     return(data)
   }
   if(dname == "fair_climate"){
     url <- "https://dataverse.harvard.edu/api/access/datafile/10243053"
-    data <- read.table(url, header=TRUE)
+    data <- readr::read_table(url)
     return(data)
+  }
+  if(dname == "Z_machine_exp"){
+    url <- "https://dataverse.harvard.edu/api/access/datafile/10274145"
+    data <- readr::read_table(url, col_types=c("iccdd"))
+    return(data)
+  }
+  if(dname == "Z_machine_sim"){
+    url <- "https://dataverse.harvard.edu/api/access/datafile/10274144"
+    data <- readr::read_csv(url)
+    url2 <- "https://dataverse.harvard.edu/api/access/datafile/10274664"
+    params <- readr::read_table(url2)
+    obj <- list(data=data, params=params)
+    return(obj)
   }
 
   warning("Found no dataset by that name")
@@ -111,44 +124,76 @@ get_emulation_data <- function(dname){
     tmp <- get_UQ_data("e3sm")
     res$X <- tmp[,2:3]
     res$y <- tmp$temperature
+    return(res)
   }
   if(dname == "fair_climate_ssp1-2.6"){
     tmp <- get_UQ_data("fair_climate")
     tmp <- subset(tmp, ssp == "1-2.6")
     res$X <- tmp[,2:47]
     res$y <- tmp$temp_anomaly
+    return(res)
   }
   if(dname == "fair_climate_ssp2-4.5"){
     tmp <- get_UQ_data("fair_climate")
     tmp <- subset(tmp, ssp == "2-4.5")
     res$X <- tmp[,2:47]
     res$y <- tmp$temp_anomaly
+    return(res)
   }
   if(dname == "fair_climate_ssp3-7.0"){
     tmp <- get_UQ_data("fair_climate")
     tmp <- subset(tmp, ssp == "3-7.0")
     res$X <- tmp[,2:47]
     res$y <- tmp$temp_anomaly
+    return(res)
   }
   if(dname == "fair_climate_ssp1-2.6_year2200"){
     tmp <- get_UQ_data("fair_climate")
     tmp <- subset(tmp, ssp == "1-2.6" & year == 2200)
     res$X <- tmp[,3:47]
     res$y <- tmp$temp_anomaly
+    return(res)
   }
   if(dname == "fair_climate_ssp2-4.5_year2200"){
     tmp <- get_UQ_data("fair_climate")
     tmp <- subset(tmp, ssp == "2-4.5" & year == 2200)
     res$X <- tmp[,3:47]
     res$y <- tmp$temp_anomaly
+    return(res)
   }
   if(dname == "fair_climate_ssp3-7.0_year2200"){
     tmp <- get_UQ_data("fair_climate")
     tmp <- subset(tmp, ssp == "3-7.0" & year == 2200)
     res$X <- tmp[,3:47]
     res$y <- tmp$temp_anomaly
+    return(res)
   }
-
+  if(dname == "Z_machine_max_vel1"){
+    tmp <- get_UQ_data("Z_machine_sim")
+    res$y <- aggregate(velocity1~id, max, data=tmp$data)$velocity1
+    res$X <- as.matrix(tmp$params[,c(2:4, 5+c(0,9,18))])
+    return(res)
+  }
+  if(dname == "Z_machine_max_vel2"){
+    tmp <- get_UQ_data("Z_machine_sim")
+    res$y <- aggregate(velocity2~id, max, data=tmp$data)$velocity2
+    res$X <- as.matrix(tmp$params[,c(2:4, 6+c(0,9,18))])
+    return(res)
+  }
+  if(dname == "Z_machine_max_vel_all"){
+    tmp <- get_UQ_data("Z_machine_sim")
+    res$y <- aggregate(velocity1~id, max, data=tmp$data)[,2]
+    res$y <- res$y + aggregate(velocity2~id, max, data=tmp$data)[,2]
+    res$y <- res$y + aggregate(velocity3~id, max, data=tmp$data)[,2]
+    res$y <- res$y + aggregate(velocity4~id, max, data=tmp$data)[,2]
+    res$y <- res$y + aggregate(velocity5~id, max, data=tmp$data)[,2]
+    res$y <- res$y + aggregate(velocity6~id, max, data=tmp$data)[,2]
+    res$y <- res$y + aggregate(velocity7~id, max, data=tmp$data)[,2]
+    res$y <- res$y + aggregate(velocity8~id, max, data=tmp$data)[,2]
+    res$y <- res$y + aggregate(velocity9~id, max, data=tmp$data)[,2]
+    res$X <- as.matrix(tmp$param[,-1])
+    return(res)
+  }
   warning("Found no dataset by that name")
   return(FALSE)
 }
