@@ -16,27 +16,27 @@
 get_UQ_data <- function(dname, control=list()){
   if(dname == "strontium_plume"){
     url <- "https://dataverse.harvard.edu/api/access/datafile/10210723"
-    data <- readr::read_table(url)
+    data <- readr::read_delim(url, delim="\t")
     return(data)
   }
   if(dname == "pbx9501"){
     url <- "https://dataverse.harvard.edu/api/access/datafile/10223920"
-    data <- readr::read_table(url)
+    data <- readr::read_delim(url, delim="\t")
     return(data)
   }
   if(dname == "stochastic_sir"){
     url <- "https://dataverse.harvard.edu/api/access/datafile/10228544"
-    data <- readr::read_table(url)
+    data <- readr::read_delim(url, delim="\t")
     return(data)
   }
   if(dname == "e3sm"){
     url <- "https://dataverse.harvard.edu/api/access/datafile/10232219"
-    data <- readr::read_table(url)
+    data <- readr::read_delim(url, delim="\t")
     return(data)
   }
   if(dname == "fair_climate"){
     url <- "https://dataverse.harvard.edu/api/access/datafile/10243053"
-    data <- readr::read_table(url)
+    data <- readr::read_delim(url, delim="\t")
     return(data)
   }
   if(dname == "Z_machine_exp"){
