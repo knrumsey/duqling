@@ -52,6 +52,15 @@ get_UQ_data <- function(dname, control=list()){
     obj <- list(data=data, params=params)
     return(obj)
   }
+  if(dname == "flyer_plate104"){
+    url <- "https://dataverse.harvard.edu/api/access/datafile/10338350"
+    inputs <- readr::read_delim(url, delim="\t")
+    url <- "https://dataverse.harvard.edu/api/access/datafile/10338343"
+    outputs <- readr::read_delim(url, delim="\t")
+    colnames(outputs) <- paste0("y", 1:ncol(outputs))
+    data <- cbind(inputs, outputs)
+    return(data)
+  }
 
   warning("Found no dataset by that name")
   return(FALSE)
@@ -126,6 +135,48 @@ get_emulation_data <- function(dname){
     res$y <- tmp$temperature
     return(res)
   }
+  if(dname == "e3sm_mcar"){
+    tmp <- get_UQ_data("e3sm")
+    X <- tmp[,2:3]
+    y <- tmp$temperature
+    n <- length(y)
+
+    # Take a pseudo-random set of indices
+    M <- 11217
+    samp <- rep(1, M)
+    for(i in 2:M){
+      samp[i] <- (1664525 * samp[i-1] + 1013904223) %% (2^32)
+    }
+    samp <- unique(samp %% n)
+    res$X <- X[samp,]
+    res$y <- y[samp]
+    return(res)
+  }
+  if(dname == "e3sm_mnar"){
+    tmp <- get_UQ_data("e3sm")
+    X <- tmp[,2:3]
+    y <- tmp$temperature
+
+    # Get pseudorandom numbers
+    n <- length(y)
+    prob <-rep(0.5, n)
+    for(i in 2:n){
+      prob[i] <- (1664525 * prob[i-1] + 1013904223) %% (2^32)
+    }
+    prob <- prob / (2^32)
+
+    # Remove points probabilistically,
+    # with a higher probability to remove close to the center location
+    center <- c(285, 15)
+    lscale <- c(28, 15)
+    thresh <- dnorm(unlist(X[,1]), center[1], lscale[1]) * dnorm(unlist(X[,2]), center[2], lscale[2])
+    thresh <- thresh/max(thresh) + 4
+    thresh <- thresh/max(thresh)
+    ind    <- which(thresh > prob)
+    res$X <- X[-ind,]
+    res$y <- y[-ind]
+    return(res)
+  }
   if(dname == "fair_climate_ssp1-2.6"){
     tmp <- get_UQ_data("fair_climate")
     tmp <- subset(tmp, ssp == "1-2.6")
@@ -194,6 +245,49 @@ get_emulation_data <- function(dname){
     res$X <- as.matrix(tmp$param[,-1])
     return(res)
   }
+  # SLOSH DATA IS GIVEN AT 3 LOCATIONS
+  # Low:  index = 9946 (for original data)
+  #       coord = (-74.77213, 39.16568)
+  #
+  # Mid:  index = 35158 (for original data)
+  #       coord = (-74.89213, 39.03168)
+  #
+  # High: index = 11975 (for original data)
+  #       coord = (-74.68413, 39.15668)
+  if(dname == "SLOSH_low"){
+    url <- "https://dataverse.harvard.edu/api/access/datafile/10400109"
+    outputs <- readr::read_delim(url, delim="\t")
+    url <- "https://dataverse.harvard.edu/api/access/datafile/10338342"
+    inputs <- readr::read_delim(url, delim="\t")
+    res$y <- outputs[,1]
+    res$X <- as.matrix(inputs)
+    return(res)
+  }
+  if(dname == "SLOSH_mid"){
+    url <- "https://dataverse.harvard.edu/api/access/datafile/10400109"
+    outputs <- readr::read_delim(url, delim="\t")
+    url <- "https://dataverse.harvard.edu/api/access/datafile/10338342"
+    inputs <- readr::read_delim(url, delim="\t")
+    res$y <- outputs[,2]
+    res$X <- as.matrix(inputs)
+    return(res)
+  }
+  if(dname == "SLOSH_high"){
+    url <- "https://dataverse.harvard.edu/api/access/datafile/10400109"
+    outputs <- readr::read_delim(url, delim="\t")
+    url <- "https://dataverse.harvard.edu/api/access/datafile/10338342"
+    inputs <- readr::read_delim(url, delim="\t")
+    res$y <- outputs[,3]
+    res$X <- as.matrix(inputs)
+    return(res)
+  }
+  if(dname == "flyer_plate104"){
+    data <- get_UQ_data("flyer_plate104")
+    res$y <- data[,11 + 1 + 54]
+    res$X <- as.matrix(data[,1:11])
+    return(res)
+  }
+
   warning("Found no dataset by that name")
   return(FALSE)
 }

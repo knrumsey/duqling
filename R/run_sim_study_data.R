@@ -5,11 +5,13 @@
 #' @param fit_func If \code{pred_func} is specified, the \code{fit_func} should take two arguments called \code{X_train} and \code{y_train}, and should return an object which will be passed to \code{pred_func}. If \code{pred_func} is NOT specified, then \code{fit_func} should take a third argument called \code{X_test}, and should return predictive samples (see pred_func documentation).
 #' @param pred_func A function taking two arguments: (i) the object returned by \code{fit_func} and a matrix \code{X_test}. The function should return an matrix of samples from the predictive distribution, with one column per test point. For additional flexibility, see the details below.
 #' @param dnames A vector of dataset names from the \code{duqling} package. See \code{data_quack()} for details.
+#' @param dsets A list of datasets. Each list component is a list with elements \code{X} (a matrix) and \code{y} (a vector).
 #' @param folds Number of folds in cross validation. Can be a scalar or a vector (with \code{length(folds) == length(dnames)}).
 #' @param seed Seed for random number generators. For reproducibility, we discourage the use of this argument.
 #' @param conf_level Confidence level for interval estimates. If \code{length(conf_level) > 1}, then \code{pred_func} should return a matrix with \code{1 + 2*length(conf_level)} columns, with 2 columns of lower and upper bounds for each value in \code{conf_}
 #' @param score Logical. Should CRPS be computed?
 #' @param method_names A vector of method names, length equal to \code{length(fit_func)}. If NULL, the indexed names \code{my_method<i>} will be used.
+#' @param custom_data_names An optional vector of dataset names corresponding to the argument \code{dsets}.
 #' @param mc_cores How many cores to use for parallelization over replications.
 #' @param verbose should progress be reported?
 #' @return See details
@@ -34,11 +36,13 @@
 #'    folds=c(2, 3))
 run_sim_study_data <- function(fit_func, pred_func=NULL,
                           dnames=get_sim_data_tiny(),
+                          dsets=NULL,
                           folds=20,
                           seed = 42,
                           conf_level = 0.95,
                           score=TRUE,
                           method_names=NULL,
+                          custom_data_names=NULL,
                           mc_cores=1,
                           verbose=TRUE){
 
@@ -49,6 +53,23 @@ run_sim_study_data <- function(fit_func, pred_func=NULL,
   if(length(folds) == 1){
     folds <- rep(folds, length(dnames))
   }
+  n_custom_data <- length(dsets)
+  if(n_custom_data > 0){
+    if(!is.null(dsets$X)){
+      if(n_custom_data == 2){
+        # Try to fix it
+        tmp <- list()
+        tmp[[1]] <- dsets
+        dsets <- tmp
+        n_custom_data <- 1
+        warning("Trying to coerce. dsets should be a list of lists. Check documentation.")
+      }else{
+        stop("dsets should be a list of lists. Check documentation.")
+      }
+    }
+    dnames <- c(dnames, paste0("custom", 1:n_custom_data))
+    custom_cnt <- 1
+  }
 
   DF_full <- NULL
   for(dd in seq_along(dnames)){
@@ -56,9 +77,19 @@ run_sim_study_data <- function(fit_func, pred_func=NULL,
     dnum <- str2num(dn)
     set.seed(seed + str2num(dn))
     if(verbose) cat("Starting dataset ", dd, "/", length(dnames), ": ", dn, "\n", sep="")
-    curr <- get_emulation_data(dn)
-    X <- curr$X
-    y <- curr$y
+
+    # Check if this is a custom dataset
+    if(grep("custom", dn)){
+      X <- dsets[[custom_cnt]]$X
+      y <- dsets[[custom_cnt]]$y
+      cdn <- custom_data_names[custom_cnt]
+      custom_cnt <- custom_cnt + 1
+    }else{
+      # Load data from UQDataverse
+      curr <- get_emulation_data(dn)
+      X <- as.matrix(curr$X)
+      y <- curr$y
+    }
     n <- nrow(X)
     p <- ncol(X)
     # Get CV information
@@ -70,6 +101,7 @@ run_sim_study_data <- function(fit_func, pred_func=NULL,
                         dn=dn, score=score,
                         conf_level=conf_level,
                         method_names=method_names,
+                        custom_data_name=cdn,
                         fit_func=fit_func, pred_func=pred_func, verbose=verbose)
     }else{
       results <- parallel::mclapply(1:K, run_one_sim_case_data,
@@ -77,6 +109,7 @@ run_sim_study_data <- function(fit_func, pred_func=NULL,
                                     dn=dn, score=score,
                                     conf_level=conf_level,
                                     method_names=method_names,
+                                    custom_data_name=cdn,
                                     fit_func=fit_func, pred_func=pred_func, verbose=verbose,
                                     mc_cores=mc_cores)
     }
@@ -106,7 +139,7 @@ k.chunks = function(n, K){
 
 run_one_sim_case_data <- function(k, XX, yy, groups,
                                   dn, score,
-                                  conf_level, interval, method_names,
+                                  conf_level, interval, method_names, custom_data_name,
                                   fit_func, pred_func,
                                   verbose){
   # Partition data
@@ -120,13 +153,17 @@ run_one_sim_case_data <- function(k, XX, yy, groups,
   n <- n_test <- nrow(X_test)
   p <- ncol(X_test)
 
-
   # Fit models
   for(ii in seq_along(fit_func)){
     my_method <- ifelse(is.null(method_names[ii]), paste0("method", ii), method_names[ii])
     #browser()
+    if(grep("custom", dn)){
+      cdn <- custom_data_name
+    }else{
+      cdn <- dn
+    }
     DF_curr <- data.frame(method=my_method,
-                          dname=dn, input_dim=p, n=n,
+                          dname=cdn, input_dim=p, n=n,
                           fold=k, fold_size=mk)
 
     fit_func_curr <- ifelse(is.function(fit_func), fit_func, fit_func[[ii]])

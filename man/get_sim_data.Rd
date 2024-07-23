@@ -3,12 +3,15 @@
 \name{get_sim_data}
 \alias{get_sim_data}
 \alias{get_sim_data_full}
+\alias{get_sim_data_standard}
 \alias{get_sim_data_tiny}
 \alias{get_sim_data_medium}
 \alias{get_sim_data_2d}
 \title{Sim Study Datset Lists}
 \usage{
 get_sim_data_full()
+
+get_sim_data_standard()
 
 get_sim_data_tiny()
 

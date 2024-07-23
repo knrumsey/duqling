@@ -50,6 +50,9 @@ data_quack_raw <- function(dname=NULL, input_dim=NULL, output_dim=NULL, n=NULL, 
   tmp <- data.frame(dname="Z_machine_sim", input_dim=40, output_dim=9, n=5000000, input_cat_dim=0)
   tab <- rbind(tab, tmp)
 
+  tmp <- data.frame(dname="flyer_plate104", input_dim=11, output_dim=200, n=1000, input_cat_dim=0)
+  tab <- rbind(tab, tmp)
+
   # Subset the master table
   ord <- order(tab$input_dim)
   tab <- tab[ord,]
@@ -100,6 +103,10 @@ data_quack_emulator <- function(dname, input_dim=NULL, input_cat_dim=NULL, n=NUL
 
   tmp <- data.frame(dname="e3sm", input_dim=2, input_cat_dim=0, n=48602, response_type="uni")
   tab <- rbind(tab, tmp)
+  tmp <- data.frame(dname="e3sm_mcar", input_dim=2, input_cat_dim=0, n=10000, response_type="uni")
+  tab <- rbind(tab, tmp)
+  tmp <- data.frame(dname="e3sm_mnar", input_dim=2, input_cat_dim=0, n=9122, response_type="uni")
+  tab <- rbind(tab, tmp)
 
   tmp <- rbind(data.frame(dname="fair_climate_ssp1-2.6", input_dim=46, input_cat_dim=0, n=56056, response_type="uni"),
                data.frame(dname="fair_climate_ssp2-4.5", input_dim=46, input_cat_dim=0, n=56056, response_type="uni"),
@@ -115,6 +122,14 @@ data_quack_emulator <- function(dname, input_dim=NULL, input_cat_dim=NULL, n=NUL
   tmp <- data.frame(dname="Z_machine_max_vel2", input_dim=6, input_cat_dim=0, n=5000, response_type="uni")
   tab <- rbind(tab, tmp)
   tmp <- data.frame(dname="Z_machine_max_vel_all", input_dim=30, input_cat_dim=0, n=5000, response_type="uni")
+  tab <- rbind(tab, tmp)
+
+  tmp <- rbind(data.frame(dname="SLOSH_low", input_dim=5, input_cat_dim=0, n=4000, response_type="uni"),
+               data.frame(dname="SLOSH_mid", input_dim=5, input_cat_dim=0, n=4000, response_type="uni"),
+               data.frame(dname="SLOSH_high", input_dim=5, input_cat_dim=0, n=4000, response_type="uni"))
+  tab <- rbind(tab, tmp)
+
+  tmp <- data.frame(dname="flyer_plate104", input_dim=11, input_cat_dim=0, n=1000, response_type="uni")
   tab <- rbind(tab, tmp)
 
   # Subset the master table

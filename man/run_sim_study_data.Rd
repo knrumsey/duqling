@@ -8,11 +8,13 @@ run_sim_study_data(
   fit_func,
   pred_func = NULL,
   dnames = get_sim_data_tiny(),
+  dsets = NULL,
   folds = 20,
   seed = 42,
   conf_level = 0.95,
   score = TRUE,
   method_names = NULL,
+  custom_data_names = NULL,
   mc_cores = 1,
   verbose = TRUE
 )
@@ -24,6 +26,8 @@ run_sim_study_data(
 
 \item{dnames}{A vector of dataset names from the \code{duqling} package. See \code{data_quack()} for details.}
 
+\item{dsets}{A list of datasets. Each list component is a list with elements \code{X} (a matrix) and \code{y} (a vector).}
+
 \item{folds}{Number of folds in cross validation. Can be a scalar or a vector (with \code{length(folds) == length(dnames)}).}
 
 \item{seed}{Seed for random number generators. For reproducibility, we discourage the use of this argument.}
@@ -33,6 +37,8 @@ run_sim_study_data(
 \item{score}{Logical. Should CRPS be computed?}
 
 \item{method_names}{A vector of method names, length equal to \code{length(fit_func)}. If NULL, the indexed names \code{my_method<i>} will be used.}
+
+\item{custom_data_names}{An optional vector of dataset names corresponding to the argument \code{dsets}.}
 
 \item{mc_cores}{How many cores to use for parallelization over replications.}
 
