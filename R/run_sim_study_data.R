@@ -6,7 +6,7 @@
 #' @param pred_func A function taking two arguments: (i) the object returned by \code{fit_func} and a matrix \code{X_test}. The function should return an matrix of samples from the predictive distribution, with one column per test point. For additional flexibility, see the details below.
 #' @param dnames A vector of dataset names from the \code{duqling} package. See \code{data_quack()} for details.
 #' @param dsets A list of datasets. Each list component is a list with elements \code{X} (a matrix) and \code{y} (a vector).
-#' @param folds Number of folds in cross validation. Can be a scalar or a vector (with \code{length(folds) == length(dnames)}).
+#' @param folds Number of folds in cross validation. Can be a scalar or a vector (with \code{length(folds) == length(dnames)}). If \code{folds} is negative, then a Bootstrap Cross-Validation procedure is run \code{-folds} times.
 #' @param seed Seed for random number generators. For reproducibility, we discourage the use of this argument.
 #' @param conf_level Confidence level for interval estimates. If \code{length(conf_level) > 1}, then \code{pred_func} should return a matrix with \code{1 + 2*length(conf_level)} columns, with 2 columns of lower and upper bounds for each value in \code{conf_}
 #' @param score Logical. Should CRPS be computed?
@@ -39,7 +39,7 @@ run_sim_study_data <- function(fit_func, pred_func=NULL,
                           dsets=NULL,
                           folds=20,
                           seed = 42,
-                          conf_level = 0.95,
+                          conf_level = c(0.8, 0.9, 0.95, 0.99),
                           score=TRUE,
                           method_names=NULL,
                           custom_data_names=NULL,
@@ -94,10 +94,24 @@ run_sim_study_data <- function(fit_func, pred_func=NULL,
     p <- ncol(X)
     # Get CV information
     K <- folds[dd]
-    groups <- k.chunks(n, K)
+    if(K == 0) stop("Cannot have 0 folds")
+    if(K > 0){
+      # Cross Validation
+      cv_type <- "cv"
+      groups <- k.chunks(n, K)
+    }else{
+      # Bootstrap Cross-Validation
+      cv_type <- "boot"
+      K <- -K
+      groups <- list()
+      for(kk in 1:K){
+        groups[[k]] <- sample(n, n, TRUE)
+      }
+    }
+
     if(mc_cores == 1){
       results <- lapply(X=1:K, FUN=run_one_sim_case_data,
-                        XX=X, yy=y, groups=groups,
+                        XX=X, yy=y, groups=groups, cv_type=cv_type,
                         dn=dn, score=score,
                         conf_level=conf_level,
                         method_names=method_names,
@@ -105,7 +119,7 @@ run_sim_study_data <- function(fit_func, pred_func=NULL,
                         fit_func=fit_func, pred_func=pred_func, verbose=verbose)
     }else{
       results <- parallel::mclapply(1:K, run_one_sim_case_data,
-                                    XX=X, yy=y, groups=groups,
+                                    XX=X, yy=y, groups=groups, cv_type=cv_type,
                                     dn=dn, score=score,
                                     conf_level=conf_level,
                                     method_names=method_names,
@@ -137,19 +151,26 @@ k.chunks = function(n, K){
   return(groups)
 }
 
-run_one_sim_case_data <- function(k, XX, yy, groups,
+run_one_sim_case_data <- function(k, XX, yy, groups, cv_type,
                                   dn, score,
                                   conf_level, interval, method_names, custom_data_name,
                                   fit_func, pred_func,
                                   verbose){
   # Partition data
   #K <- length(unique(groups))
-  indx <- which(groups == k)
-  mk <- length(indx)
+  if(cv_type == "cv"){
+    indx <- which(groups == k)
+    mk <- length(indx)
+  }
+  if(cv_type == "boot"){
+    indx <- groups[[kk]]
+    mk <- length(unique(indx))
+  }
+
   X_test <- XX[indx,]
   y_test <- yy[indx]
-  X_train <- XX[-indx,]
-  y_train <- yy[-indx]
+  X_train <- XX[-unique(indx),]
+  y_train <- yy[-unique(indx)]
   n <- n_test <- nrow(X_test)
   p <- ncol(X_test)
 
@@ -233,16 +254,30 @@ run_one_sim_case_data <- function(k, XX, yy, groups,
       DF_curr$RMSE <- rmse_curr
       DF_curr$FVU  <- rmse_curr^2/var(y_test)
 
-      # CALCULATE COVERAGES
+      # CALCULATE COVERAGES and IS's
       n_conf <- length(conf_level)
       if(n_conf > 0){
         nms <- names(DF_curr)
+        #COVERAGES
         for(iii in seq_along(conf_level)){
           alpha_curr <- 1 - conf_level[iii]
           bounds <- apply(preds, 2, quantile, probs=c(alpha_curr/2, 1-alpha_curr/2))
+
           DF_curr[,ncol(DF_curr)+1] <- mean((y_test >= bounds[1,]) * (y_test <= bounds[2,]))
         }
-        colnames(DF_curr) <- c(nms, unlist(lapply(as.character(round(conf_level, 10)), function(zz) paste0("CONF", zz))))
+
+        # INTERVAL SCORES
+        for(iii in seq_along(conf_level)){
+          alpha_curr <- 1 - conf_level[iii]
+          bounds <- apply(preds, 2, quantile, probs=c(alpha_curr/2, 1-alpha_curr/2))
+
+          term1 <- apply(bounds, 1, diff)
+          term2 <- 2*(bounds[,1] - y_test)*as.numeric(y_test < bounds[,1])/alpha_curr
+          term3 <- 2*(y_test - bounds[,2])*as.numeric(y_test > bounds[,2])/alpha_curr
+          DF_curr[,ncol(DF_curr)+1] <- mean(term1 + term2 + term3)
+        }
+        nms <- c(nms, paste0("COVER", round(conf_level, 7)), paste0("MIS", round(conf_level, 7)))
+        colnames(DF_curr) <- nms
       }
 
       # CALUCLATE CRPS
@@ -289,16 +324,26 @@ run_one_sim_case_data <- function(k, XX, yy, groups,
       n_conf <- length(conf_level)
       if(n_conf > 0){
         nms <- names(DF_curr)
+        #COVERAGES
         for(iii in seq_along(conf_level)){
           alpha_curr <- 1 - conf_level[iii]
-          if(is.matrix(preds$intervals)){
-            bounds <- preds$intervals
-          }else{
-            bounds <- preds$intervals[,,iii]
-          }
+          bounds <- apply(preds, 2, quantile, probs=c(alpha_curr/2, 1-alpha_curr/2))
+
           DF_curr[,ncol(DF_curr)+1] <- mean((y_test >= bounds[1,]) * (y_test <= bounds[2,]))
         }
-        colnames(DF_curr) <- c(nms, unlist(lapply(as.character(round(conf_level, 10)), function(zz) paste0("CONF", zz))))
+
+        # INTERVAL SCORES
+        for(iii in seq_along(conf_level)){
+          alpha_curr <- 1 - conf_level[iii]
+          bounds <- apply(preds, 2, quantile, probs=c(alpha_curr/2, 1-alpha_curr/2))
+
+          term1 <- apply(bounds, 1, diff)
+          term2 <- 2*(bounds[,1] - y_test)*as.numeric(y_test < bounds[,1])/alpha_curr
+          term3 <- 2*(y_test - bounds[,2])*as.numeric(y_test > bounds[,2])/alpha_curr
+          DF_curr[,ncol(DF_curr)+1] <- mean(term1 + term2 + term3)
+        }
+        nms <- c(nms, paste0("COVER", round(conf_level, 7)), paste0("MIS", round(conf_level, 7)))
+        colnames(DF_curr) <- nms
       }
 
       # CALCULATE CRPS

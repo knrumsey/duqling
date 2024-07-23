@@ -11,7 +11,7 @@ run_sim_study_data(
   dsets = NULL,
   folds = 20,
   seed = 42,
-  conf_level = 0.95,
+  conf_level = c(0.8, 0.9, 0.95, 0.99),
   score = TRUE,
   method_names = NULL,
   custom_data_names = NULL,
@@ -28,7 +28,7 @@ run_sim_study_data(
 
 \item{dsets}{A list of datasets. Each list component is a list with elements \code{X} (a matrix) and \code{y} (a vector).}
 
-\item{folds}{Number of folds in cross validation. Can be a scalar or a vector (with \code{length(folds) == length(dnames)}).}
+\item{folds}{Number of folds in cross validation. Can be a scalar or a vector (with \code{length(folds) == length(dnames)}). If \code{folds} is negative, then a Bootstrap Cross-Validation procedure is run \code{-folds} times.}
 
 \item{seed}{Seed for random number generators. For reproducibility, we discourage the use of this argument.}
 

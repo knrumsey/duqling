@@ -36,7 +36,7 @@
 #'              n_train=50)
 run_sim_study <- function(fit_func, pred_func=NULL,
                           fnames=quack(input_dims = 1)$fname,
-                          conf_level = NULL,
+                          conf_level = c(0.8, 0.9, 0.95, 0.99),
                           score = TRUE,
                           n_train = 100,
                           n_test = 1000,
@@ -264,9 +264,24 @@ run_one_sim_case <- function(rr, seed, fn, fnum, p, n, nsr, dsgn, n_test, conf_l
           for(iii in seq_along(conf_level)){
             alpha_curr <- 1 - conf_level[iii]
             bounds <- apply(preds, 2, quantile, probs=c(alpha_curr/2, 1-alpha_curr/2))
+
+            # Coverage
             DF_curr[,ncol(DF_curr)+1] <- mean((y_test >= bounds[1,]) * (y_test <= bounds[2,]))
           }
-          colnames(DF_curr) <- c(nms, unlist(lapply(as.character(round(conf_level, 10)), function(zz) paste0("CONF", zz))))
+
+          # INTERVAL SCORES
+          for(iii in seq_along(conf_level)){
+            alpha_curr <- 1 - conf_level[iii]
+            bounds <- apply(preds, 2, quantile, probs=c(alpha_curr/2, 1-alpha_curr/2))
+
+            # Negatively oriented mean interval score (Raftery & Gneiting)
+            term1 <- apply(bounds, 1, diff)
+            term2 <- 2*(bounds[,1] - y_test)*as.numeric(y_test < bounds[,1])/alpha_curr
+            term3 <- 2*(y_test - bounds[,2])*as.numeric(y_test > bounds[,2])/alpha_curr
+            DF_curr[,ncol(DF_curr)+1] <- mean(term1 + term2 + term3)
+          }
+          nms <- c(nms, paste0("COVER", round(conf_level, 7)), paste0("MIS", round(conf_level, 7)))
+          colnames(DF_curr) <- nms
         }
 
         # CALUCLATE CRPS
@@ -313,16 +328,26 @@ run_one_sim_case <- function(rr, seed, fn, fnum, p, n, nsr, dsgn, n_test, conf_l
         n_conf <- length(conf_level)
         if(n_conf > 0){
           nms <- names(DF_curr)
+          #COVERAGES
           for(iii in seq_along(conf_level)){
             alpha_curr <- 1 - conf_level[iii]
-            if(is.matrix(preds$intervals)){
-              bounds <- preds$intervals
-            }else{
-              bounds <- preds$intervals[,,iii]
-            }
+            bounds <- apply(preds, 2, quantile, probs=c(alpha_curr/2, 1-alpha_curr/2))
+
             DF_curr[,ncol(DF_curr)+1] <- mean((y_test >= bounds[1,]) * (y_test <= bounds[2,]))
           }
-          colnames(DF_curr) <- c(nms, unlist(lapply(as.character(round(conf_level, 10)), function(zz) paste0("CONF", zz))))
+
+          # INTERVAL SCORES
+          for(iii in seq_along(conf_level)){
+            alpha_curr <- 1 - conf_level[iii]
+            bounds <- apply(preds, 2, quantile, probs=c(alpha_curr/2, 1-alpha_curr/2))
+
+            term1 <- apply(bounds, 1, diff)
+            term2 <- 2*(bounds[,1] - y_test)*as.numeric(y_test < bounds[,1])/alpha_curr
+            term3 <- 2*(y_test - bounds[,2])*as.numeric(y_test > bounds[,2])/alpha_curr
+            DF_curr[,ncol(DF_curr)+1] <- mean(term1 + term2 + term3)
+          }
+          nms <- c(nms, paste0("COVER", round(conf_level, 7)), paste0("MIS", round(conf_level, 7)))
+          colnames(DF_curr) <- nms
         }
 
         # CALCULATE CRPS

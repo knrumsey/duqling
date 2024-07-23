@@ -8,7 +8,7 @@ run_sim_study(
   fit_func,
   pred_func = NULL,
   fnames = quack(input_dims = 1)$fname,
-  conf_level = NULL,
+  conf_level = c(0.8, 0.9, 0.95, 0.99),
   score = TRUE,
   n_train = 100,
   n_test = 1000,
