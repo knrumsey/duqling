@@ -275,7 +275,7 @@ run_one_sim_case <- function(rr, seed, fn, fnum, p, n, nsr, dsgn, n_test, conf_l
             bounds <- apply(preds, 2, quantile, probs=c(alpha_curr/2, 1-alpha_curr/2))
 
             # Negatively oriented mean interval score (Raftery & Gneiting)
-            term1 <- apply(bounds, 1, diff)
+            term1 <- apply(bounds, 2, diff)
             term2 <- 2*(bounds[,1] - y_test)*as.numeric(y_test < bounds[,1])/alpha_curr
             term3 <- 2*(y_test - bounds[,2])*as.numeric(y_test > bounds[,2])/alpha_curr
             DF_curr[,ncol(DF_curr)+1] <- mean(term1 + term2 + term3)
@@ -341,7 +341,7 @@ run_one_sim_case <- function(rr, seed, fn, fnum, p, n, nsr, dsgn, n_test, conf_l
             alpha_curr <- 1 - conf_level[iii]
             bounds <- apply(preds, 2, quantile, probs=c(alpha_curr/2, 1-alpha_curr/2))
 
-            term1 <- apply(bounds, 1, diff)
+            term1 <- apply(bounds, 2, diff)
             term2 <- 2*(bounds[,1] - y_test)*as.numeric(y_test < bounds[,1])/alpha_curr
             term3 <- 2*(y_test - bounds[,2])*as.numeric(y_test > bounds[,2])/alpha_curr
             DF_curr[,ncol(DF_curr)+1] <- mean(term1 + term2 + term3)
