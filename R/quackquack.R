@@ -126,6 +126,14 @@ quackquack <- function(fname=NULL, input_dim=NULL, input_cat=NULL, response_type
   # add simple poly
   new_func <- data.frame(fname="simple_poly", input_dim=2, input_cat=FALSE, response_type="uni", stochastic="n")
   master_list <- rbind(master_list, new_func)
+  # add cube functions
+  new_func <- rbind(data.frame(fname="cube3", input_dim=3, input_cat=FALSE, response_type="uni", stochastic="n"),
+                    data.frame(fname="cube3_rotate", input_dim=3, input_cat=FALSE, response_type="uni", stochastic="n"),
+                    data.frame(fname="cube5", input_dim=5, input_cat=FALSE, response_type="uni", stochastic="n"))
+  master_list <- rbind(master_list, new_func)
+  # add mock-ignition function
+  new_func <- data.frame(fname="ignition", input_dim=10, input_cat=FALSE, response_type="uni", stochastic="n")
+  master_list <- rbind(master_list, new_func)
 
   if(sorted){
     master_list <- master_list[order(master_list$fname),]
@@ -133,30 +141,31 @@ quackquack <- function(fname=NULL, input_dim=NULL, input_cat=NULL, response_type
     rownames(master_list) <- 1:nrow(master_list)
   }
 
+  # Not supported anymore
   ## Add noise levels
-  recompute_noise <- FALSE
-  if(recompute_noise){
-    tab <- master_list
-    Nsims <- 1000
-    X <- lhs::randomLHS(Nsims, 20)
-    noise_vec <- rep(NA, nrow(tab))
-    for(i in 1:nrow(tab)){
-      fname <- tab$fname[i]
-      ff <- get(fname, envir=asNamespace("duqling"))
-      tmp <- get(paste0("quackquack_", fname), envir=asNamespace("duqling"))
-      if(tmp()$response_type == "uni"){
-        XX <- X[,1:tmp()$input_dim, drop=FALSE]
-        y <- apply(XX, 1, ff, scale01=TRUE)
-        noise_vec[i] <- sd(y)
-      }
-    }
-    master_list$noise <- round(noise_vec, 4)
-    for(i in 1:length(noise_vec)) cat(noise_vec[i], ", ")
-    return(TRUE)
-  }else{
-    noise_vec <- c(0 , 1.305875 , 360.2585 , 1.006089 , 1.00005 , 0.9132416 , 1.009811 , 0.9707915 , 0.3843342 , 0.08473954 , 1.91615 , 1.633466 , 0.354706 , 0.0797161 , 0.4775317 , 0.5098403 , 1.011876 , 0 , 35.84058 , 3.721238 , 0.2873336 , NA , NA , 13.5659 , NA , 0.8257302 , 4.857915 , NA , 0.1355501 , 1.174008 , 0.7268092 , 0.1357079 , 112.6912 , 89.67627 , 36.31331 , 0.5275391 , NA , 4.857915 , 46.78881 , 0 , 4.857915 , 2.089928)
-    master_list$noise <- round(noise_vec, 4)
-  }
+  # recompute_noise <- FALSE
+  # if(recompute_noise){
+  #   tab <- master_list
+  #   Nsims <- 1000
+  #   X <- lhs::randomLHS(Nsims, 20)
+  #   noise_vec <- rep(NA, nrow(tab))
+  #   for(i in 1:nrow(tab)){
+  #     fname <- tab$fname[i]
+  #     ff <- get(fname, envir=asNamespace("duqling"))
+  #     tmp <- get(paste0("quackquack_", fname), envir=asNamespace("duqling"))
+  #     if(tmp()$response_type == "uni"){
+  #       XX <- X[,1:tmp()$input_dim, drop=FALSE]
+  #       y <- apply(XX, 1, ff, scale01=TRUE)
+  #       noise_vec[i] <- sd(y)
+  #     }
+  #   }
+  #   master_list$noise <- round(noise_vec, 4)
+  #   for(i in 1:length(noise_vec)) cat(noise_vec[i], ", ")
+  #   return(TRUE)
+  # }else{
+  #   noise_vec <- c(0 , 1.305875 , 360.2585 , 1.006089 , 1.00005 , 0.9132416 , 1.009811 , 0.9707915 , 0.3843342 , 0.08473954 , 1.91615 , 1.633466 , 0.354706 , 0.0797161 , 0.4775317 , 0.5098403 , 1.011876 , 0 , 35.84058 , 3.721238 , 0.2873336 , NA , NA , 13.5659 , NA , 0.8257302 , 4.857915 , NA , 0.1355501 , 1.174008 , 0.7268092 , 0.1357079 , 112.6912 , 89.67627 , 36.31331 , 0.5275391 , NA , 4.857915 , 46.78881 , 0 , 4.857915 , 2.089928)
+  #   master_list$noise <- round(noise_vec, 4)
+  # }
 
 
   return_list <- master_list
