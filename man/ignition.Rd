@@ -12,7 +12,7 @@ ignition(x, scale01 = TRUE)
 \item{scale01}{(No effect here). When TRUE, inputs are expected to be given on unit interval and are internally adjusted to their native range.}
 }
 \value{
-The response C is cycle time (the time it takes to complete one cycle), in seconds
+The response is mock yield of an ignition cliff.
 }
 \description{
 Dimensions: 10 The complex mock ignition function from Section E of Hatfield et al. 2019.

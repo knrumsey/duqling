@@ -4,7 +4,7 @@
 #'
 #' @param x Inputs of dimension (at least) 10. See below for details.
 #' @param scale01 (No effect here). When TRUE, inputs are expected to be given on unit interval and are internally adjusted to their native range.
-#' @return The response C is cycle time (the time it takes to complete one cycle), in seconds
+#' @return The response is mock yield of an ignition cliff.
 #' @details From Hatfield et al. 2019, the mock-yield is r^5(1 + 100000 + (1+erf(10(r-2)))) where r is the radius from the origin in this 10-D space.
 #' @references
 #' Hatfield, P., Rose, S., Scott, R., Almosallam, I., Roberts, S., & Jarvis, M. (2019). Using sparse Gaussian processes for predicting robust inertial confinement fusion implosion yields. IEEE Transactions on Plasma Science, 48(1), 14-21.
