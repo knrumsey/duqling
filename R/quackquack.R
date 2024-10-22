@@ -134,6 +134,9 @@ quackquack <- function(fname=NULL, input_dim=NULL, input_cat=NULL, response_type
   # add mock-ignition function
   new_func <- data.frame(fname="ignition", input_dim=10, input_cat=FALSE, response_type="uni", stochastic="n")
   master_list <- rbind(master_list, new_func)
+  # Add beam-deflection function
+  new_func <- data.frame(fname="beam_deflection", input_dim=5, input_cat=FALSE, response_type="func", stochastic="n")
+  master_list <- rbind(master_list, new_func)
 
   if(sorted){
     master_list <- master_list[order(master_list$fname),]
