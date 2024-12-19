@@ -16,7 +16,7 @@
 #' x <- matrix(runif(n*p), nrow=n)
 #' y <- apply(x, 1, ignition, scale01=TRUE)
 ignition<-function(x, scale01=TRUE){
-  r<-sqrt(x[1:10]^2)
+  r<-sqrt(sum(x[1:10]^2))
   return(log10(r^5*(1+100000*(2*pnorm(sqrt(2)*10*(r-2))))))
 }
 
