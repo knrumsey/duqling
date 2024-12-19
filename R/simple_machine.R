@@ -22,7 +22,7 @@
 #' n <- 10
 #' x <- matrix(runif(3*n), nrow=n)
 #' y <- apply(x, 1, simple_machine)
-simple_machine <- function(x, scale01=FALSE, effort=seq(1, 10, by=1), friction=1/10, base_eff=0){
+simple_machine <- function(x, scale01=TRUE, effort=seq(1, 10, by=1), friction=1/10, base_eff=0){
   if(length(x) < 2){
     x[2] <- friction
   }
@@ -58,7 +58,7 @@ simple_machine <- function(x, scale01=FALSE, effort=seq(1, 10, by=1), friction=1
 #' n <- 10
 #' x <- matrix(runif(3*n), nrow=n)
 #' y <- apply(x, 1, simple_machine)
-simple_machine_cm <- function(x, scale01=FALSE, effort=seq(1, 10, by=1), order = 3){
+simple_machine_cm <- function(x, scale01=TRUE, effort=seq(1, 10, by=1), order = 3){
   if(order == 1){
     x[2:5] <- c(10^9, 0, 10^9, 0)
   }

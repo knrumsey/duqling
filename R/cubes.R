@@ -43,7 +43,7 @@ cube3_rotate <- function(x, scale01=TRUE){
 
 #' @rdname dms
 #' @export
-cube5 <- function(x, scale01=FALSE){
+cube5 <- function(x, scale01=TRUE){
   cube3(x[1:3]) + prod((x[1:5] > 0.25)*(x[1:5] < 0.75)) + 5*(x[5] > 1/3)
 }
 

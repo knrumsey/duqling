@@ -11,7 +11,7 @@
 #' X <- lhs::randomLHS(50, 3)
 #' y <- apply(X, 1, ishigami, scale01=TRUE)
 #' @export
-ishigami <- function(x, scale01=FALSE, ab=c(7, 0.1)){
+ishigami <- function(x, scale01=TRUE, ab=c(7, 0.1)){
   if(scale01){
     RR <- cbind(rep(-base::pi, 3), rep(base::pi, 3))
     x[1:3] <- x[1:3]*(RR[,2] - RR[,1]) + RR[,1]

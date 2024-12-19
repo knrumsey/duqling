@@ -26,7 +26,7 @@
 #' n <- 10
 #' x <- matrix(runif(8*n), nrow=n)
 #' y <- apply(x, 1, robot, scale01=TRUE)
-robot <- function(x, scale01=FALSE){
+robot <- function(x, scale01=TRUE){
   if(scale01){
     RR <- cbind(rep(0, 8),
                 c(rep(2*pi, 4), rep(1, 4)))

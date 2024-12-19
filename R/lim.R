@@ -20,7 +20,7 @@ NULL
 #' X <- matrix(runif(n*p), nrow=n)
 #' y <- apply(X, 1, lim_polynomial)
 #' @export
-lim_polynomial <- function(x, scale01=FALSE){
+lim_polynomial <- function(x, scale01=TRUE){
   x1 <- x[1]
   x2 <- x[2]
 
@@ -35,7 +35,7 @@ lim_polynomial <- function(x, scale01=FALSE){
 
 #' @rdname lim
 #' @export
-lim_non_polynomial <- function(x, scale01=FALSE){
+lim_non_polynomial <- function(x, scale01=TRUE){
   x1 <- x[1]
   x2 <- x[2]
 

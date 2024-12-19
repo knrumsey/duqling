@@ -16,7 +16,7 @@
 #' y <- apply(X, 1, banana, scale01=TRUE)
 #' image(matrix(y, nrow=length(X)), zlim=c(-1,3.5))
 #' @export
-banana <- function(x, scale01=FALSE, ab=c(1, 100)){
+banana <- function(x, scale01=TRUE, ab=c(1, 100)){
   if(scale01){
     RR <- cbind(c(-2,-1), c(2, 3))
     x[1:2] <- x[1:2]*(RR[,2] - RR[,1]) + RR[,1]

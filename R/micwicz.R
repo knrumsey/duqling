@@ -18,7 +18,7 @@
 #' n <- 10
 #' x <- matrix(runif(8*n), nrow=n)
 #' y <- apply(x, 1, piston, scale01=TRUE)
-micwicz <- function(x, scale01=FALSE, m=10, active_dim=length(x)){
+micwicz <- function(x, scale01=TRUE, m=10, active_dim=length(x)){
   p <- min(active_dim, length(x))
   if(scale01){
     RR <- cbind(rep(0, p), rep(2*pi, p))

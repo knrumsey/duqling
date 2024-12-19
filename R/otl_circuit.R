@@ -24,7 +24,7 @@
 #' n <- 10
 #' x <- matrix(runif(6*n), nrow=n)
 #' y <- apply(x, 1, circuit, scale01=TRUE)
-circuit <- function(x, scale01=FALSE){
+circuit <- function(x, scale01=TRUE){
   if(scale01){
     RR <- cbind(c(50, 25, 0.5, 1.2, 0.25, 50),
                 c(150, 70, 3, 2.5, 1.2, 300))

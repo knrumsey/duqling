@@ -25,7 +25,7 @@
 #' n <- 10
 #' x <- matrix(runif(8*n), nrow=n)
 #' y <- apply(x, 1, pollutant, scale01=TRUE)
-pollutant <- function(x, scale01=FALSE,
+pollutant <- function(x, scale01=TRUE,
                             space=c(0.5, 1, 1.5, 2, 2.5),
                             time=seq(from=0.3, to=60, by=0.3)){
   if(scale01){

@@ -18,7 +18,7 @@
 #' n <- 10
 #' x <- matrix(runif(10*n), nrow=n)
 #' y <- apply(x, 1, wingweight, scale01=TRUE)
-wingweight <- function(x, scale01=FALSE){
+wingweight <- function(x, scale01=TRUE){
   if(scale01){
     RR <- cbind(c(150, 220, 6, -10, 16, 0.5, 0.08, 2.5, 1700, 0.025),
                 c(200, 300, 10, 10, 45, 1.0, 0.18, 6.0, 2500, 0.08))

@@ -10,20 +10,20 @@ NULL
 
 #' @rdname constant
 #' @export
-const_fn <- function(x, scale01=FALSE){
+const_fn <- function(x, scale01=TRUE){
   return(0)
 }
 
 
 #' @rdname constant
 #' @export
-const_fn3 <- function(x, scale01=FALSE){
+const_fn3 <- function(x, scale01=TRUE){
   const_fn(x)
 }
 
 #' @rdname constant
 #' @export
-const_fn15 <- function(x, scale01=FALSE){
+const_fn15 <- function(x, scale01=TRUE){
   const_fn(x)
 }
 

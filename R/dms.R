@@ -24,23 +24,23 @@ NULL
 #' X <- matrix(runif(n*p), nrow=n)
 #' y <- apply(X, 1, dms_simple)
 #' @export
-dms_simple <- function(x, scale01=FALSE) 10.391*((x[1]-0.4)*(x[2]-0.6) + 0.36)
+dms_simple <- function(x, scale01=TRUE) 10.391*((x[1]-0.4)*(x[2]-0.6) + 0.36)
 
 #' @rdname dms
 #' @export
-dms_radial <- function(x, scale01=FALSE){ r <- (x[1]-0.5)^2 + (x[2] - 0.5)^2; 24.234*(r*(0.75 - r))}
+dms_radial <- function(x, scale01=TRUE){ r <- (x[1]-0.5)^2 + (x[2] - 0.5)^2; 24.234*(r*(0.75 - r))}
 
 #' @rdname dms
 #' @export
-dms_harmonic <- function(x, scale01=FALSE){ xx1 <- x[1] - 0.5; xx2 <- x[2] - 0.5; 42.659*(0.1 + xx1*(0.05 + xx1^4 - 10*xx1^2*xx2^2 + 5*xx2^4))}
+dms_harmonic <- function(x, scale01=TRUE){ xx1 <- x[1] - 0.5; xx2 <- x[2] - 0.5; 42.659*(0.1 + xx1*(0.05 + xx1^4 - 10*xx1^2*xx2^2 + 5*xx2^4))}
 
 #' @rdname dms
 #' @export
-dms_additive <- function(x, scale01=FALSE) 1.3356*(1.5*(1-x[1]) + exp(2*x[1] - 1)*sin(3*pi*(x[1] - 0.6)^2) + exp(3*(x[2]-0.5))*sin(4*pi*(x[2] - 0.9)^2))
+dms_additive <- function(x, scale01=TRUE) 1.3356*(1.5*(1-x[1]) + exp(2*x[1] - 1)*sin(3*pi*(x[1] - 0.6)^2) + exp(3*(x[2]-0.5))*sin(4*pi*(x[2] - 0.9)^2))
 
 #' @rdname dms
 #' @export
-dms_complicated <- function(x, scale01=FALSE) 1.9*(1.35 + exp(x[1])*sin(13*(x[1]-0.6)^2)*exp(-x[2])*sin(7*x[2]))
+dms_complicated <- function(x, scale01=TRUE) 1.9*(1.35 + exp(x[1])*sin(13*(x[1]-0.6)^2)*exp(-x[2])*sin(7*x[2]))
 
 
 quackquack_dms_simple <- function(){

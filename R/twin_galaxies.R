@@ -15,7 +15,7 @@
 #' n <- 10
 #' x <- matrix(runif(2*n), nrow=n)
 #' y <- apply(x, 1, twin_galaxies)
-twin_galaxies <- function(x, scale01=FALSE, fixed_coeff=TRUE, seed=NULL){
+twin_galaxies <- function(x, scale01=TRUE, fixed_coeff=TRUE, seed=NULL){
   if(!scale01){
     x[1] <- x[1]/360
     x[2] <- (x[2] + 90)/180

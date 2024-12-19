@@ -16,7 +16,7 @@
 #' n <- 10
 #' x <- matrix(runif(2*n), nrow=n)
 #' y <- apply(x, 1, ripples)
-ripples <- function(x, scale01=FALSE, fixed_coeff=TRUE, input_dims=2, seed=NULL){
+ripples <- function(x, scale01=TRUE, fixed_coeff=TRUE, input_dims=2, seed=NULL){
   if(!is.null(seed)) set.seed(seed)
   if(fixed_coeff == TRUE & input_dims != 2) warning("Cannot have fixed coefficients when input_dims != 2.")
 

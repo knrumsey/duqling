@@ -30,7 +30,7 @@
 #' n <- 10
 #' x <- matrix(runif(8*n), nrow=n)
 #' y <- apply(x, 1, borehole, scale01=TRUE)
-borehole <- function(x, scale01=FALSE, adjust_fidelity = 0){
+borehole <- function(x, scale01=TRUE, adjust_fidelity = 0){
   if(scale01){
     RR <- cbind(c(0.05, 100, 63070, 990, 63.1,  700, 1120, 9855),
                    c(0.15, 50000, 115600, 1110, 116, 80, 1680, 12045))

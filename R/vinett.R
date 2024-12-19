@@ -25,7 +25,7 @@
 #' n <- 10
 #' x <- matrix(runif(3*n), nrow=n)
 #' y <- apply(x, 1, vinet, scale01=TRUE)
-vinet <- function(x, scale01=FALSE,
+vinet <- function(x, scale01=TRUE,
                       density = seq(15.5, 17.5, by=0.1)){
   if(scale01){
     RR <- cbind(c(195.6, 2.9, 16.15),

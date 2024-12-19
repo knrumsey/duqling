@@ -24,7 +24,7 @@ NULL
 #' X <- matrix(runif(n*p), nrow=n)
 #' y <- apply(X, 1, grlee6)
 #' @export
-grlee6 <- function(x, scale01=FALSE){
+grlee6 <- function(x, scale01=TRUE){
   x1 <- x[1]
   x2 <- x[2]
   x3 <- x[3]
@@ -42,7 +42,7 @@ grlee6 <- function(x, scale01=FALSE){
 
 #' @rdname grlee
 #' @export
-grlee1 <- function(x, scale01=FALSE){
+grlee1 <- function(x, scale01=TRUE){
   if(scale01){
     x <- 0.5 + 2*x[1]
   }
@@ -55,7 +55,7 @@ grlee1 <- function(x, scale01=FALSE){
 
 #' @rdname grlee
 #' @export
-grlee2 <- function(x, scale01=FALSE){
+grlee2 <- function(x, scale01=TRUE){
   if(scale01){
     x[1:2] <- 8*x[1:2] - 2
   }
