@@ -4,7 +4,7 @@
 \alias{micwicz}
 \title{The Michalewicz Function}
 \usage{
-micwicz(x, scale01 = FALSE, m = 10, active_dim = length(x))
+micwicz(x, scale01 = TRUE, m = 10, active_dim = length(x))
 }
 \arguments{
 \item{x}{Inputs of dimension (at least) 2. See below for details.}

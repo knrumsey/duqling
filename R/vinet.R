@@ -39,7 +39,7 @@ vinet <- function(x, scale01=TRUE,
   eta <- (rho0/density)^(1/3)
   term1 <- 3*B0*(1-eta)/eta^2
   term2 <- exp(1.5*(B0p-1)*(1-eta))
-  y <- term1 + term2
+  y <- term1 * term2
   return(y)
 }
 

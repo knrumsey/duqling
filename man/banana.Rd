@@ -4,7 +4,7 @@
 \alias{banana}
 \title{Rosenbrock's Banana Function}
 \usage{
-banana(x, scale01 = FALSE, ab = c(1, 100))
+banana(x, scale01 = TRUE, ab = c(1, 100))
 }
 \arguments{
 \item{x}{Inputs of dimension (at least) 2. See below for details.}

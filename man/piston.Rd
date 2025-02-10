@@ -4,7 +4,7 @@
 \alias{piston}
 \title{Piston Simulation Function}
 \usage{
-piston(x, scale01 = FALSE)
+piston(x, scale01 = TRUE)
 }
 \arguments{
 \item{x}{Inputs of dimension (at least) 7. See below for details.}

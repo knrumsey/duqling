@@ -7,11 +7,11 @@
 \alias{const_fn15}
 \title{Constant Functions}
 \usage{
-const_fn(x, scale01 = FALSE)
+const_fn(x, scale01 = TRUE)
 
-const_fn3(x, scale01 = FALSE)
+const_fn3(x, scale01 = TRUE)
 
-const_fn15(x, scale01 = FALSE)
+const_fn15(x, scale01 = TRUE)
 }
 \arguments{
 \item{x}{Inputs of any dimension. See below for details.}

@@ -4,7 +4,7 @@
 \alias{twin_galaxies}
 \title{Synthetic Twin Galaxy Function}
 \usage{
-twin_galaxies(x, scale01 = FALSE, fixed_coeff = TRUE, seed = NULL)
+twin_galaxies(x, scale01 = TRUE, fixed_coeff = TRUE, seed = NULL)
 }
 \arguments{
 \item{x}{Inputs of dimension (at least) 8. See below for details.}

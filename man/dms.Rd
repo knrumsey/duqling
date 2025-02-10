@@ -16,17 +16,17 @@ cube3(x, scale01 = TRUE)
 
 cube3_rotate(x, scale01 = TRUE)
 
-cube5(x, scale01 = FALSE)
+cube5(x, scale01 = TRUE)
 
-dms_simple(x, scale01 = FALSE)
+dms_simple(x, scale01 = TRUE)
 
-dms_radial(x, scale01 = FALSE)
+dms_radial(x, scale01 = TRUE)
 
-dms_harmonic(x, scale01 = FALSE)
+dms_harmonic(x, scale01 = TRUE)
 
-dms_additive(x, scale01 = FALSE)
+dms_additive(x, scale01 = TRUE)
 
-dms_complicated(x, scale01 = FALSE)
+dms_complicated(x, scale01 = TRUE)
 }
 \arguments{
 \item{x}{Inputs of dimension (at least) 8. See below for details.}

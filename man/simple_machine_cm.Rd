@@ -4,7 +4,7 @@
 \alias{simple_machine_cm}
 \title{Simple Machine Computer Model (Piecewise Polynomial)}
 \usage{
-simple_machine_cm(x, scale01 = FALSE, effort = seq(1, 10, by = 1), order = 3)
+simple_machine_cm(x, scale01 = TRUE, effort = seq(1, 10, by = 1), order = 3)
 }
 \arguments{
 \item{x}{Inputs of dimension 1 to 3. Parameters are efficiency, friction and base-efficiency. If x has dimension less than 3, defaults are used for the other pars.}

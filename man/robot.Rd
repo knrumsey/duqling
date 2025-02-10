@@ -4,7 +4,7 @@
 \alias{robot}
 \title{Robot Arm Function}
 \usage{
-robot(x, scale01 = FALSE)
+robot(x, scale01 = TRUE)
 }
 \arguments{
 \item{x}{Inputs of dimension (at least) 8. See below for details.}

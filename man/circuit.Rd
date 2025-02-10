@@ -4,7 +4,7 @@
 \alias{circuit}
 \title{OTL Circuit Function}
 \usage{
-circuit(x, scale01 = FALSE)
+circuit(x, scale01 = TRUE)
 }
 \arguments{
 \item{x}{Inputs of dimension (at least) 7. See below for details.}

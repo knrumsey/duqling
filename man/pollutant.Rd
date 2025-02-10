@@ -6,7 +6,7 @@
 \usage{
 pollutant(
   x,
-  scale01 = FALSE,
+  scale01 = TRUE,
   space = c(0.5, 1, 1.5, 2, 2.5),
   time = seq(from = 0.3, to = 60, by = 0.3)
 )

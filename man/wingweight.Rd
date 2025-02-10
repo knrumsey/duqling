@@ -4,7 +4,7 @@
 \alias{wingweight}
 \title{Wing Weight Function}
 \usage{
-wingweight(x, scale01 = FALSE)
+wingweight(x, scale01 = TRUE)
 }
 \arguments{
 \item{x}{Inputs of dimension (at least) 10. See below for details.}

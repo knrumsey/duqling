@@ -4,7 +4,7 @@
 \alias{borehole}
 \title{The Borehole Function}
 \usage{
-borehole(x, scale01 = FALSE, adjust_fidelity = 0)
+borehole(x, scale01 = TRUE, adjust_fidelity = 0)
 }
 \arguments{
 \item{x}{Inputs of dimension (at least) 8. See below for details.}

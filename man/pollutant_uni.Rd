@@ -4,7 +4,7 @@
 \alias{pollutant_uni}
 \title{Univariate Pollutant Spill in a Channel}
 \usage{
-pollutant_uni(x, scale01 = FALSE, space = 2.5, time = 30)
+pollutant_uni(x, scale01 = TRUE, space = 2.5, time = 30)
 }
 \arguments{
 \item{x}{Inputs of dimension (at least) 4. See below for details.}

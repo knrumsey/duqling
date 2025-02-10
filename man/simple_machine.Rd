@@ -6,7 +6,7 @@
 \usage{
 simple_machine(
   x,
-  scale01 = FALSE,
+  scale01 = TRUE,
   effort = seq(1, 10, by = 1),
   friction = 1/10,
   base_eff = 0

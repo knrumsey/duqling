@@ -4,7 +4,7 @@
 \alias{borehole_low_fidelity}
 \title{The Low Fidelity Borehole Function}
 \usage{
-borehole_low_fidelity(x, scale01 = FALSE)
+borehole_low_fidelity(x, scale01 = TRUE)
 }
 \arguments{
 \item{x}{Inputs of dimension (at least) 8. See below for details.}

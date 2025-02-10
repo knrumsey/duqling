@@ -4,7 +4,7 @@
 \alias{vinet}
 \title{The Vinet Equation of State}
 \usage{
-vinet(x, scale01 = FALSE, density = seq(15.5, 17.5, by = 0.1))
+vinet(x, scale01 = TRUE, density = seq(15.5, 17.5, by = 0.1))
 }
 \arguments{
 \item{x}{Inputs of dimension (at least) 3. See below for details.}

@@ -7,11 +7,11 @@
 \alias{grlee2}
 \title{Gramacy and Lee Test Functions}
 \usage{
-grlee6(x, scale01 = FALSE)
+grlee6(x, scale01 = TRUE)
 
-grlee1(x, scale01 = FALSE)
+grlee1(x, scale01 = TRUE)
 
-grlee2(x, scale01 = FALSE)
+grlee2(x, scale01 = TRUE)
 }
 \arguments{
 \item{x}{Inputs of dimension (at least) 8. See below for details.}

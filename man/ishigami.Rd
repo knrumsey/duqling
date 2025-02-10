@@ -4,7 +4,7 @@
 \alias{ishigami}
 \title{Ishigami Function}
 \usage{
-ishigami(x, scale01 = FALSE, ab = c(7, 0.1))
+ishigami(x, scale01 = TRUE, ab = c(7, 0.1))
 }
 \arguments{
 \item{x}{Inputs of dimension (at least) 3. See below for details.}

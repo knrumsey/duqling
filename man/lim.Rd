@@ -6,9 +6,9 @@
 \alias{lim_non_polynomial}
 \title{Lim et al Test Functions}
 \usage{
-lim_polynomial(x, scale01 = FALSE)
+lim_polynomial(x, scale01 = TRUE)
 
-lim_non_polynomial(x, scale01 = FALSE)
+lim_non_polynomial(x, scale01 = TRUE)
 }
 \arguments{
 \item{x}{Inputs of dimension (at least) 8. See below for details.}
