@@ -1,4 +1,4 @@
-#' The Michalewicz Function
+#' The Multivalley Function
 #'
 #' Dimension: Default is 2, but can be any dimension. For inert variables, \code{active_dim} must be specified.
 #'
@@ -7,7 +7,7 @@
 #' @param m A larger m leads to a more difficult search (steeper valleys/ridges).
 #' @param active_dim Only the first \code{min(active_dim, length(x))} variables will be used. All other variables are inert.
 #' @return Function output
-#' @details For details on this function, see \href{https://www.sfu.ca/~ssurjano/michal.html}{the VLSE}.
+#' @details Also called the Michalewicz function. For details on this function, see \href{https://www.sfu.ca/~ssurjano/michal.html}{the VLSE}.
 #'
 #' @references
 #' Surjanovic, Sonja, and Derek Bingham. "Virtual library of simulation experiments: test functions and datasets." Simon Fraser University, Burnaby, BC, Canada, accessed May 13 (2013): 2015.
@@ -17,8 +17,8 @@
 #' @examples
 #' n <- 10
 #' x <- matrix(runif(8*n), nrow=n)
-#' y <- apply(x, 1, piston, scale01=TRUE)
-micwicz <- function(x, scale01=TRUE, m=10, active_dim=length(x)){
+#' y <- apply(x, 1, multivalley, scale01=TRUE)
+multivalley <- function(x, scale01=TRUE, m=10, active_dim=length(x)){
   p <- min(active_dim, length(x))
   if(scale01){
     RR <- cbind(rep(0, p), rep(2*pi, p))
@@ -33,7 +33,7 @@ micwicz <- function(x, scale01=TRUE, m=10, active_dim=length(x)){
 }
 
 
-quackquack_micwicz <- function(){
+quackquack_multivalley <- function(){
   out <- list(input_dim=2)
   out$input_cat <- FALSE
   out$response_type <- "uni"

@@ -106,7 +106,7 @@ quackquack <- function(fname=NULL, input_dim=NULL, input_cat=NULL, response_type
                          response_type=rep("uni", 3), stochastic=rep("n", 3))
   master_list <- rbind(master_list, new_func)
   # add michalewicz model
-  new_func <- data.frame(fname="micwicz", input_dim=2, input_cat=FALSE, response_type="uni", stochastic="n")
+  new_func <- data.frame(fname="multivalley", input_dim=2, input_cat=FALSE, response_type="uni", stochastic="n")
   master_list <- rbind(master_list, new_func)
   # add vinet eos model
   new_func <- data.frame(fname="vinet", input_dim=3, input_cat=FALSE, response_type="func", stochastic="n")
@@ -136,6 +136,9 @@ quackquack <- function(fname=NULL, input_dim=NULL, input_cat=NULL, response_type
   master_list <- rbind(master_list, new_func)
   # Add beam-deflection function
   new_func <- data.frame(fname="beam_deflection", input_dim=5, input_cat=FALSE, response_type="func", stochastic="n")
+  master_list <- rbind(master_list, new_func)
+  # Add crater function
+  new_func <- data.frame(fname="crater", input_dim=7, input_cat=FALSE, response_type="uni", stochastic="n")
   master_list <- rbind(master_list, new_func)
 
   if(sorted){
