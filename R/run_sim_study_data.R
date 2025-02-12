@@ -79,7 +79,7 @@ run_sim_study_data <- function(fit_func, pred_func=NULL,
     if(verbose) cat("Starting dataset ", dd, "/", length(dnames), ": ", dn, "\n", sep="")
 
     # Check if this is a custom dataset
-    if(grep("custom", dn)){
+    if(grepl("custom", dn)){
       X <- dsets[[custom_cnt]]$X
       y <- dsets[[custom_cnt]]$y
       cdn <- custom_data_names[custom_cnt]
@@ -178,7 +178,7 @@ run_one_sim_case_data <- function(k, XX, yy, groups, cv_type,
   for(ii in seq_along(fit_func)){
     my_method <- ifelse(is.null(method_names[ii]), paste0("method", ii), method_names[ii])
     #browser()
-    if(grep("custom", dn)){
+    if(grepl("custom", dn)){
       cdn <- custom_data_name
     }else{
       cdn <- dn
