@@ -30,10 +30,14 @@ quackquack <- function(fname=NULL, input_dim=NULL, input_cat=NULL, response_type
   tmp_stochastic <- stochastic
 
   if(!is.null(tmp_fname)){
-    fff <- get(paste0("quackquack_", fname))
-    return(fff())
+    # Check to see that function exists
+    if(tmp_fname %in% quack()$fname){
+      fff <- get(paste0("quackquack_", fname))
+      return(fff())
+    }else{
+      stop("fname not recognized. Use quack() for full list of functions.")
+    }
   }
-
 
 
   # CREATE MASTER LIST OF FUNCTIONS
