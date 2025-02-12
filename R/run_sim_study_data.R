@@ -50,9 +50,6 @@ run_sim_study_data <- function(fit_func, pred_func=NULL,
   if(is.null(method_names)){
     method_names <- names(fit_func)
   }
-  if(length(folds) == 1){
-    folds <- rep(folds, length(dnames))
-  }
   n_custom_data <- length(dsets)
   if(n_custom_data > 0){
     if(!is.null(dsets$X)){
@@ -69,6 +66,10 @@ run_sim_study_data <- function(fit_func, pred_func=NULL,
     }
     dnames <- c(dnames, paste0("custom", 1:n_custom_data))
     custom_cnt <- 1
+  }
+
+  if(length(folds) == 1){
+    folds <- rep(folds, length(dnames))
   }
 
   DF_full <- NULL
