@@ -144,7 +144,29 @@ quackquack <- function(fname=NULL, input_dim=NULL, input_cat=NULL, response_type
   # Add crater function
   new_func <- data.frame(fname="crater", input_dim=7, input_cat=FALSE, response_type="uni", stochastic="n")
   master_list <- rbind(master_list, new_func)
-
+  # Add cantilever functions
+  new_func <- rbind(data.frame(fname="cantilever_D", input_dim=6, input_cat=FALSE, response_type="uni", stochastic="n"),
+                    data.frame(fname="cantilever_S", input_dim=6, input_cat=FALSE, response_type="uni", stochastic="n"))
+  master_list <- rbind(master_list, new_func)
+  # Add short and steel column
+  new_func <- data.frame(fname="steel_column", input_dim=9, input_cat=FALSE, response_type="uni", stochastic="n")
+  master_list <- rbind(master_list, new_func)
+  new_func <- data.frame(fname="short_column", input_dim=5, input_cat=FALSE, response_type="uni", stochastic="n")
+  master_list <- rbind(master_list, new_func)
+  # Add sulfur
+  new_func <- data.frame(fname="sulfur", input_dim=9, input_cat=FALSE, response_type="uni", stochastic="n")
+  master_list <- rbind(master_list, new_func)
+  # add G functions
+  new_func <- rbind(data.frame(fname="Gfunction6", input_dim=6, input_cat=FALSE, response_type="uni", stochastic="n"),
+                    data.frame(fname="Gfunction12", input_dim=12, input_cat=FALSE, response_type="uni", stochastic="n"),
+                    data.frame(fname="Gfunction18", input_dim=18, input_cat=FALSE, response_type="uni", stochastic="n"))
+  master_list <- rbind(master_list, new_func)
+  # Add park functions
+  new_func <- data.frame(fname="park4", input_dim=4, input_cat=FALSE, response_type="uni", stochastic="n")
+  master_list <- rbind(master_list, new_func)
+  # add function borehole_low_fidelity
+  new_func <- data.frame(fname="park4_low_fidelity", input_dim=4, input_cat=FALSE, response_type="uni", stochastic="n")
+  master_list <- rbind(master_list, new_func)
   if(sorted){
     master_list <- master_list[order(master_list$fname),]
     master_list <- master_list[order(master_list$input_dim),]

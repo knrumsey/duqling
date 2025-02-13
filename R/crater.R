@@ -38,7 +38,7 @@ quackquack_crater <- function(){
   out$response_type <- "uni"
   out$stochastic <- "n"
 
-  RR <- cbind(rep(-base::pi, 3), rep(base::pi, 3))
+  RR <- rbind(c(0.01, 20), c(0.01, 6), c(.0001, .04), c(730, 3200), c(1500,2500), c(25, 77), c(.005, .0055))
   rownames(RR) <- c("L", "d", "rho_p", "V", "V_hat", "S", "rho_t")
   out$input_range <- RR
   return(out)
