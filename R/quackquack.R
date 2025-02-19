@@ -167,6 +167,11 @@ quackquack <- function(fname=NULL, input_dim=NULL, input_cat=NULL, response_type
   # add function borehole_low_fidelity
   new_func <- data.frame(fname="park4_low_fidelity", input_dim=4, input_cat=FALSE, response_type="uni", stochastic="n")
   master_list <- rbind(master_list, new_func)
+  # add 100D function
+  new_func <- data.frame(fname="onehundred", input_dim=100, input_cat=FALSE, response_type="uni", stochastic="n")
+  master_list <- rbind(master_list, new_func)
+
+  # Sort list
   if(sorted){
     master_list <- master_list[order(master_list$fname),]
     master_list <- master_list[order(master_list$input_dim),]
