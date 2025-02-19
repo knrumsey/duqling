@@ -4,7 +4,7 @@
 #'
 #' @param x Inputs of dimension (at least) 2. See below for details.
 #' @param scale01  (No effect) When TRUE, inputs are expected to be given on unit interval.
-#' @param M The number of active variables (default M=55, (54 <= M <= 100))
+#' @param M The number of active variables (default M=100, (54 <= M <= 100))
 #' @details The 100-dimensional function is a high-dimensional function derived from a more generic example detailed below. This function was designed for sensitivity analysis: the first-order sensitivity indices of the input variables generally nonlinearly increase with their index, with certain variables having especially high sensitivity (Lüthen et al, 2021).
 #' @references
 #' Lüthen, Nora, Stefano Marelli, and Bruno Sudret. "Sparse polynomial chaos expansions: Literature survey and benchmark." SIAM/ASA Journal on Uncertainty Quantification 9.2 (2021): 593-649.
@@ -20,7 +20,7 @@
 #' y <- apply(X, 1, banana, scale01=TRUE)
 #' image(matrix(y, nrow=length(X)), zlim=c(-1,3.5))
 #' @export
-onehundred <- function(x, scale01=TRUE, M=55){
+onehundred <- function(x, scale01=TRUE, M=100){
   if(scale01){
     lb <- rep(1, 100)
     ub <- rep(2, 100)

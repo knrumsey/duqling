@@ -4,14 +4,14 @@
 \alias{onehundred}
 \title{The 100D Function}
 \usage{
-onehundred(x, scale01 = TRUE, M = 55)
+onehundred(x, scale01 = TRUE, M = 100)
 }
 \arguments{
 \item{x}{Inputs of dimension (at least) 2. See below for details.}
 
 \item{scale01}{(No effect) When TRUE, inputs are expected to be given on unit interval.}
 
-\item{M}{The number of active variables (default M=55, (54 <= M <= 100))}
+\item{M}{The number of active variables (default M=100, (54 <= M <= 100))}
 }
 \description{
 Dimension: 100
