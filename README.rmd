@@ -163,7 +163,7 @@ results <- run_sim_study(my_fit, my_pred,
 Some suggested function vectors for simulation studies are included in the functions
 
 ```{R, eval=FALSE}
-get_sim_functions_full()     #31 functions
+get_sim_functions_full()     #51 functions
 get_sim_functions_medium()   #20 functions
 get_sim_functions_short()    #10 functions
 get_sim_functions_tiny()     #4  functions

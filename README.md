@@ -51,49 +51,66 @@ found with the command
 
 ``` r
 duqling::quack()
-#>                    fname input_dim input_cat response_type stochastic    noise
-#> 1               const_fn         1     FALSE           uni          n   0.0000
-#> 2                 grlee1         1     FALSE           uni          n   1.3059
-#> 3                 banana         2     FALSE           uni          n 360.2585
-#> 4           dms_additive         2     FALSE           uni          n   1.0061
-#> 5        dms_complicated         2     FALSE           uni          n   1.0001
-#> 6           dms_harmonic         2     FALSE           uni          n   0.9132
-#> 7             dms_radial         2     FALSE           uni          n   1.0098
-#> 8             dms_simple         2     FALSE           uni          n   0.9708
-#> 9             foursquare         2     FALSE           uni          n   0.3843
-#> 10                grlee2         2     FALSE           uni          n   0.0847
-#> 11    lim_non_polynomial         2     FALSE           uni          n   1.9162
-#> 12        lim_polynomial         2     FALSE           uni          n   1.6335
-#> 13               micwicz         2     FALSE           uni          n   0.3547
-#> 14               ripples         2     FALSE           uni          n   0.0797
-#> 15           simple_poly         2     FALSE           uni          n   0.4775
-#> 16              squiggle         2     FALSE           uni          n   0.5098
-#> 17         twin_galaxies         2     FALSE           uni          n   1.0119
-#> 18             const_fn3         3     FALSE           uni          n   0.0000
-#> 19          detpep_curve         3     FALSE           uni          n  35.8406
-#> 20              ishigami         3     FALSE           uni          n   3.7212
-#> 21              sharkfin         3     FALSE           uni          n   0.2873
-#> 22        simple_machine         3     FALSE          func          n       NA
-#> 23                 vinet         3     FALSE          func          n       NA
-#> 24            ocean_circ         4     FALSE           uni          y  13.5659
-#> 25             pollutant         4     FALSE          func          n       NA
-#> 26         pollutant_uni         4     FALSE           uni          n   0.8257
-#> 27              friedman         5     FALSE           uni          n   4.8579
-#> 28     simple_machine_cm         5     FALSE          func          n       NA
-#> 29     stochastic_piston         5     FALSE           uni          y   0.1356
-#> 30               circuit         6     FALSE           uni          n   1.1740
-#> 31                grlee6         6     FALSE           uni          n   0.7268
-#> 32                piston         7     FALSE           uni          n   0.1357
-#> 33              borehole         8     FALSE           uni          n 112.6912
-#> 34 borehole_low_fidelity         8     FALSE           uni          n  89.6763
-#> 35               detpep8         8     FALSE           uni          n  36.3133
-#> 36                 robot         8     FALSE           uni          n   0.5275
-#> 37              dts_sirs         9     FALSE          func          y       NA
-#> 38            friedman10        10     FALSE           uni          n   4.8579
-#> 39            wingweight        10     FALSE           uni          n  46.7888
-#> 40            const_fn15        15     FALSE           uni          n   0.0000
-#> 41            friedman20        20     FALSE           uni          n   4.8579
-#> 42               welch20        20     FALSE           uni          n   2.0899
+#>                    fname input_dim input_cat response_type stochastic
+#> 1               const_fn         1     FALSE           uni          n
+#> 2                 grlee1         1     FALSE           uni          n
+#> 3                 banana         2     FALSE           uni          n
+#> 4           dms_additive         2     FALSE           uni          n
+#> 5        dms_complicated         2     FALSE           uni          n
+#> 6           dms_harmonic         2     FALSE           uni          n
+#> 7             dms_radial         2     FALSE           uni          n
+#> 8             dms_simple         2     FALSE           uni          n
+#> 9             foursquare         2     FALSE           uni          n
+#> 10                grlee2         2     FALSE           uni          n
+#> 11    lim_non_polynomial         2     FALSE           uni          n
+#> 12        lim_polynomial         2     FALSE           uni          n
+#> 13           multivalley         2     FALSE           uni          n
+#> 14               ripples         2     FALSE           uni          n
+#> 15           simple_poly         2     FALSE           uni          n
+#> 16              squiggle         2     FALSE           uni          n
+#> 17         twin_galaxies         2     FALSE           uni          n
+#> 18             const_fn3         3     FALSE           uni          n
+#> 19                 cube3         3     FALSE           uni          n
+#> 20          cube3_rotate         3     FALSE           uni          n
+#> 21          detpep_curve         3     FALSE           uni          n
+#> 22              ishigami         3     FALSE           uni          n
+#> 23              sharkfin         3     FALSE           uni          n
+#> 24        simple_machine         3     FALSE          func          n
+#> 25                 vinet         3     FALSE          func          n
+#> 26            ocean_circ         4     FALSE           uni          y
+#> 27                 park4         4     FALSE           uni          n
+#> 28    park4_low_fidelity         4     FALSE           uni          n
+#> 29             pollutant         4     FALSE          func          n
+#> 30         pollutant_uni         4     FALSE           uni          n
+#> 31       beam_deflection         5     FALSE          func          n
+#> 32                 cube5         5     FALSE           uni          n
+#> 33              friedman         5     FALSE           uni          n
+#> 34          short_column         5     FALSE           uni          n
+#> 35     simple_machine_cm         5     FALSE          func          n
+#> 36     stochastic_piston         5     FALSE           uni          y
+#> 37          cantilever_D         6     FALSE           uni          n
+#> 38          cantilever_S         6     FALSE           uni          n
+#> 39               circuit         6     FALSE           uni          n
+#> 40            Gfunction6         6     FALSE           uni          n
+#> 41                grlee6         6     FALSE           uni          n
+#> 42                crater         7     FALSE           uni          n
+#> 43                piston         7     FALSE           uni          n
+#> 44              borehole         8     FALSE           uni          n
+#> 45 borehole_low_fidelity         8     FALSE           uni          n
+#> 46               detpep8         8     FALSE           uni          n
+#> 47                 robot         8     FALSE           uni          n
+#> 48              dts_sirs         9     FALSE          func          y
+#> 49          steel_column         9     FALSE           uni          n
+#> 50                sulfur         9     FALSE           uni          n
+#> 51            friedman10        10     FALSE           uni          n
+#> 52              ignition        10     FALSE           uni          n
+#> 53            wingweight        10     FALSE           uni          n
+#> 54           Gfunction12        12     FALSE           uni          n
+#> 55            const_fn15        15     FALSE           uni          n
+#> 56           Gfunction18        18     FALSE           uni          n
+#> 57            friedman20        20     FALSE           uni          n
+#> 58               welch20        20     FALSE           uni          n
+#> 59            onehundred       100     FALSE           uni          n
 ```
 
 A list of all functions meeting certain criterion can be found with the
@@ -101,14 +118,23 @@ command
 
 ``` r
 duqling::quack(input_dim=4:7, stochastic="n")
-#>                fname input_dim input_cat response_type stochastic  noise
-#> 25         pollutant         4     FALSE          func          n     NA
-#> 26     pollutant_uni         4     FALSE           uni          n 0.8257
-#> 27          friedman         5     FALSE           uni          n 4.8579
-#> 28 simple_machine_cm         5     FALSE          func          n     NA
-#> 30           circuit         6     FALSE           uni          n 1.1740
-#> 31            grlee6         6     FALSE           uni          n 0.7268
-#> 32            piston         7     FALSE           uni          n 0.1357
+#>                 fname input_dim input_cat response_type stochastic
+#> 27              park4         4     FALSE           uni          n
+#> 28 park4_low_fidelity         4     FALSE           uni          n
+#> 29          pollutant         4     FALSE          func          n
+#> 30      pollutant_uni         4     FALSE           uni          n
+#> 31    beam_deflection         5     FALSE          func          n
+#> 32              cube5         5     FALSE           uni          n
+#> 33           friedman         5     FALSE           uni          n
+#> 34       short_column         5     FALSE           uni          n
+#> 35  simple_machine_cm         5     FALSE          func          n
+#> 37       cantilever_D         6     FALSE           uni          n
+#> 38       cantilever_S         6     FALSE           uni          n
+#> 39            circuit         6     FALSE           uni          n
+#> 40         Gfunction6         6     FALSE           uni          n
+#> 41             grlee6         6     FALSE           uni          n
+#> 42             crater         7     FALSE           uni          n
+#> 43             piston         7     FALSE           uni          n
 ```
 
 A detailed description of each function (the `borehole()` function, for
@@ -258,7 +284,7 @@ Some suggested function vectors for simulation studies are included in
 the functions
 
 ``` r
-get_sim_functions_full()     #31 functions
+get_sim_functions_full()     #51 functions
 get_sim_functions_medium()   #20 functions
 get_sim_functions_short()    #10 functions
 get_sim_functions_tiny()     #4  functions
@@ -273,12 +299,15 @@ a full list of the unprocessed datasets, type
 
 ``` r
 duqling::data_quack(raw=TRUE)
-#>             dname input_dim output_dim      n input_cat_dim
-#> 4            e3sm         2          1  48602             1
-#> 3  stochastic_sir         4          1   2000             0
-#> 2         pbx9501         6         10   7000             1
-#> 1 strontium_plume        20         10    300             0
-#> 5    fair_climate        46          1 168168             1
+#>             dname input_dim output_dim       n input_cat_dim
+#> 1   Z_machine_exp         1          1   23224             3
+#> 2            e3sm         2          1   48602             1
+#> 3  stochastic_sir         4          1    2000             0
+#> 4         pbx9501         6         10    7000             1
+#> 5  flyer_plate104        11        200    1000             0
+#> 6 strontium_plume        20         10     300             0
+#> 7   Z_machine_sim        40          9 5000000             0
+#> 8    fair_climate        46          1  168168             1
 ```
 
 Some datasets have been processed for univariate emulation. These can be
@@ -287,20 +316,29 @@ found with the command
 ``` r
 duqling::data_quack()
 #>                             dname input_dim input_cat_dim     n response_type
-#> 8                            e3sm         2             0 48602           uni
-#> 7                  stochastic_sir         4             0  2000           uni
-#> 3                    pbx9501_gold         6             0   500           uni
-#> 4                   pbx9501_ss304         6             0   500           uni
-#> 5                  pbx9501_nickel         6             0   500           uni
-#> 6                 pbx9501_uranium         6             0   500           uni
-#> 1             strontium_plume_p4b        20             0   300           uni
-#> 2            strontium_plume_p104        20             0   300           uni
-#> 12 fair_climate_ssp1-2.6_year2200        45             0  1001           uni
-#> 13 fair_climate_ssp2-4.5_year2200        45             0  1001           uni
-#> 14 fair_climate_ssp3-7.0_year2200        45             0  1001           uni
-#> 9           fair_climate_ssp1-2.6        46             0 56056           uni
-#> 10          fair_climate_ssp2-4.5        46             0 56056           uni
-#> 11          fair_climate_ssp3-7.0        46             0 56056           uni
+#> 1                            e3sm         2             0 48602           uni
+#> 2                       e3sm_mcar         2             0 10000           uni
+#> 3                       e3sm_mnar         2             0  9122           uni
+#> 4                  stochastic_sir         4             0  2000           uni
+#> 5                       SLOSH_low         5             0  4000           uni
+#> 6                       SLOSH_mid         5             0  4000           uni
+#> 7                      SLOSH_high         5             0  4000           uni
+#> 8                    pbx9501_gold         6             0   500           uni
+#> 9                   pbx9501_ss304         6             0   500           uni
+#> 10                 pbx9501_nickel         6             0   500           uni
+#> 11                pbx9501_uranium         6             0   500           uni
+#> 12             Z_machine_max_vel1         6             0  5000           uni
+#> 13             Z_machine_max_vel2         6             0  5000           uni
+#> 14                 flyer_plate104        11             0  1000           uni
+#> 15            strontium_plume_p4b        20             0   300           uni
+#> 16           strontium_plume_p104        20             0   300           uni
+#> 17          Z_machine_max_vel_all        30             0  5000           uni
+#> 18 fair_climate_ssp1-2.6_year2200        45             0  1001           uni
+#> 19 fair_climate_ssp2-4.5_year2200        45             0  1001           uni
+#> 20 fair_climate_ssp3-7.0_year2200        45             0  1001           uni
+#> 21          fair_climate_ssp1-2.6        46             0 56056           uni
+#> 22          fair_climate_ssp2-4.5        46             0 56056           uni
+#> 23          fair_climate_ssp3-7.0        46             0 56056           uni
 ```
 
 Raw datasets can be read (via the internet) with the function
