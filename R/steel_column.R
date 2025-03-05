@@ -39,7 +39,7 @@ steel_column <- function(x, scale01=TRUE, b=300, d=20, h=300){
   E  <- x[9]
 
   Eb <- base::pi^2*E*B*D*H^2/(2*(7500)^2)
-  PP <- P1 + P2 + P3
+  P <- P1 + P2 + P3
   term1 <- 1/(2*B*D)
   term2 <- F0*Eb/(B*D*H*(Eb-P))
 
