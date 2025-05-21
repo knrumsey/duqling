@@ -9,7 +9,7 @@ borehole(x, scale01 = TRUE, adjust_fidelity = 0)
 \arguments{
 \item{x}{Inputs of dimension (at least) 8. See below for details.}
 
-\item{scale01}{When TRUE, inputs are expected to be given on unit interval and are internally adjusted to their native range. Default is FALSE}
+\item{scale01}{When TRUE, inputs are expected to be given on unit interval and are internally adjusted to their native range.}
 
 \item{adjust_fidelity}{Default value of 0 corresponds to the usual borehole function. Value of 1 corresponds to the low-fidelity version described in the VLSE (Xiong 2013).}
 }

@@ -5,6 +5,8 @@
 #'
 #' @param x Inputs of dimension (at least) 5. See below for details.
 #' @param scale01 When TRUE, inputs are expected to be given on unit interval.
+#' @param S0 Solar constant
+#' @param A Surface area of the earth.
 #' @details This function models the radiative forcing of sulfur by sulfate aerosols, in W/m^2. Note that all priors are lognormal.
 #' For details, see \href{https://www.sfu.ca/~ssurjano/sulf.html}{the VLSE}. NOTE: There is a problem with dimensional analysis of the Tatang paper. There is a hidden (or missing) W in the denominator. As such, the results do not match the paper perfectly. Use this function at your own risk.
 #' @references
@@ -16,7 +18,7 @@
 #' X <- lhs::randomLHS(50, 7)
 #' y <- apply(X, 1, sulfur, scale01=TRUE)
 #' @export
-sulfur <- function(x, scale01=TRUE, b=300, d=20, h=300){
+sulfur <- function(x, scale01=TRUE, S0=1366, A=5.1e14){
   if(scale01){
     RR <- rbind(0.76 * 1.2^c(-3, 3),
                 0.39* 1.1^c(-3, 3),
@@ -42,8 +44,8 @@ sulfur <- function(x, scale01=TRUE, b=300, d=20, h=300){
   L <- x[9]
 
   # Constants
-  S0 <- 1366 # solar constant
-  A <- 5.1e14 # surface area of the earth
+  #S0 <- 1366 # solar constant
+  #A <- 5.1e14 # surface area of the earth
 
   res <- -1/2*S0^2*Ac_c*Tr^2*Rs_c^2*beta*psi_e*f_psi*3*Q*Y*L/A * 10^12 / 365
   res <- res / 1000 # Just an attempt to match the origianl paper. See note in documentation.

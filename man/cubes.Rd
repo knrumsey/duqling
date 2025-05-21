@@ -2,7 +2,11 @@
 % Please edit documentation in R/cubes.R
 \name{cubes}
 \alias{cubes}
+\alias{cube3}
 \title{Discontinuous Cube Functions}
+\usage{
+cube3(x, scale01 = TRUE)
+}
 \arguments{
 \item{x}{Inputs of dimension (at least) 8. See below for details.}
 
@@ -18,4 +22,10 @@ Three cube functions
    \item cube3_rotate - equal to cube3(z1,z2,z3) after applying the rotation: 3z1 = x1 + x2 + x3, 3z2 = 1 + 2x1 - x2 + x3/10 , z3 = x3
    \item cube5 - a 5 dimensional test function equal to cube3(x1,x2,x3) + prod_{i=1:5}1(0.25 < xi < 0.75) + 5*1(0.33 < x5)
 }
+}
+\examples{
+n <- 100 #Number of observations
+p <- 3   #Number of variables
+X <- matrix(runif(n*p), nrow=n)
+y <- apply(X, 1, cube3)
 }

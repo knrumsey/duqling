@@ -47,7 +47,7 @@ cantilever_D <- function(x, scale01=TRUE, L=100, D0=2.2535){
   term1 <- 4*L^3/(E*w*t)
   term2 <- sqrt(Y^2/t^4 + X^2/w^4)
   res <- term1 * term2
-  res <- max(res, D0)
+  res <- min(res, D0)
   return(res)
 }
 
@@ -72,7 +72,7 @@ cantilever_S <- function(x, scale01=TRUE){
   t <- x[6]
 
   res <- 600*Y/(w*t^2) + 600*X/(w^2*t)
-  res <- max(res, R)
+  res <- min(res, R)
   return(res)
 }
 

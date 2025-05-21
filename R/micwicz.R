@@ -21,7 +21,6 @@
 multivalley <- function(x, scale01=TRUE, m=10, active_dim=length(x)){
   p <- min(active_dim, length(x))
   if(scale01){
-    RR <- cbind(rep(0, p), rep(2*pi, p))
     x <- 2*(base::pi)*x
   }
 

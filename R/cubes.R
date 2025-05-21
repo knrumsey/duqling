@@ -13,7 +13,7 @@
 #' }
 NULL
 
-#' @rdname dms
+#' @rdname cubes
 #' @examples
 #' n <- 100 #Number of observations
 #' p <- 3   #Number of variables

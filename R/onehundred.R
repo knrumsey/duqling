@@ -41,7 +41,7 @@ onehundred <- function(x, scale01=TRUE, M=100){
 }
 
 
-onehundred_quackquack <- function(){
+quackquack_onehundred <- function(){
   out <- list(input_dim=100)
   out$input_cat <- FALSE
   out$response_type <- "uni"

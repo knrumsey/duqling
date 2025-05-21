@@ -3,7 +3,7 @@
 #' Dimensions 8. The Borehole function models water flow through a borehole. Its simplicity and quick evaluation makes it a commonly used function for testing a wide variety of methods in computer experiments.
 #'
 #' @param x Inputs of dimension (at least) 8. See below for details.
-#' @param scale01 When TRUE, inputs are expected to be given on unit interval and are internally adjusted to their native range. Default is FALSE
+#' @param scale01 When TRUE, inputs are expected to be given on unit interval and are internally adjusted to their native range.
 #' @param adjust_fidelity Default value of 0 corresponds to the usual borehole function. Value of 1 corresponds to the low-fidelity version described in the VLSE (Xiong 2013).
 #' @return Flow through a borehole.
 #' @details For details on the borehole function, see \href{https://www.sfu.ca/~ssurjano/borehole.html}{the VLSE}.
@@ -33,7 +33,7 @@
 borehole <- function(x, scale01=TRUE, adjust_fidelity = 0){
   if(scale01){
     RR <- cbind(c(0.05, 100, 63070, 990, 63.1,  700, 1120, 9855),
-                   c(0.15, 50000, 115600, 1110, 116, 80, 1680, 12045))
+                   c(0.15, 50000, 115600, 1110, 116, 820, 1680, 12045))
     x[1:8] <- x[1:8]*(RR[,2] - RR[,1]) + RR[,1]
   }
 

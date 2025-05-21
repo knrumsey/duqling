@@ -4,12 +4,16 @@
 \alias{sulfur}
 \title{Sulfur}
 \usage{
-sulfur(x, scale01 = TRUE, b = 300, d = 20, h = 300)
+sulfur(x, scale01 = TRUE, S0 = 1366, A = 5.1e+14)
 }
 \arguments{
 \item{x}{Inputs of dimension (at least) 5. See below for details.}
 
 \item{scale01}{When TRUE, inputs are expected to be given on unit interval.}
+
+\item{S0}{Solar constant}
+
+\item{A}{Surface area of the earth.}
 }
 \description{
 Dimension 9. Models the radiative forcing of sulfur with uncertain inputs. High degree of interaction (but additive in log space).
