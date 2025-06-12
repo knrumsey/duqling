@@ -170,6 +170,9 @@ quackquack <- function(fname=NULL, input_dim=NULL, input_cat=NULL, response_type
   # add 100D function
   new_func <- data.frame(fname="onehundred", input_dim=100, input_cat=FALSE, response_type="uni", stochastic="n")
   master_list <- rbind(master_list, new_func)
+  # add ebola function
+  new_func <- data.frame(fname="ebola", input_dim=8, input_cat=FALSE, response_type="uni", stochastic="n")
+  master_list <- rbind(master_list, new_func)
 
   # Sort list
   if(sorted){
