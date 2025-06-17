@@ -22,5 +22,5 @@ show_function_2d <- function(fname, nx=201, ncol=100, pal="terrain", dims=1:2, .
   XX2[,dims[2]] <- XX[,2]
   yy <- duq(XX2, fname, scale01=TRUE, ...)
   YY <- matrix(yy, nrow=nx, ncol=nx)
-  image(YY, col=hcl.colors(ncol, pal))
+  graphics::image(YY, col=grDevices::hcl.colors(ncol, pal))
 }

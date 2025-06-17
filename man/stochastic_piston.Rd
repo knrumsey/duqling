@@ -7,8 +7,8 @@
 stochastic_piston(
   x,
   scale01 = TRUE,
-  Ta_generate = function() rbeta(1, 10, 15),
-  P0_generate = function() runif(1, 0.49, 0.51)
+  Ta_generate = function() stats::rbeta(1, 10, 15),
+  P0_generate = function() stats::runif(1, 0.49, 0.51)
 )
 }
 \arguments{

@@ -86,7 +86,7 @@ piston <- function(x, scale01=TRUE){
 #' x <- matrix(runif(8*n), nrow=n)
 #' y <- apply(x, 1, piston, scale01=TRUE)
 stochastic_piston <- function(x, scale01=TRUE,
-                              Ta_generate=function() rbeta(1, 10, 15), P0_generate=function() runif(1, 0.49, 0.51)){
+                              Ta_generate=function() stats::rbeta(1, 10, 15), P0_generate=function() stats::runif(1, 0.49, 0.51)){
   Ta <- Ta_generate()
   P0 <- P0_generate()
   x <- c(x[1:4], P0, Ta, x[5])

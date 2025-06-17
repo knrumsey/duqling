@@ -18,4 +18,13 @@ The \code{run_sim_study()} function makes running
 simulation studies easy. The comparison of various emulators is also straightforward, even
 across papers.
 }
+\author{
+\strong{Maintainer}: Kellin Rumsey \email{knrumsey@lanl.gov}
+
+Other contributors:
+\itemize{
+  \item J. Derek Tucker \email{jdtuck@sandia.gov} (\href{https://orcid.org/0000-0001-8844-2169}{ORCID}) [contributor]
+}
+
+}
 \keyword{internal}

@@ -10,6 +10,12 @@ steel_column(x, scale01 = TRUE, b = 300, d = 20, h = 300)
 \item{x}{Inputs of dimension (at least) 5. See below for details.}
 
 \item{scale01}{When TRUE, inputs are expected to be given on unit interval.}
+
+\item{b}{default parameter}
+
+\item{d}{default parameter}
+
+\item{h}{default parameter}
 }
 \description{
 Dimension 9. Models the "reliability" of a steel column.

@@ -8,7 +8,6 @@
 #'
 #' @param x Inputs of dimension (at least) 3. See below for details.
 #' @param scale01 When TRUE, inputs are expected to be given on unit interval.
-#' @param ab Hyperparameters to the park function
 #' @details Intended to be a simple four-dim test function. Xiong et al. (2013) use \code{park4_low_fidelity} as a low fidelity version. For details on the Friedman function, see \href{https://www.sfu.ca/~ssurjano/park91a.html}{the VLSE}.
 #' @references
 #' Surjanovic, Sonja, and Derek Bingham. "Virtual library of simulation experiments: test functions and datasets." Simon Fraser University, Burnaby, BC, Canada, accessed May 13 (2013): 2015.

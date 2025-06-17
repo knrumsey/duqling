@@ -11,9 +11,6 @@
 #'    \item cube3_rotate - equal to cube3(z1,z2,z3) after applying the rotation: 3z1 = x1 + x2 + x3, 3z2 = 1 + 2x1 - x2 + x3/10 , z3 = x3
 #'    \item cube5 - a 5 dimensional test function equal to cube3(x1,x2,x3) + prod_{i=1:5}1(0.25 < xi < 0.75) + 5*1(0.33 < x5)
 #' }
-NULL
-
-#' @rdname cubes
 #' @examples
 #' n <- 100 #Number of observations
 #' p <- 3   #Number of variables
@@ -32,7 +29,6 @@ cube3 <- function(x, scale01=TRUE){
   c1 + c2 + c3
 }
 
-#' @rdname dms
 #' @export
 cube3_rotate <- function(x, scale01=TRUE){
   z1 <- (x[1] + x[2] + x[3])/3
@@ -41,7 +37,6 @@ cube3_rotate <- function(x, scale01=TRUE){
   cube3(c(z1,z2,z3))
 }
 
-#' @rdname dms
 #' @export
 cube5 <- function(x, scale01=TRUE){
   cube3(x[1:3]) + prod((x[1:5] > 0.25)*(x[1:5] < 0.75)) + 5*(x[5] > 1/3)

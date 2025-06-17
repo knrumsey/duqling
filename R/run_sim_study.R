@@ -172,8 +172,8 @@ run_one_sim_case <- function(rr, seed, fn, fnum, p, n, nsr, dsgn, n_test, conf_l
       }
     }else{
       if(dsgn == "random"){
-        X_train <- matrix(runif(n*p), ncol=p)
-        X_test <- matrix(runif(n_test*p), ncol=p)
+        X_train <- matrix(stats::runif(n*p), ncol=p)
+        X_test <- matrix(stats::runif(n_test*p), ncol=p)
       }else{ # grid
         ni = ceiling(n^(1/p))
         xx <- seq(0, 1, length.out = ni)
@@ -188,12 +188,12 @@ run_one_sim_case <- function(rr, seed, fn, fnum, p, n, nsr, dsgn, n_test, conf_l
     f <- get(fn, loadNamespace("duqling"))
 
     y_train <- apply(X_train, 1, f, scale01=TRUE)
-    if(var(y_train) == 0){
+    if(stats::var(y_train) == 0){
       noise_lvl <- 1 # Cannot make sense of SNR when there is no signal
     }else{
-      noise_lvl <- sqrt(var(y_train) * nsr)
+      noise_lvl <- sqrt(stats::var(y_train) * nsr)
     }
-    y_train <- y_train + rnorm(n, 0, noise_lvl)
+    y_train <- y_train + stats::rnorm(n, 0, noise_lvl)
     y_test <- apply(X_test, 1, f, scale01=TRUE) # no noise for testing data
 
     # ==================================================
@@ -255,7 +255,7 @@ run_one_sim_case <- function(rr, seed, fn, fnum, p, n, nsr, dsgn, n_test, conf_l
         y_hat <- colMeans(preds)
         rmse_curr <- rmsef(y_test, y_hat)
         DF_curr$RMSE <- rmse_curr
-        DF_curr$FVU  <- rmse_curr^2/var(y_test)
+        DF_curr$FVU  <- rmse_curr^2/stats::var(y_test)
 
         # CALCULATE COVERAGES
         n_conf <- length(conf_level)
@@ -263,7 +263,7 @@ run_one_sim_case <- function(rr, seed, fn, fnum, p, n, nsr, dsgn, n_test, conf_l
           nms <- names(DF_curr)
           for(iii in seq_along(conf_level)){
             alpha_curr <- 1 - conf_level[iii]
-            bounds <- apply(preds, 2, quantile, probs=c(alpha_curr/2, 1-alpha_curr/2))
+            bounds <- apply(preds, 2, stats::quantile, probs=c(alpha_curr/2, 1-alpha_curr/2))
 
             # Coverage
             DF_curr[,ncol(DF_curr)+1] <- mean((y_test >= bounds[1,]) * (y_test <= bounds[2,]))
@@ -272,7 +272,7 @@ run_one_sim_case <- function(rr, seed, fn, fnum, p, n, nsr, dsgn, n_test, conf_l
           # INTERVAL SCORES
           for(iii in seq_along(conf_level)){
             alpha_curr <- 1 - conf_level[iii]
-            bounds <- apply(preds, 2, quantile, probs=c(alpha_curr/2, 1-alpha_curr/2))
+            bounds <- apply(preds, 2, stats::quantile, probs=c(alpha_curr/2, 1-alpha_curr/2))
 
             # Negatively oriented mean interval score (Raftery & Gneiting)
             term1 <- apply(bounds, 2, diff)
@@ -312,7 +312,7 @@ run_one_sim_case <- function(rr, seed, fn, fnum, p, n, nsr, dsgn, n_test, conf_l
           intervals <- array(NA, dim=c(2, n_test, n_conf))
           for(iii in seq_along(conf_level)){
             alpha_curr <- 1 - conf_level[iii]
-            intervals[,,iii] <- apply(preds$samples, 1, quantile, probs=c(alpha_curr/2, 1-alpha_curr/2))
+            intervals[,,iii] <- apply(preds$samples, 1, stats::quantile, probs=c(alpha_curr/2, 1-alpha_curr/2))
           }
           if(n_conf == 1) intervals <- intervals[,,1]
           preds$intervals <- intervals
@@ -322,7 +322,7 @@ run_one_sim_case <- function(rr, seed, fn, fnum, p, n, nsr, dsgn, n_test, conf_l
         y_hat <- colMeans(preds$preds)
         rmse_curr <- rmsef(y_test, y_hat)
         DF_curr$RMSE <- rmse_curr
-        DF_curr$FVU  <- rmse_curr^2/var(y_test)
+        DF_curr$FVU  <- rmse_curr^2/stats::var(y_test)
 
         # CALCULATE COVERAGES
         n_conf <- length(conf_level)
@@ -331,7 +331,7 @@ run_one_sim_case <- function(rr, seed, fn, fnum, p, n, nsr, dsgn, n_test, conf_l
           #COVERAGES
           for(iii in seq_along(conf_level)){
             alpha_curr <- 1 - conf_level[iii]
-            bounds <- apply(preds, 2, quantile, probs=c(alpha_curr/2, 1-alpha_curr/2))
+            bounds <- apply(preds, 2, stats::quantile, probs=c(alpha_curr/2, 1-alpha_curr/2))
 
             DF_curr[,ncol(DF_curr)+1] <- mean((y_test >= bounds[1,]) * (y_test <= bounds[2,]))
           }
@@ -339,7 +339,7 @@ run_one_sim_case <- function(rr, seed, fn, fnum, p, n, nsr, dsgn, n_test, conf_l
           # INTERVAL SCORES
           for(iii in seq_along(conf_level)){
             alpha_curr <- 1 - conf_level[iii]
-            bounds <- apply(preds, 2, quantile, probs=c(alpha_curr/2, 1-alpha_curr/2))
+            bounds <- apply(preds, 2, stats::quantile, probs=c(alpha_curr/2, 1-alpha_curr/2))
 
             term1 <- apply(bounds, 2, diff)
             term2 <- 2*(bounds[,1] - y_test)*as.numeric(y_test < bounds[,1])/alpha_curr

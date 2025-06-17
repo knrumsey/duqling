@@ -25,7 +25,7 @@ ripples <- function(x, scale01=TRUE, fixed_coeff=TRUE, input_dims=2, seed=NULL){
                c(1.905, 1.520, -1.533, 0.185, -1.440))
   }
   if(!fixed_coeff | input_dims != 2){
-    W <- matrix(rnorm(5*input_dims, -2, 2), ncol=input_dims)
+    W <- matrix(stats::rnorm(5*input_dims, -2, 2), ncol=input_dims)
   }
 
   z <- W%*%matrix(x[1:input_dims], nrow=input_dims)

@@ -21,6 +21,8 @@ Gfunction18(
 \item{x}{Inputs of dimension (at least) 5. See below for details.}
 
 \item{scale01}{(Ignored here) When TRUE, inputs are expected to be given on unit interval and are internally adjusted to their native range. Default is FALSE}
+
+\item{a}{default parameter}
 }
 \value{
 A scalar response

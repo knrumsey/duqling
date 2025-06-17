@@ -7,6 +7,7 @@
 #'
 #' @param x Inputs of dimension (at least) 5. See below for details.
 #' @param scale01 (Ignored here) When TRUE, inputs are expected to be given on unit interval and are internally adjusted to their native range. Default is FALSE
+#' @param a default parameter
 #' @return A scalar response
 #' @details The G function function is often used as an integrand for various numerical estimation methods. The .exact value of the intregal of this function in any dimensions is 1. The a_i values indicate the importance of a variable (lower value is more important).
 #' For details on the G function function, see \href{https://www.sfu.ca/~ssurjano/fried.html}{the VLSE}.
