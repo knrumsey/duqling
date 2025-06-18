@@ -14,8 +14,6 @@ park4_low_fidelity(x, scale01 = TRUE)
 \item{x}{Inputs of dimension (at least) 3. See below for details.}
 
 \item{scale01}{When TRUE, inputs are expected to be given on unit interval.}
-
-\item{ab}{Hyperparameters to the park function}
 }
 \description{
 Dimensions: 4.

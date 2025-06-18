@@ -5,6 +5,9 @@
 #'
 #' @param x Inputs of dimension (at least) 5. See below for details.
 #' @param scale01 When TRUE, inputs are expected to be given on unit interval.
+#' @param b default parameter
+#' @param d default parameter
+#' @param h default parameter
 #' @details This function is often used to explore the trade-off between cost and reliability of a steel column. The cost is \code{b*d + 5*h} which are parameters giving the mean flange breadth, flange thickness, and profile height, respectively. Non-normal distributions are often used for the priors.
 #' For details, see \href{https://www.sfu.ca/~ssurjano/steelcol.html}{the VLSE}.
 #' @references

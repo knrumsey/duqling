@@ -7,8 +7,8 @@
 #' @return Data frame
 #' @details Wrapper to read in various UQ datasets (from harvard dataverse)
 #' \itemize{
-#'  \item{"strontium_plume"}{Input dimension = 20, observations = 300}
-#'  \item{"parameter 2"}{Stuff}
+#'  \item{"strontium_plume": Input dimension = 20, observations = 300}
+#'  \item{"parameter 2": Stuff}
 #' }
 #' @export
 #' @examples
@@ -73,15 +73,15 @@ get_UQ_data <- function(dname, control=list()){
 #' @param dname String. Name of dataset (see documentation)
 #' @return A list with elements `y` (a univariate response) and `X` (a matrix of inputs).
 #' @details Wrapper to read in various UQ datasets (from harvard dataverse)
-#' #' @details Wrapper to read in various UQ datasets (from harvard dataverse)
 #' \itemize{
-#'  \item{"strontium_plume_"}{Input dimension = 20, observations = 300}
-#'  \item{"parameter 2"}{Stuff}
+#'  \item {"strontium_plume_": Input dimension = 20, observations = 300}
+#'  \item {"parameter 2": Stuff}
 #' }
 #' @export
 #' @examples
 #' get_emulation_data
 get_emulation_data <- function(dname){
+  material <- ssp <- year <- NULL
   res <- list()
   if(dname == "strontium_plume_p4b"){
     tmp <- get_UQ_data("strontium_plume")
@@ -169,7 +169,7 @@ get_emulation_data <- function(dname){
     # with a higher probability to remove close to the center location
     center <- c(285, 15)
     lscale <- c(28, 15)
-    thresh <- dnorm(unlist(X[,1]), center[1], lscale[1]) * dnorm(unlist(X[,2]), center[2], lscale[2])
+    thresh <- stats::dnorm(unlist(X[,1]), center[1], lscale[1]) * stats::dnorm(unlist(X[,2]), center[2], lscale[2])
     thresh <- thresh/max(thresh) + 4
     thresh <- thresh/max(thresh)
     ind    <- which(thresh > prob)
@@ -221,27 +221,27 @@ get_emulation_data <- function(dname){
   }
   if(dname == "Z_machine_max_vel1"){
     tmp <- get_UQ_data("Z_machine_sim")
-    res$y <- aggregate(velocity1~id, max, data=tmp$data)$velocity1
+    res$y <- stats::aggregate(velocity1~id, max, data=tmp$data)$velocity1
     res$X <- as.matrix(tmp$params[,c(2:4, 5+c(0,9,18))])
     return(res)
   }
   if(dname == "Z_machine_max_vel2"){
     tmp <- get_UQ_data("Z_machine_sim")
-    res$y <- aggregate(velocity2~id, max, data=tmp$data)$velocity2
+    res$y <- stats::aggregate(velocity2~id, max, data=tmp$data)$velocity2
     res$X <- as.matrix(tmp$params[,c(2:4, 6+c(0,9,18))])
     return(res)
   }
   if(dname == "Z_machine_max_vel_all"){
     tmp <- get_UQ_data("Z_machine_sim")
-    res$y <- aggregate(velocity1~id, max, data=tmp$data)[,2]
-    res$y <- res$y + aggregate(velocity2~id, max, data=tmp$data)[,2]
-    res$y <- res$y + aggregate(velocity3~id, max, data=tmp$data)[,2]
-    res$y <- res$y + aggregate(velocity4~id, max, data=tmp$data)[,2]
-    res$y <- res$y + aggregate(velocity5~id, max, data=tmp$data)[,2]
-    res$y <- res$y + aggregate(velocity6~id, max, data=tmp$data)[,2]
-    res$y <- res$y + aggregate(velocity7~id, max, data=tmp$data)[,2]
-    res$y <- res$y + aggregate(velocity8~id, max, data=tmp$data)[,2]
-    res$y <- res$y + aggregate(velocity9~id, max, data=tmp$data)[,2]
+    res$y <- stats::aggregate(velocity1~id, max, data=tmp$data)[,2]
+    res$y <- res$y + stats::aggregate(velocity2~id, max, data=tmp$data)[,2]
+    res$y <- res$y + stats::aggregate(velocity3~id, max, data=tmp$data)[,2]
+    res$y <- res$y + stats::aggregate(velocity4~id, max, data=tmp$data)[,2]
+    res$y <- res$y + stats::aggregate(velocity5~id, max, data=tmp$data)[,2]
+    res$y <- res$y + stats::aggregate(velocity6~id, max, data=tmp$data)[,2]
+    res$y <- res$y + stats::aggregate(velocity7~id, max, data=tmp$data)[,2]
+    res$y <- res$y + stats::aggregate(velocity8~id, max, data=tmp$data)[,2]
+    res$y <- res$y + stats::aggregate(velocity9~id, max, data=tmp$data)[,2]
     res$X <- as.matrix(tmp$param[,-1])
     return(res)
   }

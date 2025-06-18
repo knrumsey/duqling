@@ -16,12 +16,13 @@
 #' @param verbose should progress be reported?
 #' @return See details
 #' @details Code to conduct a reproducible simulation study to compare emulators. By reporting the parameters to the study, other authors can compare their results directly.
-#' Only \code{fit_func} needs to be specified, but only the total time will be reported. The simplest (and recommended) approach is that the \code{fit_func} (or \code{pred_func}) should return a matrix of posterior samples, with one column per test point (e.g., per row in \code{X_test}). Any number of rows (predictive samples) is allowed. In this case, the mean of the samples is used as a prediction and the R \code{quantile} function is used to construct confidence intervals. This default behavior can be changed by instead allowing \code{fit_func} (or \code{pred_func}) to return a named list with fields i) \code{samples} (required), ii) \code{preds} (optional; a vector of predictions), and iii) intervals (optional; a 2 by n by k array of interval bounds where n is the number of test points and k is \code{length(conf_level)}).
+#' Only \code{fit_func} needs to be specified, but only the total time will be reported. The simplest (and recommended) approach is that the \code{fit_func} (or \code{pred_func}) should return a matrix of posterior samples, with one column per test point (e.g., per row in \code{X_test}). Any number of rows (predictive samples) is allowed. In this case, the mean of the samples is used as a prediction and the R \code{stats::quantile} function is used to construct confidence intervals. This default behavior can be changed by instead allowing \code{fit_func} (or \code{pred_func}) to return a named list with fields i) \code{samples} (required), ii) \code{preds} (optional; a vector of predictions), and iii) intervals (optional; a 2 by n by k array of interval bounds where n is the number of test points and k is \code{length(conf_level)}).
 #'
 #' @references
 #' Surjanovic, Sonja, and Derek Bingham. "Virtual library of simulation experiments: test functions and datasets." Simon Fraser University, Burnaby, BC, Canada, accessed May 13 (2013): 2015.
 #' @export
 #' @examples
+#' \dontrun{
 #' library(BASS)
 #'
 #' my_fit <- function(X, y){
@@ -34,6 +35,7 @@
 #' run_sim_study_data(fit_func, pred_func,
 #'    dnames=c("pbx9501_gold", "strontium_plume_p104"),
 #'    folds=c(2, 3))
+#'}
 run_sim_study_data <- function(fit_func, pred_func=NULL,
                           dnames=get_sim_data_tiny(),
                           dsets=NULL,
@@ -47,6 +49,7 @@ run_sim_study_data <- function(fit_func, pred_func=NULL,
                           verbose=TRUE){
 
   # error handling here
+  k <- NULL
   if(is.null(method_names)){
     method_names <- names(fit_func)
   }
@@ -159,6 +162,7 @@ run_one_sim_case_data <- function(k, XX, yy, groups, cv_type,
                                   verbose){
   # Partition data
   #K <- length(unique(groups))
+  kk <- NULL
   if(cv_type == "cv"){
     indx <- which(groups == k)
     mk <- length(indx)
@@ -225,7 +229,7 @@ run_one_sim_case_data <- function(k, XX, yy, groups, cv_type,
     # if(interval == TRUE){
     #   rmse_curr <- rmsef(y_test, preds[,1])
     #   DF_curr$RMSE <- rmse_curr
-    #   DF_curr$FVU  <- rmse_curr^2/var(y_test)
+    #   DF_curr$FVU  <- rmse_curr^2/stats::var(y_test)
     #
     #   # Compute empirical coverage for each value in conf_level
     #   n_conf <- length(conf_level)
@@ -238,7 +242,7 @@ run_one_sim_case_data <- function(k, XX, yy, groups, cv_type,
     # }else{
     #   rmse_curr <- rmsef(y_test, preds)
     #   DF_curr$RMSE <- rmse_curr
-    #   DF_curr$FVU  <- rmse_curr^2/var(y_test)
+    #   DF_curr$FVU  <- rmse_curr^2/stats::var(y_test)
     # }
     # Compute RMSE, coverage(s), and CRPS
     # CASE: function returns matrix or vector of predictions
@@ -253,7 +257,7 @@ run_one_sim_case_data <- function(k, XX, yy, groups, cv_type,
       y_hat <- colMeans(preds)
       rmse_curr <- rmsef(y_test, y_hat)
       DF_curr$RMSE <- rmse_curr
-      DF_curr$FVU  <- rmse_curr^2/var(y_test)
+      DF_curr$FVU  <- rmse_curr^2/stats::var(y_test)
 
       # CALCULATE COVERAGES and IS's
       n_conf <- length(conf_level)
@@ -262,7 +266,7 @@ run_one_sim_case_data <- function(k, XX, yy, groups, cv_type,
         #COVERAGES
         for(iii in seq_along(conf_level)){
           alpha_curr <- 1 - conf_level[iii]
-          bounds <- apply(preds, 2, quantile, probs=c(alpha_curr/2, 1-alpha_curr/2))
+          bounds <- apply(preds, 2, stats::quantile, probs=c(alpha_curr/2, 1-alpha_curr/2))
 
           DF_curr[,ncol(DF_curr)+1] <- mean((y_test >= bounds[1,]) * (y_test <= bounds[2,]))
         }
@@ -270,7 +274,7 @@ run_one_sim_case_data <- function(k, XX, yy, groups, cv_type,
         # INTERVAL SCORES
         for(iii in seq_along(conf_level)){
           alpha_curr <- 1 - conf_level[iii]
-          bounds <- apply(preds, 2, quantile, probs=c(alpha_curr/2, 1-alpha_curr/2))
+          bounds <- apply(preds, 2, stats::quantile, probs=c(alpha_curr/2, 1-alpha_curr/2))
 
           term1 <- apply(bounds, 2, diff)
           term2 <- 2*(bounds[,1] - y_test)*as.numeric(y_test < bounds[,1])/alpha_curr
@@ -309,7 +313,7 @@ run_one_sim_case_data <- function(k, XX, yy, groups, cv_type,
         intervals <- array(NA, dim=c(2, n_test, n_conf))
         for(iii in seq_along(conf_level)){
           alpha_curr <- 1 - conf_level[iii]
-          intervals[,,iii] <- apply(preds$samples, 1, quantile, probs=c(alpha_curr/2, 1-alpha_curr/2))
+          intervals[,,iii] <- apply(preds$samples, 1, stats::quantile, probs=c(alpha_curr/2, 1-alpha_curr/2))
         }
         if(n_conf == 1) intervals <- intervals[,,1]
         preds$intervals <- intervals
@@ -319,7 +323,7 @@ run_one_sim_case_data <- function(k, XX, yy, groups, cv_type,
       y_hat <- colMeans(preds$preds)
       rmse_curr <- rmsef(y_test, y_hat)
       DF_curr$RMSE <- rmse_curr
-      DF_curr$FVU  <- rmse_curr^2/var(y_test)
+      DF_curr$FVU  <- rmse_curr^2/stats::var(y_test)
 
       # CALCULATE COVERAGES
       n_conf <- length(conf_level)
@@ -328,7 +332,7 @@ run_one_sim_case_data <- function(k, XX, yy, groups, cv_type,
         #COVERAGES
         for(iii in seq_along(conf_level)){
           alpha_curr <- 1 - conf_level[iii]
-          bounds <- apply(preds, 2, quantile, probs=c(alpha_curr/2, 1-alpha_curr/2))
+          bounds <- apply(preds, 2, stats::quantile, probs=c(alpha_curr/2, 1-alpha_curr/2))
 
           DF_curr[,ncol(DF_curr)+1] <- mean((y_test >= bounds[1,]) * (y_test <= bounds[2,]))
         }
@@ -336,7 +340,7 @@ run_one_sim_case_data <- function(k, XX, yy, groups, cv_type,
         # INTERVAL SCORES
         for(iii in seq_along(conf_level)){
           alpha_curr <- 1 - conf_level[iii]
-          bounds <- apply(preds, 2, quantile, probs=c(alpha_curr/2, 1-alpha_curr/2))
+          bounds <- apply(preds, 2, stats::quantile, probs=c(alpha_curr/2, 1-alpha_curr/2))
 
           term1 <- apply(bounds, 2, diff)
           term2 <- 2*(bounds[,1] - y_test)*as.numeric(y_test < bounds[,1])/alpha_curr

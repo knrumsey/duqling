@@ -2,8 +2,16 @@ Package: duqling
 Type: Package
 Title: Library of UQ Test Functions 
 Version: 2.0.0
-Author: Kellin Rumsey
-Maintainer: Kellin Rumsey <knrumsey@lanl.gov>
+Authors@R: c(
+    person(given = "Kellin", 
+           family = "Rumsey", 
+           role = c("aut", "cre"), 
+           email = "knrumsey@lanl.gov"),
+    person(given = "J. Derek", 
+           family = "Tucker", 
+           role = "ctb", 
+           email = "jdtuck@sandia.gov", 
+           comment = c(ORCID = "0000-0001-8844-2169")))
 Description: An R package for reproducible UQ research. A virtual library of UQ test functions and standardized simulation studies for comparing emulators (even across papers). 
 License: BSD_3_clause + file LICENSE
 Imports: 
@@ -11,6 +19,8 @@ Imports:
     stats,
     tictoc,
     readr
+Depends:
+    R (>= 3.5.0),
 Suggests: BASS, parallel
 Encoding: UTF-8
 RoxygenNote: 7.3.2

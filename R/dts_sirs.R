@@ -40,11 +40,11 @@ dts_sirs <- function(x, scale01=TRUE, Tf=90, N0= 1000){
   R[1] <- N[1] - S[1] - I[1]
 
   for(t in 2:Tf){
-    births <- rpois(1, x[5]*N[t-1])
-    deaths <- rbinom(3, c(S[t-1], I[t-1], R[t-1]), x[6:8])
-    infect <- rbinom(1, S[t-1]-deaths[1], 1 - exp(-x[3]*I[t-1]/N[t-1]))
-    recove <- rbinom(1, I[t-1]-deaths[2], x[4])
-    resusc <- rbinom(1, R[t-1]-deaths[3], x[9])
+    births <- stats::rpois(1, x[5]*N[t-1])
+    deaths <- stats::rbinom(3, c(S[t-1], I[t-1], R[t-1]), x[6:8])
+    infect <- stats::rbinom(1, S[t-1]-deaths[1], 1 - exp(-x[3]*I[t-1]/N[t-1]))
+    recove <- stats::rbinom(1, I[t-1]-deaths[2], x[4])
+    resusc <- stats::rbinom(1, R[t-1]-deaths[3], x[9])
 
     S[t] <- S[t-1] + births - deaths[1] - infect + resusc
     I[t] <- I[t-1] - deaths[2] + infect - recove

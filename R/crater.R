@@ -2,6 +2,8 @@
 #'
 #' @param x Inputs of dimension (at least) 7. See below for details.
 #' @param scale01 When TRUE, inputs are expected to be given on unit interval.
+#' @param const default parameter
+#' @param power default parameter
 #' @details A physics-based function for predicting crater depth resulting from high-velocity impacts, such as those experienced by the Space Shuttle Columbia during reentry.
 #' Input variables include length of projectile (in), diameter of projectile (in), density of projectile (lb/in^3), normal velocity (in/s), velocity required to break through tile coating (in/s), compressive tile strength (psi), and tile density (lb/in^3).
 #' The \code{const} and \code{power} inputs default to 0.0195 and 0.45 per the "original R&C formula" but can be varied; Stellingwerf et al set these to 0.67 and 0.0086.
