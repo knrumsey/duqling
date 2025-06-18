@@ -9,15 +9,15 @@
 \usage{
 Gfunction(x, scale01 = TRUE, a = NULL)
 
-Gfunction6(x, scale01 = TRUE, a = c(0, 0, rep(6.52, 4)))
+Gfunction6(x, scale01 = TRUE, a = rep(c(0, 6.52), c(2, 4)))
 
-Gfunction12(x, scale01 = TRUE, a = c(0, 0, rep(6.52, 4), 9, 9, 15, 25, 50, 99))
-
-Gfunction18(
+Gfunction12(
   x,
   scale01 = TRUE,
-  a = c(rep(0, 4), rep(1, 4), rep(9, 4), rep(18, 4), rep(99, 2))
+  a = rep(c(0, 6.52, 9, 15, 25, 50, 99), c(2, 4, 2, 1, 1, 1, 1))
 )
+
+Gfunction18(x, scale01 = TRUE, a = rep(c(0, 1, 9, 18, 99), c(4, 4, 4, 4, 2)))
 }
 \arguments{
 \item{x}{Inputs of dimension d. See below for details.}

@@ -38,7 +38,7 @@ Gfunction <- function(x, scale01=TRUE, a=NULL){
 
 #' @rdname Gfunction
 #' @export
-Gfunction6 <- function(x, scale01=TRUE, a=c(0,0,rep(6.52, 4))){
+Gfunction6 <- function(x, scale01=TRUE, a=rep(c(0,6.52), c(2,4))){
   x <- x[1:6]
   u <- (abs(4*x - 2) + a)/(1+a)
   res <- prod(u)
@@ -46,7 +46,7 @@ Gfunction6 <- function(x, scale01=TRUE, a=c(0,0,rep(6.52, 4))){
 
 #' @rdname Gfunction
 #' @export
-Gfunction12 <- function(x, scale01=TRUE, a=c(0,0,rep(6.52,4),9,9,15,25,50,99)){
+Gfunction12 <- function(x, scale01=TRUE, a=rep(c(0,6.52,9,15,25,50,99), c(2,4,2,1,1,1,1))){
   x <- x[1:12]
   u <- (abs(4*x - 2) + a)/(1+a)
   res <- prod(u)
@@ -54,7 +54,7 @@ Gfunction12 <- function(x, scale01=TRUE, a=c(0,0,rep(6.52,4),9,9,15,25,50,99)){
 
 #' @rdname Gfunction
 #' @export
-Gfunction18 <- function(x, scale01=TRUE, a=c(rep(0,4), rep(1,4), rep(9,4), rep(18,4), rep(99,2))){
+Gfunction18 <- function(x, scale01=TRUE, a=rep(c(0,1,9,18,99), c(4,4,4,4,2))){
   x <- x[1:18]
   u <- (abs(4*x - 2) + a)/(1+a)
   res <- prod(u)
