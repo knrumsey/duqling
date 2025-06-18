@@ -157,7 +157,8 @@ quackquack <- function(fname=NULL, input_dim=NULL, input_cat=NULL, response_type
   new_func <- data.frame(fname="sulfur", input_dim=9, input_cat=FALSE, response_type="uni", stochastic="n")
   master_list <- rbind(master_list, new_func)
   # add G functions
-  new_func <- rbind(data.frame(fname="Gfunction6", input_dim=6, input_cat=FALSE, response_type="uni", stochastic="n"),
+  new_func <- rbind(data.frame(fname="Gfunction", input_dim=3, input_cat=FALSE, response_type="uni", stochastic="n"),
+                    data.frame(fname="Gfunction6", input_dim=6, input_cat=FALSE, response_type="uni", stochastic="n"),
                     data.frame(fname="Gfunction12", input_dim=12, input_cat=FALSE, response_type="uni", stochastic="n"),
                     data.frame(fname="Gfunction18", input_dim=18, input_cat=FALSE, response_type="uni", stochastic="n"))
   master_list <- rbind(master_list, new_func)

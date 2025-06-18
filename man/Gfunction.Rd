@@ -7,6 +7,8 @@
 \alias{Gfunction18}
 \title{The Gfunction Function}
 \usage{
+Gfunction(x, scale01 = TRUE, a = NULL)
+
 Gfunction6(x, scale01 = TRUE, a = c(0, 0, rep(6.52, 4)))
 
 Gfunction12(x, scale01 = TRUE, a = c(0, 0, rep(6.52, 4), 9, 9, 15, 25, 50, 99))
@@ -18,11 +20,11 @@ Gfunction18(
 )
 }
 \arguments{
-\item{x}{Inputs of dimension (at least) 5. See below for details.}
+\item{x}{Inputs of dimension d. See below for details.}
 
 \item{scale01}{(Ignored here) When TRUE, inputs are expected to be given on unit interval and are internally adjusted to their native range. Default is FALSE}
 
-\item{a}{default parameter}
+\item{a}{Weight vector of length d (lower value is more important)}
 }
 \value{
 A scalar response
@@ -31,7 +33,8 @@ A scalar response
 Dimensions: d. A multiplicative function.
 }
 \details{
-The G function function is often used as an integrand for various numerical estimation methods. The .exact value of the intregal of this function in any dimensions is 1. The a_i values indicate the importance of a variable (lower value is more important).
+The G function function is often used as an integrand for various numerical estimation methods. The exact value of the intregal of this function in any dimensions is 1. The a_i values indicate the importance of a variable (lower value is more important).
+\code{Gfunction} takes a 3-dimensional input vector by default but accepts any number of dimension with input i having weight (i-1)/4. \code{Gfunction6} forces all inputs after the p=6th to be inert (similarly for \code{Gfunction12} and \code{Gfunction18} with p=12 and p=18).
 For details on the G function function, see \href{https://www.sfu.ca/~ssurjano/fried.html}{the VLSE}.
 }
 \examples{
@@ -42,5 +45,7 @@ y <- apply(x, 1, Gfunction6, scale01=TRUE)
 \references{
 Surjanovic, Sonja, and Derek Bingham. "Virtual library of simulation experiments: test functions and datasets." Simon Fraser University, Burnaby, BC, Canada, accessed May 13 (2013): 2015.
 
-Gfunction, J. H. (1991). Multivariate adaptive regression splines. The annals of statistics, 19(1), 1-67.
+Saltelli, A., & Sobol', I. M. (1995). About the use of rank transformation in sensitivity analysis of model output. Reliability Engineering & System Safety, 50(3), 225-239.
+
+Marrel, A., Iooss, B., Van Dorpe, F., & Volkova, E. (2008). An efficient methodology for modeling complex computer codes with Gaussian processes. Computational Statistics & Data Analysis, 52(10), 4731-4744.
 }

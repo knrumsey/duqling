@@ -33,7 +33,7 @@
 #' sir <- dts_sirs(x, Tf = 365)
 #' ts.plot(sir[,2], main="Number of infectious individuals", xlab="Time (days)", ylab="")
 dts_sirs <- function(x, scale01=TRUE, Tf=90, N0= 1000){
-  S <- I <- R <- N <- rep(NA, Tf)
+  S <- I <- R <- N <- rep(0, Tf)
   N[1] <- N0
   S[1] <- round(x[1]*N0)
   I[1] <- round(x[2]*N0)
@@ -50,6 +50,11 @@ dts_sirs <- function(x, scale01=TRUE, Tf=90, N0= 1000){
     I[t] <- I[t-1] - deaths[2] + infect - recove
     R[t] <- R[t-1] - deaths[3] + recove - resusc
     N[t] <- S[t] + I[t] + R[t]
+
+    if(N[t] <= 0){
+      out <- cbind(S, I, R)
+      return(out)
+    }
   }
   out <- cbind(S, I, R)
   return(out)
@@ -57,9 +62,9 @@ dts_sirs <- function(x, scale01=TRUE, Tf=90, N0= 1000){
 
 
 quackquack_dts_sirs <- function(){
-  out <- list(input_dim=5)
+  out <- list(input_dim=9)
   out$input_cat <- FALSE
-  out$response_type <- c("mult")
+  out$response_type <- c("func")
 
   RR <- cbind(rep(0, 9),
               rep(1, 9))

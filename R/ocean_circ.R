@@ -90,8 +90,6 @@ fk_simulator  = function(domain, sites, U, V, KX, KY, OXY, NPATHS){
   for(i in 1:NOBS){
     #print(i)
     for(kk in 1:NPATHS){
-
-
       xc = sites[i,1]
       yc = sites[i,2]
 
@@ -129,8 +127,6 @@ fk_simulator  = function(domain, sites, U, V, KX, KY, OXY, NPATHS){
         xc=xn;
         yc=yn;
         tau = tau + HH;
-
-
       }
       JJ = ceiling( (xc - domain[1])/delx );
       II = ceiling( (yc - domain[3])/dely );
@@ -148,9 +144,7 @@ fk_simulator  = function(domain, sites, U, V, KX, KY, OXY, NPATHS){
       else{
         if (II>M) II=M
       }
-
       OUT[i,kk] = OXY[II,JJ]*exp(-lam*tau)
-
     }
   }
 

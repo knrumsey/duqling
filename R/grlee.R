@@ -82,7 +82,7 @@ quackquack_grlee2 <- function(){
   out$input_cat <- FALSE
   out$response_type <- "uni"
 
-  RR <- cbind(c(-2, 2),
+  RR <- cbind(c(-2, -2),
               c(6, 6))
   rownames(RR) <- c("x1", "x2")
   out$input_range <- RR

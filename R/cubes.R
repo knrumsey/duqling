@@ -72,7 +72,7 @@ quackquack_cube3 <- function(){
 
   return(out)
 }
-quackquack_cube3_rotate <- quackquack_cube3()
+quackquack_cube3_rotate <- quackquack_cube3
 
 quackquack_cube5 <- function(){
   out <- list(input_dim=5)
