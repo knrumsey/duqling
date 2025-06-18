@@ -123,8 +123,8 @@ fk_simulator  = function(domain, sites, U, V, KX, KY, OXY, NPATHS){
         vc = V[ix,jx]
 
         # Euler step
-        xn = xc + HH * uc + sqrt(HH)*sqrt(2*KX)*rnorm(1);
-        yn = yc + HH * vc + sqrt(HH)*sqrt(2*KY)*rnorm(1);
+        xn = xc + HH * uc + sqrt(HH)*sqrt(2*KX)*stats::rnorm(1);
+        yn = yc + HH * vc + sqrt(HH)*sqrt(2*KY)*stats::rnorm(1);
 
         xc=xn;
         yc=yn;

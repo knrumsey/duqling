@@ -23,7 +23,7 @@ NULL
 #' @examples
 #' n <- 10
 #' x <- matrix(runif(8*n), nrow=n)
-#' y <- apply(x, 1, Gfunction, scale01=TRUE)
+#' y <- apply(x, 1, Gfunction6, scale01=TRUE)
 Gfunction6 <- function(x, scale01=TRUE, a=c(0,0,rep(6.52, 4))){
   x <- x[1:6]
   u <- (abs(4*x - 2) + a)/(1+a)

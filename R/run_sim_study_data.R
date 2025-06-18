@@ -22,6 +22,7 @@
 #' Surjanovic, Sonja, and Derek Bingham. "Virtual library of simulation experiments: test functions and datasets." Simon Fraser University, Burnaby, BC, Canada, accessed May 13 (2013): 2015.
 #' @export
 #' @examples
+#' \dontrun{
 #' library(BASS)
 #'
 #' my_fit <- function(X, y){
@@ -34,6 +35,7 @@
 #' run_sim_study_data(fit_func, pred_func,
 #'    dnames=c("pbx9501_gold", "strontium_plume_p104"),
 #'    folds=c(2, 3))
+#'}
 run_sim_study_data <- function(fit_func, pred_func=NULL,
                           dnames=get_sim_data_tiny(),
                           dsets=NULL,
@@ -47,6 +49,7 @@ run_sim_study_data <- function(fit_func, pred_func=NULL,
                           verbose=TRUE){
 
   # error handling here
+  k <- NULL
   if(is.null(method_names)){
     method_names <- names(fit_func)
   }
@@ -159,6 +162,7 @@ run_one_sim_case_data <- function(k, XX, yy, groups, cv_type,
                                   verbose){
   # Partition data
   #K <- length(unique(groups))
+  kk <- NULL
   if(cv_type == "cv"){
     indx <- which(groups == k)
     mk <- length(indx)

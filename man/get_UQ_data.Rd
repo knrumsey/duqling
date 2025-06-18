@@ -20,8 +20,8 @@ Load in UQ datasets from the UQdataverse (harvard)
 \details{
 Wrapper to read in various UQ datasets (from harvard dataverse)
 \itemize{
- \item{"strontium_plume"}{Input dimension = 20, observations = 300}
- \item{"parameter 2"}{Stuff}
+ \item{"strontium_plume": Input dimension = 20, observations = 300}
+ \item{"parameter 2": Stuff}
 }
 }
 \examples{

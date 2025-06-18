@@ -7,8 +7,8 @@
 #' @return Data frame
 #' @details Wrapper to read in various UQ datasets (from harvard dataverse)
 #' \itemize{
-#'  \item{"strontium_plume"}{Input dimension = 20, observations = 300}
-#'  \item{"parameter 2"}{Stuff}
+#'  \item{"strontium_plume": Input dimension = 20, observations = 300}
+#'  \item{"parameter 2": Stuff}
 #' }
 #' @export
 #' @examples
@@ -74,13 +74,14 @@ get_UQ_data <- function(dname, control=list()){
 #' @return A list with elements `y` (a univariate response) and `X` (a matrix of inputs).
 #' @details Wrapper to read in various UQ datasets (from harvard dataverse)
 #' \itemize{
-#'  \item "strontium_plume_": Input dimension = 20, observations = 300
-#'  \item "parameter 2": Stuff
+#'  \item {"strontium_plume_": Input dimension = 20, observations = 300}
+#'  \item {"parameter 2": Stuff}
 #' }
 #' @export
 #' @examples
 #' get_emulation_data
 get_emulation_data <- function(dname){
+  material <- ssp <- year <- NULL
   res <- list()
   if(dname == "strontium_plume_p4b"){
     tmp <- get_UQ_data("strontium_plume")

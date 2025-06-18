@@ -37,7 +37,7 @@ For details on the G function function, see \href{https://www.sfu.ca/~ssurjano/f
 \examples{
 n <- 10
 x <- matrix(runif(8*n), nrow=n)
-y <- apply(x, 1, Gfunction, scale01=TRUE)
+y <- apply(x, 1, Gfunction6, scale01=TRUE)
 }
 \references{
 Surjanovic, Sonja, and Derek Bingham. "Virtual library of simulation experiments: test functions and datasets." Simon Fraser University, Burnaby, BC, Canada, accessed May 13 (2013): 2015.

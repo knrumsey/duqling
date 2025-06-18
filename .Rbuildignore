@@ -17,3 +17,4 @@ duqling.code-workspace
 ^\.github$
 ^codecov\.yml$
 ^README\.Rmd$
+docs/

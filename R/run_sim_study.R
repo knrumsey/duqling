@@ -35,7 +35,7 @@
 #'              fnames=get_sim_functions_tiny()[1:2],
 #'              n_train=50)
 run_sim_study <- function(fit_func, pred_func=NULL,
-                          fnames=quack(input_dims = 1)$fname,
+                          fnames=NULL,
                           conf_level = c(0.8, 0.9, 0.95, 0.99),
                           score = TRUE,
                           n_train = 100,
@@ -49,6 +49,9 @@ run_sim_study <- function(fit_func, pred_func=NULL,
                           verbose=TRUE){
 
   # error handling here
+  if(is.null(fnames)){
+    fnames = quack(input_dim = 1)$fname
+  }
   if(is.null(method_names)){
       method_names <- names(fit_func)
   }
