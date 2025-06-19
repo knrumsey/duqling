@@ -145,7 +145,7 @@ rmsef <- function(x, y){
 # }
 
 # Speedup with cool sorting identity:
-# sum of pairwise absolute differences = 2 \sum_{i=1}^n(2i-n-1)x_{(i)}
+# sum of pairwise absolute differences = 2 \sum_{i=1}^n(2i-n-1)x_{()}
 crpsf <- function(y, x, w = 0) {
   M <- length(x)
   term1 <- mean(abs(x-y))
@@ -153,6 +153,7 @@ crpsf <- function(y, x, w = 0) {
   coef <- 2*(1:M) - M - 1
   term2 <- 2 * sum(coef*x)
   res <- term1 - (1 - w/M) * term2 / (2*M*(M - 1))
+  return(res)
 }
 
 
