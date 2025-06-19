@@ -4,15 +4,15 @@
 \alias{plot_rank_distribution}
 \title{Plot cumulative rank-distribution curves for competing emulation methods}
 \usage{
-plot_rank_distribution(data, metric = "FVU", cols = NULL)
+plot_rank_distribution(df, metric = "FVU", cols = NULL)
 }
 \arguments{
-\item{data}{a data frame containing at least the columns
+\item{df}{a data frame containing at least the columns
 `method`, `fname`, `input_dim`, `n`, `NSR`, `design_type`, `rep`,
 and the chosen `metric`.}
 
 \item{metric}{character string naming the performance column to use
-(e.g. `"FVU"`, `"CRPS"`, …).  Any numeric column present in
+(e.g. `"FVU"`, `"CRPS"`, ...).  Any numeric column present in
 `data` is allowed.}
 
 \item{cols}{an optional vector of colours (recycled if necessary).
@@ -27,12 +27,6 @@ For every *case* in the data set (a unique combination of
 supplied performance `metric` is ranked across the competing
 `method`s (rank 1 = best).
 The function draws, for each method, the cumulative percentage of
-cases whose rank is *≤ r* ( r = 1, 2, …)—a so-called “bathtub”
+cases whose rank is *<= r* ( r = 1, 2, ...)—a so-called "bathtub"
 or empirical cumulative rank plot.
-}
-\examples{
-## df is your benchmarking data frame ---------------------------------
-plot_rank_distribution_base(df, metric = "FVU")
-plot_rank_distribution_base(df, metric = "CRPS",
-                            cols = c("steelblue", "firebrick"))
 }

@@ -23,17 +23,38 @@
 #' @references Surjanovic, Sonja, and Derek Bingham. "Virtual library of simulation experiments: test functions and datasets." Simon Fraser University, Burnaby, BC, Canada, accessed May 13 (2013): 2015.
 #' @export
 #' @examples
-#' library(BASS)
 #'
-#' my_fit <- function(X, y){
-#'   bass(X, y, g1=0.001, g2=0.001)
+#' # METHOD 1: Linear Regression
+#' lm_fit <- function(X, y){
+#'   lm(y~X)
 #' }
-#' my_pred <- function(obj, Xt){
-#'   predict(obj, Xt)
+#' lm_pred <- function(obj, Xt){
+#'   nt <- nrow(Xt)
+#'   mean_pred <- predict(obj, data.frame(Xt))
+#'   sigma_est <- sd(residuals(obj))
+#'   preds <- replicate(1000, mean_pred + rnorm(nt, 0, sigma_est))
 #' }
+#'
+#' # METHOD 2: Projection Pursuit
+#' ppr_fit <- function(X, y){
+#'   ppr(X, y, nterms=3)
+#' }
+#' ppr_pred <- function(obj, Xt){
+#'   nt <- nrow(Xt)
+#'   mean_pred <- predict(obj, data.frame(Xt))
+#'   sigma_est <- sd(residuals(obj))
+#'   preds <- replicate(1000, mean_pred + rnorm(nt, 0, sigma_est))
+#' }
+#'
+#' my_fit  <- list(lm_fit, ppr_fit)
+#' my_pred <- list(lm_pred, ppr_pred)
 #' run_sim_study(my_fit, my_pred,
-#'              fnames=get_sim_functions_tiny()[1:2],
-#'              n_train=50)
+#'              fnames=c("dms_additive", "borehole"),
+#'              n_train=50,
+#'              replications=2,
+#'              method_names=c("lm", "ppr") # Optional
+#'              )
+#'
 run_sim_study <- function(fit_func, pred_func=NULL,
                           fnames=NULL,
                           conf_level = c(0.8, 0.9, 0.95, 0.99),
@@ -271,7 +292,7 @@ run_one_sim_case <- function(rr, seed, fn, fnum, p, n, nsr, dsgn, n_test, conf_l
         y_hat <- colMeans(preds)
         rmse_curr <- rmsef(y_test, y_hat)
         DF_curr$RMSE <- rmse_curr
-        DF_curr$FVU  <- rmse_curr^2 / noise_level^2
+        DF_curr$FVU  <- rmse_curr^2 / noise_lvl^2
 
         # CALCULATE COVERAGES
         n_conf <- length(conf_level)

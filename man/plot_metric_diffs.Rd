@@ -37,10 +37,7 @@ is computed.  The per-function average is drawn as a vertical segment
 replicate differences are shown as jittered points of matching colour.
 }
 \details{
-A **signed–log (modulus)** transform is applied so large positive/negative
+A signed-log (modulus) transform is applied so large positive/negative
 values are compressed while small differences stay legible.  Setting
 \code{bend = 1} turns the transform off (ordinary linear axis).
-}
-\examples{
-## plot_metric_diffs_base(results, "FVU", "khaos", "bass")
 }

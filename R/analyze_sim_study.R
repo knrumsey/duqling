@@ -6,7 +6,7 @@
 #' (blue when \code{method1} is better, red otherwise) and individual
 #' replicate differences are shown as jittered points of matching colour.
 #'
-#' A **signed–log (modulus)** transform is applied so large positive/negative
+#' A signed-log (modulus) transform is applied so large positive/negative
 #' values are compressed while small differences stay legible.  Setting
 #' \code{bend = 1} turns the transform off (ordinary linear axis).
 #'
@@ -18,10 +18,10 @@
 #' @param method2    Second method (default \code{"method2"}).
 #' @param bend       Bending parameter \eqn{0<p\le 1} for Tukey’s modulus
 #'   transform; Default \code{bend = 1} is equivalent to no transform.
-#'
+#' @importFrom graphics abline axis box layout legend lines par plot.new plot.window points title
+#' @importFrom stats aggregate ave complete.cases
+#' @importFrom stats reshape runif
 #' @return Invisibly returns the data frame of differences used for plotting.
-#' @examples
-#' ## plot_metric_diffs_base(results, "FVU", "khaos", "bass")
 plot_metric_diffs <- function(df,
                                    metric_col = "FVU",
                                    method1    = "method1",
@@ -32,7 +32,7 @@ plot_metric_diffs <- function(df,
             all(c("method", "fname", "rep") %in% names(df)),
             bend > 0, bend <= 1)
 
-  if(length(unique(data$method)) == 1){
+  if(length(unique(df$method)) == 1){
     stop("Need at least two methods for a comparison")
   }
 
@@ -43,7 +43,7 @@ plot_metric_diffs <- function(df,
   }
 
   ## ── reshape to paired differences ─────────────────────────────
-  wide <- subset(df, method %in% c(method1, method2))[,
+  wide <- subset(df, df$method %in% c(method1, method2))[,
                                                       c("fname", "rep", "method", metric_col)]
 
   # wide data
@@ -101,7 +101,7 @@ plot_metric_diffs <- function(df,
   axis(2)
   title(main = sprintf("%s vs %s: %s differences by function",
                        method1, method2, metric_col),
-        ylab = sprintf("%s difference  (%s − %s)",
+        ylab = sprintf("%s difference  (%s - %s)",
                        metric_col, method1, method2),
         xlab = "")
   box()
@@ -118,45 +118,40 @@ plot_metric_diffs <- function(df,
 #' supplied performance `metric` is ranked across the competing
 #' `method`s (rank 1 = best).
 #' The function draws, for each method, the cumulative percentage of
-#' cases whose rank is *≤ r* ( r = 1, 2, …)—a so-called “bathtub”
+#' cases whose rank is *<= r* ( r = 1, 2, ...)—a so-called "bathtub"
 #' or empirical cumulative rank plot.
 #'
-#' @param data   a data frame containing at least the columns
+#' @param df   a data frame containing at least the columns
 #'   `method`, `fname`, `input_dim`, `n`, `NSR`, `design_type`, `rep`,
 #'   and the chosen `metric`.
 #' @param metric character string naming the performance column to use
-#'   (e.g. `"FVU"`, `"CRPS"`, …).  Any numeric column present in
+#'   (e.g. `"FVU"`, `"CRPS"`, ...).  Any numeric column present in
 #'   `data` is allowed.
 #' @param cols   an optional vector of colours (recycled if necessary).
 #'   If `NULL` the base-R palette is used.
 #'
 #' @return Invisibly returns a list with the average ranks per method.
-#' @examples
-#' ## df is your benchmarking data frame ---------------------------------
-#' plot_rank_distribution_base(df, metric = "FVU")
-#' plot_rank_distribution_base(df, metric = "CRPS",
-#'                             cols = c("steelblue", "firebrick"))
 #' @export
-plot_rank_distribution <- function(data, metric = "FVU", cols = NULL)
+plot_rank_distribution <- function(df, metric = "FVU", cols = NULL)
 {
-  if (!metric %in% names(data))
+  if (!metric %in% names(df))
     stop("Column `", metric, "` not found")
 
-  if(length(unique(data$method)) == 1){
+  if(length(unique(df$method)) == 1){
     stop("Need at least two methods for a comparison")
   }
 
   ## -- ranks within each design-replication case ----------------------------
-  id <- interaction(data$fname, data$input_dim, data$n,
-                    data$NSR,  data$design_type, data$rep, drop = TRUE)
-  data$rank <- ave(data[[metric]], id,
+  id <- interaction(df$fname, df$input_dim, df$n,
+                    df$NSR,  df$design_type, df$rep, drop = TRUE)
+  df$rank <- ave(df[[metric]], id,
                    FUN = function(z) rank(z, ties.method = "average"))
 
   ## -- order methods by average rank ----------------------------------------
-  mean_rank <- tapply(data$rank, data$method, mean)
+  mean_rank <- tapply(df$rank, df$method, mean)
   methods   <- names(sort(mean_rank))
   k         <- length(methods)
-  max_r     <- max(data$rank)
+  max_r     <- max(df$rank)
 
   if (is.null(cols)) cols <- rep(1:6, length.out = k)
 
@@ -173,7 +168,7 @@ plot_rank_distribution <- function(data, metric = "FVU", cols = NULL)
   axis(1, at = 1:max_r)
 
   for (i in seq_along(methods)) {
-    y <- data$rank[data$method == methods[i]]
+    y <- df$rank[df$method == methods[i]]
     pct <- sapply(1:max_r, function(r) mean(y <= r) * 100)
     lines(1:max_r, pct, type = "b", col = cols[i], pch = i, lwd = 2)
   }
