@@ -131,18 +131,30 @@ rmsef <- function(x, y){
   sqrt(mean((x-y)^2))
 }
 
-crpsf <- function(y, x, w=0){
+# crpsf <- function(y, x, w=0){
+#   M <- length(x)
+#   term1 <- mean(abs(x-y))
+#   if(M <= 6500){
+#     term2 <- sum(outer(x, x, function(a, b) abs(a-b))) # Fastest way for small M
+#   }else{
+#     idx <- unlist(lapply(2:M, function(i) 1:i))
+#     term2 <- 2*sum(abs(x[rep(2:M, 2:M)] - x[idx]))     # Faster for big M
+#   }
+#   res <- term1 - (1 - w/M)*term2/(2*M*(M-1))
+#   return(res)
+# }
+
+# Speedup with cool sorting identity:
+# sum of pairwise absolute differences = 2 \sum_{i=1}^n(2i-n-1)x_{(i)}
+crpsf <- function(y, x, w = 0) {
   M <- length(x)
   term1 <- mean(abs(x-y))
-  if(M <= 6500){
-    term2 <- sum(outer(x, x, function(a, b) abs(a-b))) # Fastest way for small M
-  }else{
-    idx <- unlist(lapply(2:M, function(i) 1:i))
-    term2 <- 2*sum(abs(x[rep(2:M, 2:M)] - x[idx]))     # Faster for big M
-  }
-  res <- term1 - (1 - w/M)*term2/(2*M*(M-1))
-  return(res)
+  x <- sort(x)
+  coef <- 2*(1:M) - M - 1
+  term2 <- 2 * sum(coef*x)
+  res <- term1 - (1 - w/M) * term2 / (2*M*(M - 1))
 }
+
 
 transform_seed <- function(seed, n, dt, NSR, fnum, rr){
  s1 <- seed
@@ -258,7 +270,7 @@ run_one_sim_case <- function(rr, seed, fn, fnum, p, n, nsr, dsgn, n_test, conf_l
         y_hat <- colMeans(preds)
         rmse_curr <- rmsef(y_test, y_hat)
         DF_curr$RMSE <- rmse_curr
-        DF_curr$FVU  <- rmse_curr^2/stats::var(y_test)
+        DF_curr$FVU  <- rmse_curr^2 / noise_level^2
 
         # CALCULATE COVERAGES
         n_conf <- length(conf_level)
