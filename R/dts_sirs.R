@@ -33,19 +33,14 @@
 #' sir <- dts_sirs(x, Tf = 365)
 #' ts.plot(sir[,2], main="Number of infectious individuals", xlab="Time (days)", ylab="")
 dts_sirs <- function(x, scale01=TRUE, Tf=90, N0=1000){
-  if(x[1] + x[2] > 1) {
-    warning(paste("Initial proportions S0 + I0 =", round(x[1] + x[2], 3),
-                  "> 1. Normalizing to S0 =", round(x[1] / (x[1] + x[2]), 3),
-                  "and I0 =", round(x[2] / (x[1] + x[2]), 3)))
-    total_prop <- x[1] + x[2]
-    x[1] <- x[1] / total_prop
-    x[2] <- x[2] / total_prop
+  if(x[1] + x[2] >= 1) {
+    warning(paste("I0 will be reduced from", x[2], "to", 1 - x[1], "due to S0 constraint"))
   }
 
   S <- I <- R <- N <- rep(0, Tf)
   N[1] <- N0
   S[1] <- round(x[1]*N0)
-  I[1] <- round(x[2]*N0)
+  I[1] <- round(min(1-x[1],x[2])*N0)
   R[1] <- N[1] - S[1] - I[1]
 
   for(t in 2:Tf){
