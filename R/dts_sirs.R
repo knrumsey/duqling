@@ -33,7 +33,7 @@
 #' sir <- dts_sirs(x, Tf = 365)
 #' ts.plot(sir[,2], main="Number of infectious individuals", xlab="Time (days)", ylab="")
 dts_sirs <- function(x, scale01=TRUE, Tf=90, N0=1000){
-  if(x[1] + x[2] >= 1) {
+  if(x[1] + x[2] > 1) {
     warning(paste("I0 will be reduced from", x[2], "to", 1 - x[1], "due to S0 constraint"))
   }
 
