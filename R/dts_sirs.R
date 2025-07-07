@@ -9,8 +9,8 @@
 #' @details
 #' Parameter description
 #' \describe{
-#'   \item{x1 = S0}{Proportion of population initally susceptible, [0, 1]}
-#'   \item{x2 = I0}{Proportion of population initially infected, [0, 1]}
+#'   \item{x1 = I0}{Proportion of population initally infected, [0, 1]}
+#'   \item{x2 = S0_without_I0}{Proportion of non-infected population initially susceptible, [0, 1]}
 #'   \item{x3 = beta}{transimissability parameter, [0, 1]. The upper bound is not meaningful, and the number of new infections is given by `rbinom(1, S[t-1], 1 - exp(-beta*I[t-1]/N[t-1]))`.}
 #'   \item{x4 = gamma}{recovery parameter, [0, 1]. The probability that each infectious person (independently) recovers at each time step. 1/gamma is the average length of infectious period}
 #'   \item{x5 = alpha}{birth rate.  [0, 1]. Parameter range is not entirely meaningful. Births always enter into susceptible class as `rpois(1, alpha*N[t-1])`}
@@ -25,7 +25,7 @@
 #' add a reference
 #' @export
 #' @examples
-#' x <- c(S0 = 0.99, I0 = 0.01,
+#' x <- c(I0 = 0.01, S0_without_I0 = 1.00,
 #'    beta = 0.12, gamma = 0.1,
 #'    alpha = 0, muS = 0, muI = 0,
 #'    muR = 0, delta = 1/90)
@@ -33,14 +33,10 @@
 #' sir <- dts_sirs(x, Tf = 365)
 #' ts.plot(sir[,2], main="Number of infectious individuals", xlab="Time (days)", ylab="")
 dts_sirs <- function(x, scale01=TRUE, Tf=90, N0=1000){
-  if(x[1] + x[2] > 1) {
-    warning(paste("S0 will be reduced from", x[1], "to", 1 - x[2], "due to I0 constraint"))
-  }
-
   S <- I <- R <- N <- rep(0, Tf)
   N[1] <- N0
-  S[1] <- round(min(1-x[2],x[1])*N0)
-  I[1] <- round(x[2]*N0)
+  I[1] <- round(x[1]*N0)
+  S[1] <- floor(x[2]*(N0 - I[1]))
   R[1] <- N[1] - S[1] - I[1]
 
   for(t in 2:Tf){
@@ -72,7 +68,7 @@ quackquack_dts_sirs <- function(){
 
   RR <- cbind(rep(0, 9),
               rep(1, 9))
-  rownames(RR) <- c("S0", "I0", "beta", "gamma", "alpha", "muS", "muI", "muR", "delta")
+  rownames(RR) <- c("I0", "S0_without_I0", "beta", "gamma", "alpha", "muS", "muI", "muR", "delta")
   out$input_range <- RR
   return(out)
 }
