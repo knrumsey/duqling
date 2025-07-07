@@ -39,8 +39,8 @@ dts_sirs <- function(x, scale01=TRUE, Tf=90, N0=1000){
 
   S <- I <- R <- N <- rep(0, Tf)
   N[1] <- N0
-  S[1] <- round(x[1]*N0)
-  I[1] <- round(min(1-x[2],x[1])*N0)
+  S[1] <- round(min(1-x[2],x[1])*N0)
+  I[1] <- round(x[2]*N0)
   R[1] <- N[1] - S[1] - I[1]
 
   for(t in 2:Tf){
