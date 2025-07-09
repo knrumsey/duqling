@@ -21,7 +21,7 @@ quackquack_borehole_low_fidelity <- function(){
   out$response_type <- "uni"
 
   RR <- cbind(c(0.05, 100, 63070, 990, 63.1,  700, 1120, 9855),
-              c(0.15, 50000, 115600, 1110, 116, 80, 1680, 12045))
+              c(0.15, 50000, 115600, 1110, 116, 820, 1680, 12045))
   rownames(RR) <- c("rw", "r", "Tu", "Hu", "Tl", "Hl", "L", "Kw")
   out$input_range <- RR
   return(out)
