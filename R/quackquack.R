@@ -174,6 +174,26 @@ quackquack <- function(fname=NULL, input_dim=NULL, input_cat=NULL, response_type
   # add ebola function
   new_func <- data.frame(fname="ebola", input_dim=8, input_cat=FALSE, response_type="uni", stochastic="n")
   master_list <- rbind(master_list, new_func)
+  # add star2 function
+  new_func <- data.frame(fname="star2", input_dim=2, input_cat=FALSE, response_type="uni", stochastic="n")
+  master_list <- rbind(master_list, new_func)
+  # add forrester functions
+  new_func <- data.frame(fname="forrester1", input_dim=1, input_cat=FALSE, response_type="uni", stochastic="n")
+  master_list <- rbind(master_list, new_func)
+  new_func <- data.frame(fname="forrester1_low_fidelity", input_dim=1, input_cat=FALSE, response_type="uni", stochastic="n")
+  master_list <- rbind(master_list, new_func)
+  # Add Oakley and O'hagan function
+  new_func <- data.frame(fname="oo15", input_dim=15, input_cat=FALSE, response_type="uni", stochastic="n")
+  master_list <- rbind(master_list, new_func)
+  # Add rabbits
+  new_func <- data.frame(fname="rabbits", input_dim=3, input_cat=FALSE, response_type="uni", stochastic="n")
+  master_list <- rbind(master_list, new_func)
+  # Add permdb
+  new_func <- data.frame(fname="gamma_mix", input_dim=7, input_cat=FALSE, response_type="uni", stochastic="n")
+  master_list <- rbind(master_list, new_func)
+  # Add permdb
+  new_func <- data.frame(fname="permdb", input_dim=16, input_cat=FALSE, response_type="uni", stochastic="n")
+  master_list <- rbind(master_list, new_func)
 
   # Sort list
   if(sorted){

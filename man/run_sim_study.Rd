@@ -64,12 +64,16 @@ Only \code{fit_func} needs to be specified, but only the total time will be repo
 
 # METHOD 1: Linear Regression
 lm_fit <- function(X, y){
-  lm(y~X)
+  Xdf <- as.data.frame(X)
+  colnames(Xdf) <- paste0("X", seq_len(ncol(X)))
+  lm(y ~ ., data = Xdf)
 }
 lm_pred <- function(obj, Xt){
-  nt <- nrow(Xt)
-  mean_pred <- predict(obj, data.frame(Xt))
+  Xt_df <- as.data.frame(Xt)
+  colnames(Xt_df) <- paste0("X", seq_len(ncol(Xt_df)))
+  mean_pred <- predict(obj, Xt_df)
   sigma_est <- sd(residuals(obj))
+  nt <- nrow(Xt_df)
   preds <- replicate(1000, mean_pred + rnorm(nt, 0, sigma_est))
 }
 

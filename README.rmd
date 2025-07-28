@@ -19,7 +19,8 @@ library(knitr)
 
 [![License: GPL
 v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
-[![](https://img.shields.io/badge/devel%20version-1.0.1-purple.svg)](https://github.com/knrumsey/duqling)
+[![](https://img.shields.io/badge/release%20version-2.0.0-blue.svg)](https://github.com/knrumsey/duqling)
+
 
 ```{r, eval=TRUE, echo=FALSE, fig.cap="This logo was designed by Imagine AI Art Studio", out.width='50%'}
 knitr::include_graphics("inst/logos/DUQLING.png")

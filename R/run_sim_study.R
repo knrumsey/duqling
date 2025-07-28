@@ -26,12 +26,16 @@
 #'
 #' # METHOD 1: Linear Regression
 #' lm_fit <- function(X, y){
-#'   lm(y~X)
+#'   Xdf <- as.data.frame(X)
+#'   colnames(Xdf) <- paste0("X", seq_len(ncol(X)))
+#'   lm(y ~ ., data = Xdf)
 #' }
 #' lm_pred <- function(obj, Xt){
-#'   nt <- nrow(Xt)
-#'   mean_pred <- predict(obj, data.frame(Xt))
+#'   Xt_df <- as.data.frame(Xt)
+#'   colnames(Xt_df) <- paste0("X", seq_len(ncol(Xt_df)))
+#'   mean_pred <- predict(obj, Xt_df)
 #'   sigma_est <- sd(residuals(obj))
+#'   nt <- nrow(Xt_df)
 #'   preds <- replicate(1000, mean_pred + rnorm(nt, 0, sigma_est))
 #' }
 #'
@@ -225,10 +229,13 @@ run_one_sim_case <- function(rr, seed, fn, fnum, p, n, nsr, dsgn, n_test, conf_l
     f <- get(fn, loadNamespace("duqling"))
 
     y_train <- apply(X_train, 1, f, scale01=TRUE)
-    if(stats::var(y_train) == 0){
-      noise_lvl <- 1 # Cannot make sense of SNR when there is no signal
+    v_train <- stats::var(y_train)
+    if(v_train == 0){
+      noise_lvl <- 1e-6 * sqrt(nsr)  # Cannot make sense of SNR when there is no signal
+      total_var <- 1e-12 * (1 + nsr)
     }else{
-      noise_lvl <- sqrt(stats::var(y_train) * nsr)
+      noise_lvl <- sqrt(v_train * nsr)
+      total_var <- v_train * (1 + nsr)
     }
     y_train <- y_train + stats::rnorm(n, 0, noise_lvl)
     y_test <- apply(X_test, 1, f, scale01=TRUE) # no noise for testing data
@@ -292,7 +299,7 @@ run_one_sim_case <- function(rr, seed, fn, fnum, p, n, nsr, dsgn, n_test, conf_l
         y_hat <- colMeans(preds)
         rmse_curr <- rmsef(y_test, y_hat)
         DF_curr$RMSE <- rmse_curr
-        DF_curr$FVU  <- rmse_curr^2 / noise_lvl^2
+        DF_curr$FVU  <- rmse_curr^2 / total_var
 
         # CALCULATE COVERAGES
         n_conf <- length(conf_level)
