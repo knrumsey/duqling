@@ -28,7 +28,7 @@ permdb <- function(x, scale01=TRUE, d=16, beta=0.5){
   xxmat <- matrix(rep(x[1:d], times=d), d, d, byrow=TRUE)
   inner <- rowSums((jj^ii + beta) * ((xxmat / jj)^ii - 1))
   outer <- sum(inner^2)
-  y <- outer
+  y <- outer / d^(2*d + 1) # divide by an approximation of the sd.
   return(y)
 }
 

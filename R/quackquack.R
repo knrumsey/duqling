@@ -188,7 +188,7 @@ quackquack <- function(fname=NULL, input_dim=NULL, input_cat=NULL, response_type
   # Add rabbits
   new_func <- data.frame(fname="rabbits", input_dim=3, input_cat=FALSE, response_type="uni", stochastic="n")
   master_list <- rbind(master_list, new_func)
-  # Add permdb
+  # Add gamma_mix
   new_func <- data.frame(fname="gamma_mix", input_dim=7, input_cat=FALSE, response_type="uni", stochastic="n")
   master_list <- rbind(master_list, new_func)
   # Add permdb
