@@ -18,6 +18,7 @@ run_sim_study(
   seed = 42,
   method_names = NULL,
   mc_cores = 1,
+  fallback_on_error = TRUE,
   verbose = TRUE
 )
 }
@@ -40,13 +41,15 @@ run_sim_study(
 
 \item{design_type}{How should the training and testing designs be generated? Options are "LHS", "grid" and "random"}
 
-\item{replications}{How many replications should be repeated for each data set?}
+\item{replications}{The replications to run. Can be a single integer \code{r} (runs replications 1 to r), a vector of integers (runs only those specific replications), or a single negative integer \code{-k} (runs only replication k).}
 
 \item{seed}{Seed for random number generators. For reproducibility, we discourage the use of this argument.}
 
 \item{method_names}{A vector of method names, length equal to \code{length(fit_func)}. If NULL, the indexed names \code{my_method<i>} will be used.}
 
 \item{mc_cores}{How many cores to use for parallelization over replications.}
+
+\item{fallback_on_error}{When \code{TRUE} (default), we use a null model (\code{N(mean(y_train), sd(y_train))}) for robustness if a failure is detected in either \code{fit_func} or \code{pred_func}.}
 
 \item{verbose}{should progress be reported?}
 }

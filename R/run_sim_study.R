@@ -15,6 +15,7 @@
 #' @param seed Seed for random number generators. For reproducibility, we discourage the use of this argument.
 #' @param method_names A vector of method names, length equal to \code{length(fit_func)}. If NULL, the indexed names \code{my_method<i>} will be used.
 #' @param mc_cores How many cores to use for parallelization over replications.
+#' @param fallback_on_error When \code{TRUE} (default), we use a null model (\code{N(mean(y_train), sd(y_train))}) for robustness if a failure is detected in either \code{fit_func} or \code{pred_func}.
 #' @param verbose should progress be reported?
 #' @return See details
 #' @details Code to conduct a reproducible simulation study to compare emulators. By reporting the parameters to the study, other authors can compare their results directly.
@@ -71,6 +72,7 @@ run_sim_study <- function(fit_func, pred_func=NULL,
                           seed = 42,
                           method_names=NULL,
                           mc_cores=1,
+                          fallback_on_error=TRUE,
                           verbose=TRUE){
 
   if(length(replications) == 1){
@@ -88,6 +90,7 @@ run_sim_study <- function(fit_func, pred_func=NULL,
     }
   }
 
+  if(seed != 42 && verbose) warning("Changing the seed will affect reproducibility. The default seed (42) is recommended for consistent duqling results.")
 
   # error handling here
   if(is.null(fnames)){
@@ -114,12 +117,12 @@ run_sim_study <- function(fit_func, pred_func=NULL,
             results <- lapply(rep_vec, run_one_sim_case,
                    seed=seed, fn=fn, fnum=fnum, p=p, n=n, conf_level=conf_level, score=score,
                    nsr=NSR[jj], dsgn=design_type[kk], n_test=n_test,
-                   method_names=method_names, fit_func=fit_func, pred_func=pred_func, verbose=verbose)
+                   method_names=method_names, fit_func=fit_func, pred_func=pred_func, fallback=fallback_on_error, verbose=verbose)
           }else{
             results <- parallel::mclapply(rep_vec, run_one_sim_case,
                               seed=seed, fn=fn, fnum=fnum, p=p, n=n, conf_level=conf_level, score=score,
                               nsr=NSR[jj], dsgn=design_type[kk], n_test=n_test,
-                              method_names=method_names, fit_func=fit_func, pred_func=pred_func, verbose=verbose,
+                              method_names=method_names, fit_func=fit_func, pred_func=pred_func, fallback=fallback_on_error, verbose=verbose,
                               mc.cores=mc_cores)
           }
 
@@ -215,7 +218,7 @@ transform_seed <- function(seed, n, dt, NSR, fnum, rr){
  return(ss)
 }
 
-run_one_sim_case <- function(rr, seed, fn, fnum, p, n, nsr, dsgn, n_test, conf_level, score, method_names, fit_func, pred_func, verbose){
+run_one_sim_case <- function(rr, seed, fn, fnum, p, n, nsr, dsgn, n_test, conf_level, score, method_names, fit_func, pred_func, fallback, verbose){
     # Generate training data
     seed_t <- transform_seed(seed, n, dsgn, nsr, fnum, rr)
     set.seed(seed_t)
@@ -230,7 +233,7 @@ run_one_sim_case <- function(rr, seed, fn, fnum, p, n, nsr, dsgn, n_test, conf_l
     }else{
       if(dsgn == "random"){
         X_train <- matrix(stats::runif(n*p), ncol=p)
-        X_test <- matrix(stats::runif(n_test*p), ncol=p)
+        X_test  <- matrix(stats::runif(n_test*p), ncol=p)
       }else{ # grid
         ni = ceiling(n^(1/p))
         xx <- seq(0, 1, length.out = ni)
@@ -268,6 +271,7 @@ run_one_sim_case <- function(rr, seed, fn, fnum, p, n, nsr, dsgn, n_test, conf_l
                             NSR=nsr,
                             design_type=dsgn,
                             rep=rr)
+      failure_type <- "none"
 
       fit_func_curr <- ifelse(is.function(fit_func), fit_func, fit_func[[ii]])
       if(is.function(pred_func)){
@@ -283,22 +287,54 @@ run_one_sim_case <- function(rr, seed, fn, fnum, p, n, nsr, dsgn, n_test, conf_l
       # Call fit_func()
       if(is.null(pred_func_curr)){
         tictoc::tic()
-        preds <- fit_func_curr(X_train, y_train, X_test)
+        preds <- try(fit_func_curr(X_train, y_train, X_test), silent=TRUE)
+        if(inherits(preds, "try-error")){
+          # Fall back on baseline model
+          failure_type <- "fit"
+          if(fallback){
+            set.seed(seed_t) # re-set seed so null model always returns same predictions
+            preds <- matrix(rnorm(1000*nrow(X_test), mean(y_train), sd(y_train)),
+                            nrow=1000, ncol=nrow(X_test))
+          }else{
+            stop(paste("Failure in fit_func:", attr(preds, "condition")$message))
+          }
+        }
         t_tot <- tictoc::toc(quiet=!verbose)
 
         DF_curr$t_tot <- t_tot$toc - t_tot$tic
+        DF_curr$failure_type <- failure_type
       }else{
         tictoc::tic()
-        fitted_object <- fit_func_curr(X_train, y_train)
+        fitted_object <- try(fit_func_curr(X_train, y_train), silent=TRUE)
+        if(inherits(fitted_object, "try-error")){
+          if(fallback){
+            fitted_object <- NA # Should lead to failure in preds as well.
+            failure_type <- "fit"
+          }else{
+            stop(paste("Failure in fit_func:", attr(fitted_object, "condition")$message))
+          }
+        }
         t_fit <- tictoc::toc(quiet=!verbose)
 
         tictoc::tic()
-        preds <- pred_func_curr(fitted_object, X_test)
+        preds <- try(pred_func_curr(fitted_object, X_test), silent=TRUE)
+        if(inherits(preds, "try-error")){
+          # Fall back on baseline model
+          if(failure_type == "none") failure_type <- "pred"
+          if(fallback){
+            set.seed(seed_t) # re-set seed so null model always returns same predictions
+            preds <- matrix(rnorm(1000*nrow(X_test), mean(y_train), sd(y_train)),
+                            nrow=1000, ncol=nrow(X_test))
+          }else{
+            stop(paste("Failure in pred_func:", attr(preds, "condition")$message))
+          }
+        }
         t_pred <- tictoc::toc(quiet=!verbose)
 
         DF_curr$t_fit <- t_fit$toc - t_fit$tic
         DF_curr$t_pred <- t_pred$toc - t_pred$tic
         DF_curr$t_tot <- DF_curr$t_fit + DF_curr$t_pred
+        DF_curr$failure_type <- failure_type
       }
 
       #browser()
