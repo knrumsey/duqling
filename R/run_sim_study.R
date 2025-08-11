@@ -11,7 +11,7 @@
 #' @param n_test the sample size for each testing set
 #' @param NSR the noise to signal ratio (inverse of the more-standard signal to noise ratio).
 #' @param design_type How should the training and testing designs be generated? Options are "LHS", "grid" and "random"
-#' @param replications How many replications should be repeated for each data set?
+#' @param replications The replications to run. Can be a single integer \code{r} (runs replications 1 to r), a vector of integers (runs only those specific replications), or a single negative integer \code{-k} (runs only replication k).
 #' @param seed Seed for random number generators. For reproducibility, we discourage the use of this argument.
 #' @param method_names A vector of method names, length equal to \code{length(fit_func)}. If NULL, the indexed names \code{my_method<i>} will be used.
 #' @param mc_cores How many cores to use for parallelization over replications.
@@ -73,6 +73,22 @@ run_sim_study <- function(fit_func, pred_func=NULL,
                           mc_cores=1,
                           verbose=TRUE){
 
+  if(length(replications) == 1){
+    if(replications < 0){
+      rep_vec <- -replications
+    }else{
+      rep_vec <- 1:replications
+    }
+  }else{
+    if(length(replications) == 0){
+      warning("replications has length 0. Running just 1 replication.")
+      rep_vec = 1
+    }else{
+      rep_vec <- replications
+    }
+  }
+
+
   # error handling here
   if(is.null(fnames)){
     fnames = quack(input_dim = 1)$fname
@@ -95,12 +111,12 @@ run_sim_study <- function(fit_func, pred_func=NULL,
         for(kk in seq_along(design_type)){
 
           if(mc_cores == 1){
-            results <- lapply(1:replications, run_one_sim_case,
+            results <- lapply(rep_vec, run_one_sim_case,
                    seed=seed, fn=fn, fnum=fnum, p=p, n=n, conf_level=conf_level, score=score,
                    nsr=NSR[jj], dsgn=design_type[kk], n_test=n_test,
                    method_names=method_names, fit_func=fit_func, pred_func=pred_func, verbose=verbose)
           }else{
-            results <- parallel::mclapply(1:replications, run_one_sim_case,
+            results <- parallel::mclapply(rep_vec, run_one_sim_case,
                               seed=seed, fn=fn, fnum=fnum, p=p, n=n, conf_level=conf_level, score=score,
                               nsr=NSR[jj], dsgn=design_type[kk], n_test=n_test,
                               method_names=method_names, fit_func=fit_func, pred_func=pred_func, verbose=verbose,
@@ -426,8 +442,4 @@ run_one_sim_case <- function(rr, seed, fn, fnum, p, n, nsr, dsgn, n_test, conf_l
 #'      - preds: An n-vector of predictions. If NULL, then rowMeans(samples) will be used.
 #'      - intervals: A 2 by n by K array (or a matrix, if K = 1) where K = length(conf_level). If NULL, then quantiles of the samples field will be used.
 #'      - samples: An n by M matrix of samples from the predictive distribution
-
-
-
-
 
