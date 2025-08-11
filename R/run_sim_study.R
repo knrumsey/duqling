@@ -105,7 +105,7 @@ run_sim_study <- function(fit_func, pred_func=NULL,
     fn <- fnames[ff]
     p <- quack(fn)$input_dim
     #fnum <- which(fn == quack(sorted=FALSE)$fname)
-    fnum <- str2num(fn)
+    #fnum <- str2num(fn)
     if(verbose) cat("Starting function ", ff, "/", length(fnames), ": ", fn, "\n", sep="")
     for(ii in seq_along(n_train)){
       n <- n_train[ii]
@@ -167,9 +167,10 @@ expand_grid <- function(xx, k){
   return(X)
 }
 
-str2num <- function(str){
-  sum((1:nchar(str))*as.numeric(unlist(iconv(str, to="ASCII", toRaw=TRUE))))
-}
+# Deprecated - using Rabin fingerprinting (rolling polynomial hash)
+#str2num <- function(str){
+#  sum((1:nchar(str))*as.numeric(unlist(iconv(str, to="ASCII", toRaw=TRUE))))
+#}
 
 rmsef <- function(x, y){
   sqrt(mean((x-y)^2))
@@ -201,6 +202,9 @@ crpsf <- function(y, x, w = 0) {
 }
 
 
+# Replaced by get_case_seed()
+# but keeping around for backwards compatability?
+# probably safe to delete.
 transform_seed <- function(seed, n, dt, NSR, fnum, rr){
  s1 <- seed
  s2 <- round(log(n))
@@ -218,9 +222,51 @@ transform_seed <- function(seed, n, dt, NSR, fnum, rr){
  return(ss)
 }
 
+
+str2num <- function(str){
+  # Rabin's Fingerprinting using Horner's Rule for safe computation
+  B = 31
+  M = 100030001
+
+  chars <- as.numeric(unlist(iconv(str, to="ASCII", toRaw=TRUE)))
+  hash <- 0L
+  for (i in seq_along(chars)) {
+    hash <- (hash * B + chars[i]) %% M
+  }
+  return(hash)
+}
+
+get_case_seed <- function(seed, n_train, design_type, NSR, fname, rep){
+  s0 <- seed
+  s1 <- n_train %% 1e15 # Should never get this big anyways
+  s2 <- rep     %% 1e15
+  s3 <- str2num(fname) # Rabin fingerprint
+  if(NSR < 1){
+    if(NSR == 0){
+      s4 <- 99999
+    }else{
+      s4 <- round(-log(NSR) * 1e4)
+    }
+    s5 <- 0
+  }else{
+    s4 <- 0
+    s5 <- round(NSR * 1e4)
+  }
+  s6 <- switch(design_type, LHS = 1, grid = 2, random = 3)
+
+  B <- 101
+  ss <- 0
+  for(i in 0:6) ss <- ss + B^(i-1) * get(paste0("s", i))
+  ss <- ss %% 100030001
+  return(ss)
+}
+
+
 run_one_sim_case <- function(rr, seed, fn, fnum, p, n, nsr, dsgn, n_test, conf_level, score, method_names, fit_func, pred_func, fallback, verbose){
     # Generate training data
-    seed_t <- transform_seed(seed, n, dsgn, nsr, fnum, rr)
+    #seed_t <- transform_seed(seed, n, dsgn, nsr, fnum, rr)
+    dont_need_this_anymore <- fnum
+    seed_t <- get_case_seed(seed, n, dsgn, nsr, fn, rr)
     set.seed(seed_t)
     if(dsgn == "LHS"){
       if(n <= 1200){
