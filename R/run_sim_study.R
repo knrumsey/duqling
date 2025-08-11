@@ -115,12 +115,12 @@ run_sim_study <- function(fit_func, pred_func=NULL,
 
           if(mc_cores == 1){
             results <- lapply(rep_vec, run_one_sim_case,
-                   seed=seed, fn=fn, fnum=fnum, p=p, n=n, conf_level=conf_level, score=score,
+                   seed=seed, fn=fn, fnum=NA, p=p, n=n, conf_level=conf_level, score=score,
                    nsr=NSR[jj], dsgn=design_type[kk], n_test=n_test,
                    method_names=method_names, fit_func=fit_func, pred_func=pred_func, fallback=fallback_on_error, verbose=verbose)
           }else{
             results <- parallel::mclapply(rep_vec, run_one_sim_case,
-                              seed=seed, fn=fn, fnum=fnum, p=p, n=n, conf_level=conf_level, score=score,
+                              seed=seed, fn=fn, fnum=NA, p=p, n=n, conf_level=conf_level, score=score,
                               nsr=NSR[jj], dsgn=design_type[kk], n_test=n_test,
                               method_names=method_names, fit_func=fit_func, pred_func=pred_func, fallback=fallback_on_error, verbose=verbose,
                               mc.cores=mc_cores)
