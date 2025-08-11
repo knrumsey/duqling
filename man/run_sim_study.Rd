@@ -29,7 +29,7 @@ run_sim_study(
 
 \item{fnames}{A vector of function names from the \code{duqling} package. See \code{quack()} for details.}
 
-\item{conf_level}{A vector of confidence levels.}
+\item{conf_level}{A vector of confidence levels. For computing coverages and interval scores.}
 
 \item{score}{Logical. Should CRPS be computed?}
 
@@ -54,7 +54,27 @@ run_sim_study(
 \item{verbose}{should progress be reported?}
 }
 \value{
-See details
+A data frame where each row corresponds to the results of a single simulation scenario, replication index, and method. The columns include:
+  \itemize{
+    \item \code{method}: Name of the fitted method, if provided. Unique names (\code{method<indx>}) names are assigned otherwise.
+    \item \code{fname}: The test function name from \code{duqling::quack()$fname}.
+    \item \code{input_dim}: Input dimension of the test function.
+    \item \code{n}: Number of training points.
+    \item \code{NSR}: Noise-to-signal ratio used in data generation.
+    \item \code{design_type}: Type of experimental design used for data generation ("LHS", "grid", or "random").
+    \item \code{rep}: Replication index.
+    \item \code{t_fit}: Elapsed time (seconds) for model fitting (if applicable).
+    \item \code{t_pred}: Elapsed time (seconds) for model prediction (if applicable).
+    \item \code{t_tot}: Total elapsed time for fitting and prediction.
+    \item \code{failure_type}: Indicates if the method failed at "fit", "pred", or "none" (if no failure).
+    \item \code{RMSE}: Root mean squared error on the test set.
+    \item \code{FVU}: Fraction of variance unexplained (RMSE\(^2\) divided by total variance).
+    \item \code{COVER<level>}: Coverage rates for each specified confidence level (e.g., \code{COVER0.8}, \code{COVER0.9}, etc.).
+    \item \code{MIS<level>}: Mean interval scores for each specified confidence level.
+    \item \code{CRPS}: Mean continuous ranked probability score (CRPS) on the test set.
+    \item \code{CRPS_min}, \code{CRPS_Q1}, \code{CRPS_med}, \code{CRPS_Q3}, \code{CRPS_max}: Summary statistics (minimum, first quartile, median, third quartile, maximum) for the CRPS distribution over the test set.
+  }
+Additional columns may be included for other metrics or settings depending on options provided.
 }
 \description{
 Reproducible code for simulation studies.

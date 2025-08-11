@@ -5,7 +5,7 @@
 #' @param fit_func If \code{pred_func} is specified, the \code{fit_func} should take two arguments called \code{X_train} and \code{y_train}, and should return an object which will be passed to \code{pred_func}. If \code{pred_func} is NOT specified, then \code{fit_func} should take a third argument called \code{X_test}, and should return predictive samples (see pred_func documentation).
 #' @param pred_func A function taking two arguments: (i) the object returned by \code{fit_func} and a matrix \code{X_test}. The function should return an matrix of samples from the predictive distribution, with one column per test point. For additional flexibility, see the details below.
 #' @param fnames A vector of function names from the \code{duqling} package. See \code{quack()} for details.
-#' @param conf_level A vector of confidence levels.
+#' @param conf_level A vector of confidence levels. For computing coverages and interval scores.
 #' @param score Logical. Should CRPS be computed?
 #' @param n_train the sample size (or vector of sample sizes) for each training set
 #' @param n_test the sample size for each testing set
@@ -17,7 +17,27 @@
 #' @param mc_cores How many cores to use for parallelization over replications.
 #' @param fallback_on_error When \code{TRUE} (default), we use a null model (\code{N(mean(y_train), sd(y_train))}) for robustness if a failure is detected in either \code{fit_func} or \code{pred_func}.
 #' @param verbose should progress be reported?
-#' @return See details
+#' @return A data frame where each row corresponds to the results of a single simulation scenario, replication index, and method. The columns include:
+#'   \itemize{
+#'     \item \code{method}: Name of the fitted method, if provided. Unique names (\code{method<indx>}) names are assigned otherwise.
+#'     \item \code{fname}: The test function name from \code{duqling::quack()$fname}.
+#'     \item \code{input_dim}: Input dimension of the test function.
+#'     \item \code{n}: Number of training points.
+#'     \item \code{NSR}: Noise-to-signal ratio used in data generation.
+#'     \item \code{design_type}: Type of experimental design used for data generation ("LHS", "grid", or "random").
+#'     \item \code{rep}: Replication index.
+#'     \item \code{t_fit}: Elapsed time (seconds) for model fitting (if applicable).
+#'     \item \code{t_pred}: Elapsed time (seconds) for model prediction (if applicable).
+#'     \item \code{t_tot}: Total elapsed time for fitting and prediction.
+#'     \item \code{failure_type}: Indicates if the method failed at "fit", "pred", or "none" (if no failure).
+#'     \item \code{RMSE}: Root mean squared error on the test set.
+#'     \item \code{FVU}: Fraction of variance unexplained (RMSE\(^2\) divided by total variance).
+#'     \item \code{COVER<level>}: Coverage rates for each specified confidence level (e.g., \code{COVER0.8}, \code{COVER0.9}, etc.).
+#'     \item \code{MIS<level>}: Mean interval scores for each specified confidence level.
+#'     \item \code{CRPS}: Mean continuous ranked probability score (CRPS) on the test set.
+#'     \item \code{CRPS_min}, \code{CRPS_Q1}, \code{CRPS_med}, \code{CRPS_Q3}, \code{CRPS_max}: Summary statistics (minimum, first quartile, median, third quartile, maximum) for the CRPS distribution over the test set.
+#'   }
+#' Additional columns may be included for other metrics or settings depending on options provided.
 #' @details Code to conduct a reproducible simulation study to compare emulators. By reporting the parameters to the study, other authors can compare their results directly.
 #' Only \code{fit_func} needs to be specified, but only the total time will be reported. The simplest (and recommended) approach is that the \code{fit_func} (or \code{pred_func}) should return a matrix of posterior samples, with one column per test point (e.g., per row in \code{X_test}). Any number of rows (predictive samples) is allowed. In this case, the mean of the samples is used as a prediction and the R \code{quantile} function is used to construct confidence intervals. This default behavior can be changed by instead allowing \code{fit_func} (or \code{pred_func}) to return a named list with fields i) \code{samples} (required), ii) \code{preds} (optional; a vector of predictions), and iii) intervals (optional; a 2 by n by k array of interval bounds where n is the number of test points and k is \code{length(conf_level)}).
 #'
@@ -268,17 +288,48 @@ run_one_sim_case <- function(rr, seed, fn, fnum, p, n, nsr, dsgn, n_test, conf_l
     dont_need_this_anymore <- fnum
     seed_t <- get_case_seed(seed, n, dsgn, nsr, fn, rr)
     set.seed(seed_t)
+    f <- get(fn, loadNamespace("duqling"))
     if(dsgn == "LHS"){
       if(n <= 1200){
         X_train <- lhs::maximinLHS(n, p)
+        y_train <- apply(X_train, 1, f, scale01=TRUE)
+        v_train <- stats::var(y_train)
+        if(v_train == 0){
+          noise_lvl <- 1e-6 * sqrt(nsr)  # Cannot make sense of SNR when there is no signal
+          total_var <- 1e-12 * (1 + nsr)
+        }else{
+          noise_lvl <- sqrt(v_train * nsr)
+          total_var <- v_train * (1 + nsr)
+        }
+        y_train <- y_train + stats::rnorm(n, 0, noise_lvl)
         X_test  <- lhs::randomLHS(n_test, p)
       }else{
         X_train <- lhs::randomLHS(n, p)
+        y_train <- apply(X_train, 1, f, scale01=TRUE)
+        v_train <- stats::var(y_train)
+        if(v_train == 0){
+          noise_lvl <- 1e-6 * sqrt(nsr)  # Cannot make sense of SNR when there is no signal
+          total_var <- 1e-12 * (1 + nsr)
+        }else{
+          noise_lvl <- sqrt(v_train * nsr)
+          total_var <- v_train * (1 + nsr)
+        }
+        y_train <- y_train + stats::rnorm(n, 0, noise_lvl)
         X_test  <- lhs::randomLHS(n_test, p)
       }
     }else{
       if(dsgn == "random"){
         X_train <- matrix(stats::runif(n*p), ncol=p)
+        y_train <- apply(X_train, 1, f, scale01=TRUE)
+        v_train <- stats::var(y_train)
+        if(v_train == 0){
+          noise_lvl <- 1e-6 * sqrt(nsr)  # Cannot make sense of SNR when there is no signal
+          total_var <- 1e-12 * (1 + nsr)
+        }else{
+          noise_lvl <- sqrt(v_train * nsr)
+          total_var <- v_train * (1 + nsr)
+        }
+        y_train <- y_train + stats::rnorm(n, 0, noise_lvl)
         X_test  <- matrix(stats::runif(n_test*p), ncol=p)
       }else{ # grid
         ni = ceiling(n^(1/p))
@@ -286,23 +337,22 @@ run_one_sim_case <- function(rr, seed, fn, fnum, p, n, nsr, dsgn, n_test, conf_l
         X_train <- expand_grid(xx, p)
         n <- nrow(X_train)
 
+        y_train <- apply(X_train, 1, f, scale01=TRUE)
+        v_train <- stats::var(y_train)
+        if(v_train == 0){
+          noise_lvl <- 1e-6 * sqrt(nsr)  # Cannot make sense of SNR when there is no signal
+          total_var <- 1e-12 * (1 + nsr)
+        }else{
+          noise_lvl <- sqrt(v_train * nsr)
+          total_var <- v_train * (1 + nsr)
+        }
+        y_train <- y_train + stats::rnorm(n, 0, noise_lvl)
+
         nit = ceiling(n_test^(1/p))
         xxt <- seq(0, 1, length.out = nit)
         X_test <- expand_grid(xxt, p)
       }
     }
-    f <- get(fn, loadNamespace("duqling"))
-
-    y_train <- apply(X_train, 1, f, scale01=TRUE)
-    v_train <- stats::var(y_train)
-    if(v_train == 0){
-      noise_lvl <- 1e-6 * sqrt(nsr)  # Cannot make sense of SNR when there is no signal
-      total_var <- 1e-12 * (1 + nsr)
-    }else{
-      noise_lvl <- sqrt(v_train * nsr)
-      total_var <- v_train * (1 + nsr)
-    }
-    y_train <- y_train + stats::rnorm(n, 0, noise_lvl)
     y_test <- apply(X_test, 1, f, scale01=TRUE) # no noise for testing data
 
     # ==================================================
