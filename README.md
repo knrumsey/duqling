@@ -5,7 +5,7 @@
 
 [![License: GPL
 v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
-[![](https://img.shields.io/badge/release%20version-2.0.0-blue.svg)](https://github.com/knrumsey/duqling)
+[![](https://img.shields.io/badge/release%20version-2.1.0-blue.svg)](https://github.com/knrumsey/duqling)
 
 <div class="figure">
 
@@ -52,68 +52,75 @@ found with the command
 
 ``` r
 duqling::quack()
-#>                    fname input_dim input_cat response_type stochastic
-#> 1               const_fn         1     FALSE           uni          n
-#> 2                 grlee1         1     FALSE           uni          n
-#> 3                 banana         2     FALSE           uni          n
-#> 4           dms_additive         2     FALSE           uni          n
-#> 5        dms_complicated         2     FALSE           uni          n
-#> 6           dms_harmonic         2     FALSE           uni          n
-#> 7             dms_radial         2     FALSE           uni          n
-#> 8             dms_simple         2     FALSE           uni          n
-#> 9             foursquare         2     FALSE           uni          n
-#> 10                grlee2         2     FALSE           uni          n
-#> 11    lim_non_polynomial         2     FALSE           uni          n
-#> 12        lim_polynomial         2     FALSE           uni          n
-#> 13           multivalley         2     FALSE           uni          n
-#> 14               ripples         2     FALSE           uni          n
-#> 15           simple_poly         2     FALSE           uni          n
-#> 16              squiggle         2     FALSE           uni          n
-#> 17         twin_galaxies         2     FALSE           uni          n
-#> 18             const_fn3         3     FALSE           uni          n
-#> 19                 cube3         3     FALSE           uni          n
-#> 20          cube3_rotate         3     FALSE           uni          n
-#> 21          detpep_curve         3     FALSE           uni          n
-#> 22             Gfunction         3     FALSE           uni          n
-#> 23              ishigami         3     FALSE           uni          n
-#> 24              sharkfin         3     FALSE           uni          n
-#> 25        simple_machine         3     FALSE          func          n
-#> 26                 vinet         3     FALSE          func          n
-#> 27            ocean_circ         4     FALSE           uni          y
-#> 28                 park4         4     FALSE           uni          n
-#> 29    park4_low_fidelity         4     FALSE           uni          n
-#> 30             pollutant         4     FALSE          func          n
-#> 31         pollutant_uni         4     FALSE           uni          n
-#> 32       beam_deflection         5     FALSE          func          n
-#> 33                 cube5         5     FALSE           uni          n
-#> 34              friedman         5     FALSE           uni          n
-#> 35          short_column         5     FALSE           uni          n
-#> 36     simple_machine_cm         5     FALSE          func          n
-#> 37     stochastic_piston         5     FALSE           uni          y
-#> 38          cantilever_D         6     FALSE           uni          n
-#> 39          cantilever_S         6     FALSE           uni          n
-#> 40               circuit         6     FALSE           uni          n
-#> 41            Gfunction6         6     FALSE           uni          n
-#> 42                grlee6         6     FALSE           uni          n
-#> 43                crater         7     FALSE           uni          n
-#> 44                piston         7     FALSE           uni          n
-#> 45              borehole         8     FALSE           uni          n
-#> 46 borehole_low_fidelity         8     FALSE           uni          n
-#> 47               detpep8         8     FALSE           uni          n
-#> 48                 ebola         8     FALSE           uni          n
-#> 49                 robot         8     FALSE           uni          n
-#> 50              dts_sirs         9     FALSE          func          y
-#> 51          steel_column         9     FALSE           uni          n
-#> 52                sulfur         9     FALSE           uni          n
-#> 53            friedman10        10     FALSE           uni          n
-#> 54              ignition        10     FALSE           uni          n
-#> 55            wingweight        10     FALSE           uni          n
-#> 56           Gfunction12        12     FALSE           uni          n
-#> 57            const_fn15        15     FALSE           uni          n
-#> 58           Gfunction18        18     FALSE           uni          n
-#> 59            friedman20        20     FALSE           uni          n
-#> 60               welch20        20     FALSE           uni          n
-#> 61            onehundred       100     FALSE           uni          n
+#>                      fname input_dim input_cat response_type stochastic
+#> 1                 const_fn         1     FALSE           uni          n
+#> 2               forrester1         1     FALSE           uni          n
+#> 3  forrester1_low_fidelity         1     FALSE           uni          n
+#> 4                   grlee1         1     FALSE           uni          n
+#> 5                   banana         2     FALSE           uni          n
+#> 6             dms_additive         2     FALSE           uni          n
+#> 7          dms_complicated         2     FALSE           uni          n
+#> 8             dms_harmonic         2     FALSE           uni          n
+#> 9               dms_radial         2     FALSE           uni          n
+#> 10              dms_simple         2     FALSE           uni          n
+#> 11              foursquare         2     FALSE           uni          n
+#> 12                  grlee2         2     FALSE           uni          n
+#> 13      lim_non_polynomial         2     FALSE           uni          n
+#> 14          lim_polynomial         2     FALSE           uni          n
+#> 15             multivalley         2     FALSE           uni          n
+#> 16                 ripples         2     FALSE           uni          n
+#> 17             simple_poly         2     FALSE           uni          n
+#> 18                squiggle         2     FALSE           uni          n
+#> 19                   star2         2     FALSE           uni          n
+#> 20           twin_galaxies         2     FALSE           uni          n
+#> 21               const_fn3         3     FALSE           uni          n
+#> 22                   cube3         3     FALSE           uni          n
+#> 23            cube3_rotate         3     FALSE           uni          n
+#> 24            detpep_curve         3     FALSE           uni          n
+#> 25               Gfunction         3     FALSE           uni          n
+#> 26                ishigami         3     FALSE           uni          n
+#> 27                 rabbits         3     FALSE           uni          n
+#> 28                sharkfin         3     FALSE           uni          n
+#> 29          simple_machine         3     FALSE          func          n
+#> 30                   vinet         3     FALSE          func          n
+#> 31              ocean_circ         4     FALSE           uni          y
+#> 32                   park4         4     FALSE           uni          n
+#> 33      park4_low_fidelity         4     FALSE           uni          n
+#> 34               pollutant         4     FALSE          func          n
+#> 35           pollutant_uni         4     FALSE           uni          n
+#> 36         beam_deflection         5     FALSE          func          n
+#> 37                   cube5         5     FALSE           uni          n
+#> 38                friedman         5     FALSE           uni          n
+#> 39            short_column         5     FALSE           uni          n
+#> 40       simple_machine_cm         5     FALSE          func          n
+#> 41       stochastic_piston         5     FALSE           uni          y
+#> 42            cantilever_D         6     FALSE           uni          n
+#> 43            cantilever_S         6     FALSE           uni          n
+#> 44                 circuit         6     FALSE           uni          n
+#> 45              Gfunction6         6     FALSE           uni          n
+#> 46                  grlee6         6     FALSE           uni          n
+#> 47                  crater         7     FALSE           uni          n
+#> 48               gamma_mix         7     FALSE           uni          n
+#> 49                  piston         7     FALSE           uni          n
+#> 50                borehole         8     FALSE           uni          n
+#> 51   borehole_low_fidelity         8     FALSE           uni          n
+#> 52                 detpep8         8     FALSE           uni          n
+#> 53                   ebola         8     FALSE           uni          n
+#> 54                   robot         8     FALSE           uni          n
+#> 55                dts_sirs         9     FALSE          func          y
+#> 56            steel_column         9     FALSE           uni          n
+#> 57                  sulfur         9     FALSE           uni          n
+#> 58              friedman10        10     FALSE           uni          n
+#> 59                ignition        10     FALSE           uni          n
+#> 60              wingweight        10     FALSE           uni          n
+#> 61             Gfunction12        12     FALSE           uni          n
+#> 62              const_fn15        15     FALSE           uni          n
+#> 63                    oo15        15     FALSE           uni          n
+#> 64                  permdb        16     FALSE           uni          n
+#> 65             Gfunction18        18     FALSE           uni          n
+#> 66              friedman20        20     FALSE           uni          n
+#> 67                 welch20        20     FALSE           uni          n
+#> 68              onehundred       100     FALSE           uni          n
 ```
 
 A list of all functions meeting certain criterion can be found with the
@@ -122,22 +129,23 @@ command
 ``` r
 duqling::quack(input_dim=4:7, stochastic="n")
 #>                 fname input_dim input_cat response_type stochastic
-#> 28              park4         4     FALSE           uni          n
-#> 29 park4_low_fidelity         4     FALSE           uni          n
-#> 30          pollutant         4     FALSE          func          n
-#> 31      pollutant_uni         4     FALSE           uni          n
-#> 32    beam_deflection         5     FALSE          func          n
-#> 33              cube5         5     FALSE           uni          n
-#> 34           friedman         5     FALSE           uni          n
-#> 35       short_column         5     FALSE           uni          n
-#> 36  simple_machine_cm         5     FALSE          func          n
-#> 38       cantilever_D         6     FALSE           uni          n
-#> 39       cantilever_S         6     FALSE           uni          n
-#> 40            circuit         6     FALSE           uni          n
-#> 41         Gfunction6         6     FALSE           uni          n
-#> 42             grlee6         6     FALSE           uni          n
-#> 43             crater         7     FALSE           uni          n
-#> 44             piston         7     FALSE           uni          n
+#> 32              park4         4     FALSE           uni          n
+#> 33 park4_low_fidelity         4     FALSE           uni          n
+#> 34          pollutant         4     FALSE          func          n
+#> 35      pollutant_uni         4     FALSE           uni          n
+#> 36    beam_deflection         5     FALSE          func          n
+#> 37              cube5         5     FALSE           uni          n
+#> 38           friedman         5     FALSE           uni          n
+#> 39       short_column         5     FALSE           uni          n
+#> 40  simple_machine_cm         5     FALSE          func          n
+#> 42       cantilever_D         6     FALSE           uni          n
+#> 43       cantilever_S         6     FALSE           uni          n
+#> 44            circuit         6     FALSE           uni          n
+#> 45         Gfunction6         6     FALSE           uni          n
+#> 46             grlee6         6     FALSE           uni          n
+#> 47             crater         7     FALSE           uni          n
+#> 48          gamma_mix         7     FALSE           uni          n
+#> 49             piston         7     FALSE           uni          n
 ```
 
 A detailed description of each function (the `borehole()` function, for
