@@ -389,7 +389,8 @@ run_one_sim_case <- function(rr, seed, fn, fnum, p, n, nsr, dsgn, n_test, conf_l
           failure_type <- "fit"
           if(fallback){
             set.seed(seed_t) # re-set seed so null model always returns same predictions
-            preds <- matrix(rnorm(1000*nrow(X_test), mean(y_train), sd(y_train)),
+            preds_numeric <- mean(y_train) + rt(1000*nrow(X_test), df=n-1) * sd(y_train) * sqrt(1 + 1/n)
+            preds <- matrix(preds_numeric,
                             nrow=1000, ncol=nrow(X_test))
           }else{
             stop(paste("Failure in fit_func:", attr(preds, "condition")$message))
@@ -419,7 +420,8 @@ run_one_sim_case <- function(rr, seed, fn, fnum, p, n, nsr, dsgn, n_test, conf_l
           if(failure_type == "none") failure_type <- "pred"
           if(fallback){
             set.seed(seed_t) # re-set seed so null model always returns same predictions
-            preds <- matrix(rnorm(1000*nrow(X_test), mean(y_train), sd(y_train)),
+            preds_numeric <- mean(y_train) + rt(1000*nrow(X_test), df=n-1) * sd(y_train) * sqrt(1 + 1/n)
+            preds <- matrix(preds_numeric,
                             nrow=1000, ncol=nrow(X_test))
           }else{
             stop(paste("Failure in pred_func:", attr(preds, "condition")$message))
