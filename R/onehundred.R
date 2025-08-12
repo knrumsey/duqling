@@ -111,6 +111,11 @@ d_onehundred <- function(x, scale01=TRUE, M=100){
   res[51] <- res[51] + 1
   res[54] <- res[54] + 2 * x[54] * x[50]
 
+  # Chain rule
+  if (scale01) {
+    res <- res * (ub[seq_len(M)] - lb[seq_len(M)])
+  }
+
   return(res)
 }
 
