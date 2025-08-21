@@ -120,7 +120,8 @@ duqling::quack()
 #> 65             Gfunction18        18     FALSE           uni          n
 #> 66              friedman20        20     FALSE           uni          n
 #> 67                 welch20        20     FALSE           uni          n
-#> 68              onehundred       100     FALSE           uni          n
+#> 68            d_onehundred       100     FALSE         multi          n
+#> 69              onehundred       100     FALSE           uni          n
 ```
 
 A list of all functions meeting certain criterion can be found with the
@@ -373,6 +374,10 @@ results <- run_sim_study_data(my_fit, my_pred,
                 dnames=c("pbx9501_gold", "strontium_plume_p104"),
                 folds=c(5, 10))
 ```
+
+### Release Information
+
+LA-UR-25-27410
 
 ### Copyright Notice
 

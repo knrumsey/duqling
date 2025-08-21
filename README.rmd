@@ -201,6 +201,9 @@ results <- run_sim_study_data(my_fit, my_pred,
 ```
 
 
+### Release Information
+
+LA-UR-25-27410
 
 ### Copyright Notice
 

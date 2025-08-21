@@ -489,7 +489,7 @@ run_one_sim_case <- function(rr, seed, fn, fnum, p, n, nsr, dsgn, n_test, conf_l
           DF_curr$CRPS_med <- csumm[3]
           DF_curr$CRPS_Q3 <- csumm[5]
           DF_curr$CRPS_max <- csumm[6]
-          if(verbose) cat("\nDone.")
+          if(verbose) cat("\nDone.\n")
         }
       }
 
