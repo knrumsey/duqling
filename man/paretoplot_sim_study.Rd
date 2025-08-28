@@ -9,30 +9,26 @@ paretoplot_sim_study(
   metric = c("CRPS", "t_tot"),
   methods = NULL,
   highlight_method = NA,
+  pin_axes = TRUE,
   path = NULL
 )
 }
 \arguments{
 \item{df}{Data frame from \code{run_sim_study()}.}
 
-\item{metric}{Length-2 character vector. The x and y metrics to compare. Default is \code{c("CRPS", "t_tot")}.}
+\item{metric}{Length-2 character vector. The performance and runtime metrics to compare. Default is \code{c("CRPS", "t_tot")}.}
 
 \item{methods}{Optional character vector of methods to include.}
 
 \item{highlight_method}{Character vector of methods to label and color. Use \code{NA} to color all (default), or \code{NULL} to color none.}
 
-\item{path}{Optional file path to save plot (e.g., "figs/CRPS_results.png"). If NULL, the plot is returned instead of saved.}
+\item{pin_axes}{Logical. Should axes be pinned at (0, 1) ?}
+
+\item{path}{Optional file path to save plot (e.g., "figs/pareto_plot.png"). If NULL, the plot is returned instead.}
 }
 \value{
 A ggplot object.
 }
 \description{
-Plot tradeoff between performance and runtime for each method.
-}
-\examples{
-\dontrun{
-paretoplot_sim_study(results)
-paretoplot_sim_study(results, highlight_method = c("GP", "BART"))
-paretoplot_sim_study(results, metric = c("RMSE", "t_tot"), highlight_method = NULL)
-}
+Plot tradeoff between performance and runtime for each method using rank-based scores.
 }
