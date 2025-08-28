@@ -15,13 +15,9 @@ paretoplot_sim_study <- function(df,
                                  methods = NULL,
                                  highlight_method = NA,
                                  pin_axes = TRUE,
-                                 path = NULL) {
+                                 path = NULL,
+                                 ties_method = "average") {
   if (!requireNamespace("ggplot2", quietly = TRUE)) stop("Please install 'ggplot2'.")
-
-  # Validate inputs
-  if (length(metric) != 2 || !all(metric %in% names(df))) {
-    stop("Please provide two valid metric names found in df.")
-  }
 
   perf_metric <- metric[1]
   time_metric <- metric[2]
@@ -29,35 +25,57 @@ paretoplot_sim_study <- function(df,
   df[[perf_metric]] <- as.numeric(df[[perf_metric]])
   df[[time_metric]] <- as.numeric(df[[time_metric]])
 
-  # Optional filter
+  # Filter methods
   if (!is.null(methods)) {
     df <- df[df$method %in% methods, , drop = FALSE]
   }
 
-  # Scenario ID
+  # Define scenario ID
   scenario_cols <- c("fname", "n_train", "NSR", "design_type", "replication")
   df$scenario_id <- apply(df[, scenario_cols, drop = FALSE], 1, paste, collapse = "_")
 
-  # Rank methods within each scenario
+  method_list <- sort(unique(df$method))
+  K <- length(method_list)
+
+  # Split by scenario
   scenario_list <- split(df, df$scenario_id)
-  ranked_list <- lapply(scenario_list, function(sdf) {
-    sdf$rank <- rank(sdf[[perf_metric]], ties.method = "average")
-    sdf
-  })
-  ranked_df <- do.call(rbind, ranked_list)
 
-  # Average rank and time per method
-  method_stats <- aggregate(cbind(rank = ranked_df$rank, time = df[[time_metric]]),
-                            by = list(method = df$method), FUN = mean, na.rm = TRUE)
-  names(method_stats) <- c("method", "avg_rank", "avg_time")
+  # Initialize rank accumulators
+  rank_perf_sum <- setNames(rep(0, K), method_list)
+  rank_time_sum <- setNames(rep(0, K), method_list)
+  n_scenarios <- setNames(rep(0, K), method_list)
 
-  # Compute scores: 1 = best, 0 = worst
-  n_methods <- nrow(method_stats)
-  method_stats$score_perf <- 1 - (method_stats$avg_rank - 1) / (n_methods - 1)
-  ranks_time <- rank(method_stats$avg_time, ties.method = "average")
-  method_stats$score_time <- 1 - (ranks_time - 1) / (n_methods - 1)
+  for (scenario in scenario_list) {
+    valid <- scenario$failure_type == "none"
+    if (sum(valid) < 1) next
 
-  # Highlight
+    valid_df <- scenario[valid, , drop = FALSE]
+    methods_present <- valid_df$method
+
+    ranks_perf <- rank(valid_df[[perf_metric]], ties.method = ties_method)
+    ranks_time <- rank(valid_df[[time_metric]], ties.method = ties_method)
+
+    for (i in seq_len(nrow(valid_df))) {
+      m <- valid_df$method[i]
+      rank_perf_sum[m] <- rank_perf_sum[m] + ranks_perf[i]
+      rank_time_sum[m] <- rank_time_sum[m] + ranks_time[i]
+      n_scenarios[m] <- n_scenarios[m] + 1
+    }
+  }
+
+  method_stats <- data.frame(
+    method = method_list,
+    avg_rank_perf = rank_perf_sum / n_scenarios,
+    avg_rank_time = rank_time_sum / n_scenarios,
+    n_scenarios = n_scenarios,
+    stringsAsFactors = FALSE
+  )
+
+  # Convert to normalized [0,1] scores (1 = best)
+  method_stats$score_perf <- 1 - (method_stats$avg_rank_perf - 1) / (K - 1)
+  method_stats$score_time <- 1 - (method_stats$avg_rank_time - 1) / (K - 1)
+
+  # Highlight logic
   if (is.na(highlight_method[1])) {
     method_stats$highlight <- TRUE
   } else if (is.null(highlight_method)) {
@@ -66,22 +84,27 @@ paretoplot_sim_study <- function(df,
     method_stats$highlight <- method_stats$method %in% highlight_method
   }
 
-  # Pareto front using raw metrics (lower is better)
+  #browser()
+
+  # Pareto front detection (lower avg_rank is better)
+  method_stats$avg_rank_perf <- rank_perf_sum / n_scenarios
+  method_stats$avg_rank_time <- rank_time_sum / n_scenarios
+
   is_dominated <- function(i, mat) {
-    any(mat[-i, "avg_time"] <= mat[i, "avg_time"] &
-          mat[-i, "avg_rank"] <= mat[i, "avg_rank"] &
-          (mat[-i, "avg_time"] < mat[i, "avg_time"] |
-             mat[-i, "avg_rank"] < mat[i, "avg_rank"]))
+    any(mat[-i, "avg_rank_time"] <= mat[i, "avg_rank_time"] &
+          mat[-i, "avg_rank_perf"] <= mat[i, "avg_rank_perf"] &
+          (mat[-i, "avg_rank_time"] < mat[i, "avg_rank_time"] |
+             mat[-i, "avg_rank_perf"] < mat[i, "avg_rank_perf"]))
   }
+
   pareto_idx <- which(!sapply(seq_len(nrow(method_stats)), function(i) is_dominated(i, method_stats)))
   method_stats$pareto <- FALSE
   method_stats$pareto[pareto_idx] <- TRUE
 
-  # Pareto path
   pareto_df <- method_stats[method_stats$pareto, ]
   pareto_df <- pareto_df[order(pareto_df$score_time), ]
 
-  # Plot
+  # Build plot
   p <- ggplot2::ggplot(method_stats, ggplot2::aes(x = score_time, y = score_perf)) +
     ggplot2::geom_point(
       ggplot2::aes(color = highlight, shape = pareto),
@@ -106,25 +129,24 @@ paretoplot_sim_study <- function(df,
     ggplot2::labs(
       x = paste("Speed Score (1 = Fastest)", "\n← Slower     Faster →"),
       y = paste("Accuracy Score (1 = Best)", "\n↓ Worse      Better ↑"),
-      title = paste("Pareto Plot (Rank-Based):", perf_metric, "vs", time_metric)
+      title = paste("Pareto Plot (Rank-Based):", metric[1], "vs", metric[2])
     ) +
     ggplot2::theme_minimal(base_size = 14)
 
-  if(pin_axes){
-    p <- p + ggplot2::coord_cartesian(clip = "off", xlim=c(0,1), ylim=c(0,1))
-  }else{
+  # Pin axes
+  if (pin_axes) {
+    p <- p +
+      ggplot2::scale_x_continuous(limits = c(0, 1), expand = c(0, 0)) +
+      ggplot2::scale_y_continuous(limits = c(0, 1), expand = c(0, 0))
+  } else {
     p <- p + ggplot2::coord_cartesian(clip = "off")
   }
 
-  # Labels for highlighted methods
+  # Labels
   if (any(method_stats$highlight)) {
     p <- p + ggplot2::geom_text(
       data = method_stats[method_stats$highlight, ],
-      ggplot2::aes(
-        x = score_time,
-        y = score_perf,
-        label = method
-      ),
+      ggplot2::aes(x = score_time, y = score_perf, label = method),
       vjust = -0.5,
       hjust = 0.5,
       size = 3.5,
@@ -140,11 +162,3 @@ paretoplot_sim_study <- function(df,
     return(p)
   }
 }
-
-
-
-
-
-
-
-

@@ -10,7 +10,8 @@ paretoplot_sim_study(
   methods = NULL,
   highlight_method = NA,
   pin_axes = TRUE,
-  path = NULL
+  path = NULL,
+  ties_method = "average"
 )
 }
 \arguments{
