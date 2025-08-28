@@ -363,10 +363,10 @@ run_one_sim_case <- function(rr, seed, fn, fnum, p, n, nsr, dsgn, n_test, conf_l
       #browser()
       DF_curr <- data.frame(method=my_method,
                             fname=fn, input_dim=p,
-                            n=n,
+                            n_train=n,
                             NSR=nsr,
                             design_type=dsgn,
-                            rep=rr)
+                            replication=rr)
       failure_type <- "none"
 
       fit_func_curr <- ifelse(is.function(fit_func), fit_func, fit_func[[ii]])
@@ -483,12 +483,12 @@ run_one_sim_case <- function(rr, seed, fn, fnum, p, n, nsr, dsgn, n_test, conf_l
           if(verbose) cat("Computing CRPS")
           CRPS_vec <- unlist(lapply(1:n_test, function(i) crpsf(y_test[i], preds[,i])))
           csumm <- summary(CRPS_vec)
-          DF_curr$CRPS <- csumm[4]
-          DF_curr$CRPS_min <- csumm[1]
-          DF_curr$CRPS_Q1 <- csumm[2]
-          DF_curr$CRPS_med <- csumm[3]
-          DF_curr$CRPS_Q3 <- csumm[5]
-          DF_curr$CRPS_max <- csumm[6]
+          DF_curr$CRPS      <- as.numeric(csumm[4])
+          DF_curr$CRPS_min  <- as.numeric(csumm[1])
+          DF_curr$CRPS_Q1   <- as.numeric(csumm[2])
+          DF_curr$CRPS_med  <- as.numeric(csumm[3])
+          DF_curr$CRPS_Q3   <- as.numeric(csumm[5])
+          DF_curr$CRPS_max  <- as.numeric(csumm[6])
           if(verbose) cat("\nDone.\n")
         }
       }
@@ -549,12 +549,12 @@ run_one_sim_case <- function(rr, seed, fn, fnum, p, n, nsr, dsgn, n_test, conf_l
           if(verbose) cat("Computing CRPS")
           CRPS_vec <- unlist(lapply(1:n_test, function(i) crpsf(y_test[i], preds[,i])))
           csumm <- summary(CRPS_vec)
-          DF_curr$CRPS <- csumm[4]
-          DF_curr$CRPS_min <- csumm[1]
-          DF_curr$CRPS_Q1 <- csumm[2]
-          DF_curr$CRPS_med <- csumm[3]
-          DF_curr$CRPS_Q3 <- csumm[5]
-          DF_curr$CRPS_max <- csumm[6]
+          DF_curr$CRPS      <- as.numeric(csumm[4])
+          DF_curr$CRPS_min  <- as.numeric(csumm[1])
+          DF_curr$CRPS_Q1   <- as.numeric(csumm[2])
+          DF_curr$CRPS_med  <- as.numeric(csumm[3])
+          DF_curr$CRPS_Q3   <- as.numeric(csumm[5])
+          DF_curr$CRPS_max  <- as.numeric(csumm[6])
           if(verbose) cat("\nDone.")
         }
       }

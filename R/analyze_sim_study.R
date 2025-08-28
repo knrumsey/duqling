@@ -1,184 +1,261 @@
-#' Plot paired metric differences between two methods (base graphics)
+#' Summarize Emulator Performance from a Simulation Study
 #'
-#' For every test function and replicate the difference
-#'   \eqn{d = \text{metric}_{\text{m1}} - \text{metric}_{\text{m2}}}
-#' is computed.  The per-function average is drawn as a vertical segment
-#' (blue when \code{method1} is better, red otherwise) and individual
-#' replicate differences are shown as jittered points of matching colour.
+#' Computes summary statistics from the output of \code{run_sim_study()}.
 #'
-#' A signed-log (modulus) transform is applied so large positive/negative
-#' values are compressed while small differences stay legible.  Setting
-#' \code{bend = 1} turns the transform off (ordinary linear axis).
+#' @param df A data frame returned by \code{run_sim_study()}, containing emulator performance metrics across simulation scenarios.
+#' @param group_by Optional. A character vector of column names to group summaries by (e.g., \code{"fname"}, \code{"NSR"}, \code{"n_train"}, \code{"design_type"} or (rarely of interest) \code{"replication"}).
+#' @param methods Optional. A character vector specifying a subset of methods to include in the summary.
+#' @param topX Integer. The number of top-performing methods (by CRPS) used to compute the \code{topX_rate}. Default is 5.
+#' @param good_enough_pct Numeric. The threshold (as a proportion above the best CRPS) to define a "good enough" emulator. Default is 0.01 (i.e., within 1\% of best).
+#' @param fvu_thresh Numeric. The largest value of fraction of variance unexplained that is acceptable.
 #'
-#' @param df         Data-frame that contains at least the columns
-#'   \code{method}, \code{fname}, \code{rep} and the chosen metric.
-#' @param metric_col Name of the metric column (character).  Default
-#'   \code{"FVU"}.
-#' @param method1    First method (default \code{"method1"}).
-#' @param method2    Second method (default \code{"method2"}).
-#' @param bend       Bending parameter \eqn{0<p\le 1} for Tukey’s modulus
-#'   transform; Default \code{bend = 1} is equivalent to no transform.
-#' @importFrom graphics abline axis box layout legend lines par plot.new plot.window points title
-#' @importFrom stats aggregate ave complete.cases
-#' @importFrom stats reshape runif
-#' @return Invisibly returns the data frame of differences used for plotting.
-plot_metric_diffs <- function(df,
-                                   metric_col = "FVU",
-                                   method1    = "method1",
-                                   method2    = "method2",
-                                   bend       = 1.0) {
-
-  stopifnot(metric_col %in% names(df),
-            all(c("method", "fname", "rep") %in% names(df)),
-            bend > 0, bend <= 1)
-
-  if(length(unique(df$method)) == 1){
-    stop("Need at least two methods for a comparison")
-  }
-
-  ## ── helper: Tukey modulus transform ────────────────────────────
-  mod_trans <- function(x, p) {
-    if (p == 1) return(x)                       # identity
-    sign(x) * (((abs(x) + 1)^p - 1) / p)
-  }
-
-  ## ── reshape to paired differences ─────────────────────────────
-  wide <- subset(df, df$method %in% c(method1, method2))[,
-                                                      c("fname", "rep", "method", metric_col)]
-
-  # wide data
-  wide <- reshape(wide, idvar = c("fname", "rep"),
-                  timevar = "method", direction = "wide")
-
-  # drop incomplete pairs
-  wide <- wide[ complete.cases(wide), ]
-
-  # difference: metric.m1 - metric.m2
-  dcol1 <- paste(metric_col, method1, sep = ".")
-  dcol2 <- paste(metric_col, method2, sep = ".")
-  wide$diff <- wide[[dcol1]] - wide[[dcol2]]
-
-  ## per-function average
-  avg <- aggregate(diff ~ fname, data = wide, mean)
-  avg <- avg[order(avg$diff), ]                 # order by average
-  wide$fname <- factor(wide$fname, levels = avg$fname)
-  avg$fname  <- factor(avg$fname , levels = avg$fname)
-
-  ## colours
-  better <- avg$diff < 0
-  col_fun <- ifelse(better, "#377eb8", "#e41a1c")   # blue / red
-  names(col_fun) <- as.character(avg$fname)
-
-  ## ── base-graphics plot ─────────────────────────────────────────
-  y_trans <- mod_trans(wide$diff, bend)
-  y_avg   <- mod_trans(avg$diff , bend)
-
-  ylim <- range(c(y_trans, 0))
-  nfun <- nrow(avg)
-
-  op <- par(mar = c(8, 5, 4, 2) + 0.1)
-  on.exit(par(op), add = TRUE)
-
-  plot.new()
-  plot.window(xlim = c(0.5, nfun + 0.5), ylim = ylim)
-  abline(h = 0, col = "grey50")
-
-  ## segments for averages
-  for (i in seq_len(nfun)) {
-    lines(i * c(1, 1), c(0, y_avg[i]),
-          col = col_fun[i], lwd = 2)
-  }
-
-  ## jittered replicate points
-  jitter_x <- as.numeric(wide$fname) +
-    runif(nrow(wide), -0.15, 0.15)
-  points(jitter_x, mod_trans(wide$diff, bend),
-         pch = 20, cex = 0.6,
-         col = col_fun[as.character(wide$fname)])
-
-  ## axes & labels
-  axis(1, at = seq_len(nfun), labels = avg$fname, las = 2, cex.axis = 0.8)
-  axis(2)
-  title(main = sprintf("%s vs %s: %s differences by function",
-                       method1, method2, metric_col),
-        ylab = sprintf("%s difference  (%s - %s)",
-                       metric_col, method1, method2),
-        xlab = "")
-  box()
-
-  invisible(wide)
-}
-
-
-
-#' Plot cumulative rank-distribution curves for competing emulation methods
+#' @return A data frame where each row corresponds to a unique emulator method and contains the following columns:
+#'   \itemize{
+#'     \item \code{method}: The method name.
+#'     \item \code{n_scenarios}: Number of simulation scenarios in which the method was evaluated (excluding failures).
+#'     \item \code{avg_CRPS}: Average CRPS across all valid simulation scenarios.
+#'     \item \code{avg_RMSE}: Average RMSE across all valid simulation scenarios.
+#'     \item \code{avg_time}: Average total time (\code{t_tot}) in seconds.
+#'     \item \code{avg_rank_CRPS}: Average rank of the method based on CRPS within each scenario.
+#'     \item \code{win_rate}: Proportion of scenarios where the method achieved the best CRPS.
+#'     \item \code{topX_rate}: Proportion of scenarios where the method ranked in the top \code{X} by CRPS.
+#'     \item \code{failure_rate}: Proportion of all runs in which the method failed (either at fitting or prediction).
+#'     \item \code{good_enough_rate}: Proportion of scenarios where the method's CRPS was within \code{(1 + good_enough_pct)} of the best.
+#'     \item \code{rel_CRPS}: Average CRPS relative to the best method in each scenario.
+#'     \item \code{rel_RMSE}: Average RMSE relative to the best method in each scenario.
+#'   }
 #'
-#' For every *case* in the data set (a unique combination of
-#' `fname`, `input_dim`, `n`, `NSR`, `design_type`, and `rep`) the
-#' supplied performance `metric` is ranked across the competing
-#' `method`s (rank 1 = best).
-#' The function draws, for each method, the cumulative percentage of
-#' cases whose rank is *<= r* ( r = 1, 2, ...)—a so-called "bathtub"
-#' or empirical cumulative rank plot.
+#' @details This function summarizes emulator performance across all simulation scenarios in a \code{run_sim_study()} output. Each scenario is defined by the combination of test function, training set size, noise-to-signal ratio, design type, and replication index. Failures are excluded from accuracy and timing metrics but included in failure rate calculation.
 #'
-#' @param df   a data frame containing at least the columns
-#'   `method`, `fname`, `input_dim`, `n`, `NSR`, `design_type`, `rep`,
-#'   and the chosen `metric`.
-#' @param metric character string naming the performance column to use
-#'   (e.g. `"FVU"`, `"CRPS"`, ...).  Any numeric column present in
-#'   `data` is allowed.
-#' @param cols   an optional vector of colours (recycled if necessary).
-#'   If `NULL` the base-R palette is used.
-#'
-#' @return Invisibly returns a list with the average ranks per method.
+#' @examples
+#' \dontrun{
+#' res <- run_sim_study(...)
+#' summarize_sim_study(res)
+#' summarize_sim_study(res, methods = c("GP", "BART"), topX = 3)
+#' }
 #' @export
-plot_rank_distribution <- function(df, metric = "FVU", cols = NULL)
-{
-  if (!metric %in% names(df))
-    stop("Column `", metric, "` not found")
+summarize_sim_study <- function(df,
+                                group_by = NULL,
+                                methods = NULL,
+                                topX = 5,
+                                good_enough_pct = 0.01,
+                                fvu_thresh = 0.01){
 
-  if(length(unique(df$method)) == 1){
-    stop("Need at least two methods for a comparison")
+  # Check for required columns
+  required_cols <- c("method", "fname", "n_train", "NSR", "design_type", "replication", "RMSE", "CRPS", "t_tot", "failure_type")
+  missing_cols <- setdiff(required_cols, colnames(df))
+  if (length(missing_cols) > 0) {
+    stop("Missing required columns in input data frame: ", paste(missing_cols, collapse = ", "))
   }
 
-  ## -- ranks within each design-replication case ----------------------------
-  id <- interaction(df$fname, df$input_dim, df$n,
-                    df$NSR,  df$design_type, df$rep, drop = TRUE)
-  df$rank <- ave(df[[metric]], id,
-                   FUN = function(z) rank(z, ties.method = "average"))
-
-  ## -- order methods by average rank ----------------------------------------
-  mean_rank <- tapply(df$rank, df$method, mean)
-  methods   <- names(sort(mean_rank))
-  k         <- length(methods)
-  max_r     <- max(df$rank)
-
-  if (is.null(cols)) cols <- rep(1:6, length.out = k)
-
-  ## -- layout: 1 row for plot, narrow row for legend ------------------------
-  op <- par(no.readonly = TRUE); on.exit(par(op), add = TRUE)
-  layout(matrix(1:2, nrow = 2), heights = c(0.85, 0.15))
-
-  ## main panel
-  par(mar = c(4.5, 4.5, 3.5, 2))
-  plot(NA, xlim = c(1, max_r), ylim = c(0, 100),
-       xlab = "Rank or better", ylab = "Percentage of cases (%)",
-       main = sprintf("Rank distribution (%s)", metric),
-       xaxt = "n")
-  axis(1, at = 1:max_r)
-
-  for (i in seq_along(methods)) {
-    y <- df$rank[df$method == methods[i]]
-    pct <- sapply(1:max_r, function(r) mean(y <= r) * 100)
-    lines(1:max_r, pct, type = "b", col = cols[i], pch = i, lwd = 2)
+  # Filter methods if requested
+  if (!is.null(methods)) {
+    df <- df[df$method %in% methods, , drop = FALSE]
   }
 
-  ## legend panel (blank plot, then legend)
-  par(mar = c(0, 0, 0, 0))
-  plot.new();  plot.window(xlim = 0:1, ylim = 0:1)
-  legend("center", horiz = TRUE, bty = "n",
-         legend = methods, col = cols,
-         pch = seq_along(methods), lwd = 2)
+  # Recursively handle group_by argument
+  if (!is.null(group_by)) {
+    if (!all(group_by %in% names(df))) {
+      stop("Some 'group_by' variables are not in the data frame.")
+    }
 
-  invisible(mean_rank[methods])
+    # Create grouping keys
+    group_keys <- split(df, interaction(df[, group_by], drop = TRUE))
+
+    # Recursive call for each group
+    out_list <- lapply(group_keys, function(dsub) {
+      out <- summarize_sim_study(dsub, methods = methods, topX = topX, good_enough_pct = good_enough_pct)
+
+      # Attach group_by columns to output
+      for (g in group_by) {
+        out[[g]] <- unique(dsub[[g]])
+      }
+
+      return(out)
+    })
+
+    # Combine all grouped summaries
+    results <- do.call(rbind, out_list)
+    rownames(results) <- NULL
+    return(results)
+  }
+
+  # Define simulation scenario ID (collapse all columns that define a scenario)
+  df$scenario_id <- apply(df[c("fname", "n_train", "NSR", "design_type", "replication")], 1, paste, collapse = "_")
+
+  # Split by scenario
+  scenario_list <- split(df, df$scenario_id)
+
+  # Initialize per-method accumulators
+  methods_all <- unique(df$method)
+  method_stats <- setNames(vector("list", length(methods_all)), methods_all)
+
+  for (m in methods_all) {
+    method_stats[[m]] <- list(
+      n_scenarios = 0,
+      sum_crps = 0,
+      sum_rmse = 0,
+      sum_time = 0,
+      n_failures = 0,
+      win_count = 0,
+      topX_count = 0,
+      good_enough_count = 0,
+      low_fvu_count = 0,
+      sum_rel_crps = 0,
+      sum_rel_rmse = 0,
+      rank_sum_crps = 0
+    )
+  }
+
+  # Loop over scenarios
+  for (scenario in scenario_list) {
+    # Only consider methods that didn't fail
+    valid <- scenario$failure_type == "none"
+    if (sum(valid) < 1) next  # Skip if no valid methods
+
+    scenario_valid <- scenario[valid, , drop = FALSE]
+    crps_vals <- scenario_valid$CRPS
+    rmse_vals <- scenario_valid$RMSE
+    fvu_vals  <- scenario_valid$FVU
+    time_vals <- scenario_valid$t_tot
+    methods_in_scenario <- scenario_valid$method
+
+    # Find best values
+    best_crps <- min(crps_vals)
+    best_rmse <- min(rmse_vals)
+
+    # Rank methods by CRPS
+    ranks <- rank(crps_vals, ties.method = "average")
+    names(ranks) <- methods_in_scenario
+    best_rank <- min(ranks)
+
+    for (i in seq_len(nrow(scenario_valid))) {
+      row <- scenario_valid[i, ]
+      m <- row$method
+      stats <- method_stats[[m]]
+      stats$n_scenarios <- stats$n_scenarios + 1
+      stats$sum_crps <- stats$sum_crps + row$CRPS
+      stats$sum_rmse <- stats$sum_rmse + row$RMSE
+      stats$sum_time <- stats$sum_time + row$t_tot
+      stats$sum_rel_crps <- stats$sum_rel_crps + (row$CRPS / best_crps)
+      stats$sum_rel_rmse <- stats$sum_rel_rmse + (row$RMSE / best_rmse)
+      stats$rank_sum_crps <- stats$rank_sum_crps + ranks[m]
+
+      if (ranks[m] == best_rank) stats$win_count <- stats$win_count + 1
+      if (ranks[m] <= topX) stats$topX_count <- stats$topX_count + 1
+      if (row$CRPS <= (1 + good_enough_pct) * best_crps) stats$good_enough_count <- stats$good_enough_count + 1
+      if (row$FVU <= fvu_thresh) stats$low_fvu_count <- stats$low_fvu_count + 1
+
+      method_stats[[m]] <- stats
+    }
+  }
+
+  # Now count failures
+  for (m in methods_all) {
+    method_stats[[m]]$n_failures <- sum(df$method == m & df$failure_type != "none")
+  }
+
+  # Compile results
+  results <- data.frame(
+    method = character(),
+    n_scenarios = integer(),
+    avg_CRPS = numeric(),
+    avg_RMSE = numeric(),
+    avg_time = numeric(),
+    avg_rank_CRPS = numeric(),
+    win_rate = numeric(),
+    topX_rate = numeric(),
+    failure_rate = numeric(),
+    good_enough_rate = numeric(),
+    low_fvu_rate = numeric(),
+    rel_CRPS = numeric(),
+    rel_RMSE = numeric(),
+    stringsAsFactors = FALSE
+  )
+
+  for (m in methods_all) {
+    stats <- method_stats[[m]]
+    n <- stats$n_scenarios
+    results <- rbind(results, data.frame(
+      method = m,
+      n_scenarios = n,
+      avg_CRPS = stats$sum_crps / n,
+      avg_RMSE = stats$sum_rmse / n,
+      avg_time = stats$sum_time / n,
+      avg_rank_CRPS = stats$rank_sum_crps / n,
+      win_rate = stats$win_count / n,
+      topX_rate = stats$topX_count / n,
+      failure_rate = stats$n_failures / (n + stats$n_failures),
+      good_enough_rate = stats$good_enough_count / n,
+      low_fvu_rate = stats$low_fvu_count / n,
+      rel_CRPS = stats$sum_rel_crps / n,
+      rel_RMSE = stats$sum_rel_rmse / n,
+      stringsAsFactors = FALSE
+    ))
+  }
+  rownames(results) <- NULL
+  return(results)
 }
+
+
+#' Filter Simulation Study Results
+#'
+#' Filters the results from \code{run_sim_study()} by method, function, sample size, etc.
+#'
+#' @param df A data frame from \code{run_sim_study()}.
+#' @param methods Optional character vector of methods to include.
+#' @param fname Optional character vector of function names to include.
+#' @param n_train Optional numeric vector of training set sizes.
+#' @param NSR Optional numeric vector of noise-to-signal ratios.
+#' @param design_type Optional character vector of design types to include.
+#' @param replication Optional integer vector of rep indices to include.
+#'
+#' @return A filtered data frame.
+#' @examples
+#' \dontrun{
+#' filtered <- filter_sim_study(results, methods = c("GP", "BART"), fname = "borehole")
+#' rankplot_sim_study(filtered, metric = "CRPS")
+#' }
+#' @export
+filter_sim_study <- function(df,
+                             methods = NULL,
+                             fname = NULL,
+                             n_train = NULL,
+                             NSR = NULL,
+                             design_type = NULL,
+                             replication = NULL) {
+  # Rename "n" to "n_train" internally if needed
+  if ("n" %in% names(df) && !"n_train" %in% names(df)) {
+    names(df)[names(df) == "n"] <- "n_train"
+  }
+
+  if (!is.null(methods)) {
+    df <- df[df$method %in% methods, , drop = FALSE]
+  }
+
+  if (!is.null(fname)) {
+    df <- df[df$fname %in% fname, , drop = FALSE]
+  }
+
+  if (!is.null(n_train)) {
+    df <- df[df$n_train %in% n_train, , drop = FALSE]
+  }
+
+  if (!is.null(NSR)) {
+    df <- df[df$NSR %in% NSR, , drop = FALSE]
+  }
+
+  if (!is.null(design_type)) {
+    df <- df[df$design_type %in% design_type, , drop = FALSE]
+  }
+
+  rep_col <- if ("replication" %in% names(df)) "replication" else if ("rep" %in% names(df)) "rep" else NULL
+  if (!is.null(replication) && !is.null(rep_col)) {
+    df <- df[df[[rep_col]] %in% replication, , drop = FALSE]
+  }
+
+  return(df)
+}
+
+
+
