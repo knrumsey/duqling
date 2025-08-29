@@ -10,7 +10,8 @@ summarize_sim_study(
   methods = NULL,
   topX = 5,
   good_enough_pct = 0.01,
-  fvu_thresh = 0.01
+  fvu_thresh = 0.01,
+  ties_method = "min"
 )
 }
 \arguments{
@@ -25,6 +26,8 @@ summarize_sim_study(
 \item{good_enough_pct}{Numeric. The threshold (as a proportion above the best CRPS) to define a "good enough" emulator. Default is 0.01 (i.e., within 1\% of best).}
 
 \item{fvu_thresh}{Numeric. The largest value of fraction of variance unexplained that is acceptable.}
+
+\item{ties_method}{For computing ranks in each simulation scenario.}
 }
 \value{
 A data frame where each row corresponds to a unique emulator method and contains the following columns:

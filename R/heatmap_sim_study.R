@@ -62,7 +62,13 @@ heatmap_sim_study <- function(df,
 
   # Get full grid of group × method
   group_levels <- unique(agg$group_id)
-  method_levels <- if (!is.null(methods)) methods else sort(unique(agg$method))
+  if ("fname" %in% group_by) {
+    fname_order <- unique(df$fname)  # preserves original order
+    group_levels <- group_levels[order(match(group_levels, fname_order))]
+  }
+  #method_levels <- if (!is.null(methods)) methods else sort(unique(agg$method))
+  method_means <- aggregate(rank ~ method, data = agg, mean)
+  method_levels <- method_means$method[order(method_means$rank)]  # lowest = best
   grid <- expand.grid(group_id = group_levels, method = method_levels, stringsAsFactors = FALSE)
 
   full_data <- merge(grid, agg, by = c("group_id", "method"), all.x = TRUE)
@@ -95,7 +101,10 @@ heatmap_sim_study <- function(df,
     x_label <- "Method"
     y_label <- paste(group_by, collapse = " × ")
     theme <- ggplot2::theme_minimal(base_size = 14) +
-      ggplot2::theme(axis.text.y = ggplot2::element_text(size = 8))
+      ggplot2::theme(
+        axis.text.y = ggplot2::element_text(size = 8),
+        axis.text.x = ggplot2::element_text(angle = 90, hjust = 1, vjust = 0.5)
+      )
   } else if (orientation == "horizontal") {
     aes_args <- ggplot2::aes(x = group_id, y = method, fill = rank)
     x_label <- paste(group_by, collapse = " × ")

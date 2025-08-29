@@ -8,6 +8,7 @@
 #' @param topX Integer. The number of top-performing methods (by CRPS) used to compute the \code{topX_rate}. Default is 5.
 #' @param good_enough_pct Numeric. The threshold (as a proportion above the best CRPS) to define a "good enough" emulator. Default is 0.01 (i.e., within 1\% of best).
 #' @param fvu_thresh Numeric. The largest value of fraction of variance unexplained that is acceptable.
+#' @param ties_method For computing ranks in each simulation scenario.
 #'
 #' @return A data frame where each row corresponds to a unique emulator method and contains the following columns:
 #'   \itemize{
@@ -39,7 +40,8 @@ summarize_sim_study <- function(df,
                                 methods = NULL,
                                 topX = 5,
                                 good_enough_pct = 0.01,
-                                fvu_thresh = 0.01){
+                                fvu_thresh = 0.01,
+                                ties_method="min"){
 
   # Check for required columns
   required_cols <- c("method", "fname", "n_train", "NSR", "design_type", "replication", "RMSE", "CRPS", "t_tot", "failure_type")
@@ -110,7 +112,7 @@ summarize_sim_study <- function(df,
   # Loop over scenarios
   for (scenario in scenario_list) {
     # Only consider methods that didn't fail
-    valid <- scenario$failure_type == "none"
+    valid <- scenario$failure_type %in% c("none", "fit", "pred", "time")
     if (sum(valid) < 1) next  # Skip if no valid methods
 
     scenario_valid <- scenario[valid, , drop = FALSE]
@@ -121,11 +123,11 @@ summarize_sim_study <- function(df,
     methods_in_scenario <- scenario_valid$method
 
     # Find best values
-    best_crps <- min(crps_vals)
-    best_rmse <- min(rmse_vals)
+    best_crps <- max(1e-16, min(crps_vals))
+    best_rmse <- max(1e-16, min(rmse_vals))
 
     # Rank methods by CRPS
-    ranks <- rank(crps_vals, ties.method = "average")
+    ranks <- rank(crps_vals, ties.method = ties_method)
     names(ranks) <- methods_in_scenario
     best_rank <- min(ranks)
 
