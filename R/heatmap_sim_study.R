@@ -87,6 +87,7 @@ heatmap_sim_study <- function(df,
   } else {
     method_levels <- if (!is.null(methods)) methods else sort(unique(agg$method))
   }
+  n_methods <- length(method_levels)
 
   grid <- expand.grid(group_id = group_levels, method = method_levels, stringsAsFactors = FALSE)
   full_data <- merge(grid, agg, by = c("group_id", "method"), all.x = TRUE)
@@ -138,15 +139,18 @@ heatmap_sim_study <- function(df,
   group_by_pretty <- group_by
   group_by_pretty[group_by %in% names(group_pretty_map)] <- group_pretty_map[group_by[group_by %in% names(group_pretty_map)]]
 
+
+
   # Orientation
   if (orientation == "vertical") {
+    x_angle <- ifelse(n_methods <= 8, 45, 90)
     aes_args <- ggplot2::aes(x = method, y = group_id, fill = value)
     x_label <- "Method"
     y_label <- paste(group_by_pretty, collapse = " \u00D7 ")
     theme <- ggplot2::theme_minimal(base_size = 14) +
       ggplot2::theme(
         axis.text.y = ggplot2::element_text(size = 8),
-        axis.text.x = ggplot2::element_text(angle = 90, hjust = 1, vjust = 0.5)
+        axis.text.x = ggplot2::element_text(angle = x_angle, hjust = 1, vjust = 0.5)
       )
   } else if (orientation == "horizontal") {
     aes_args <- ggplot2::aes(x = group_id, y = method, fill = value)
