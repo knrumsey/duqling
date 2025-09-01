@@ -6,13 +6,15 @@
 #' @param metric Character. The metric to plot (e.g., \code{"CRPS"}, \code{"RMSE"}, \code{"t_tot"}).
 #' @param methods Optional. A character vector of methods to include.
 #' @param group_by Optional. A character vector of grouping columns (e.g., \code{"fname"}, \code{"NSR"}).
-#' @param path Optional file path to save the figure. If NULL, returns a ggplot object.
 #' @param log_scale_y Logical. Should the y-axis be log-scaled? Default is \code{FALSE}.
 #' @param y_limit Optional. A numeric vector of length 2 to set y-axis limits.
 #' @param show_mean Logical. Add a point for the group mean? Default is \code{FALSE}.
 #' @param notches Logical. Should boxplot notches be shown? Default is \code{FALSE}.
 #' @param show_outliers Logical. Show boxplot outliers? Default is \code{TRUE}.
-#'
+#' @param sort_by How should methods be sorted on x-axis? Options are default \code{"performance"} or \code{"alphabet"}
+#' @param title Optional title for plot. Set to \code{FALSE} to suppress title.
+#' @param path Optional file path to save the figure. If NULL, returns a ggplot object.
+
 #' @return A ggplot object or saves a figure to \code{path}.
 #' @details
 #' This function is primarily intended for visualizing filtered subsets of simulation output
@@ -33,12 +35,14 @@ boxplots_sim_study <- function(df,
                                metric = "CRPS",
                                methods = NULL,
                                group_by = NULL,
-                               path = NULL,
                                log_scale_y = FALSE,
                                y_limit = NULL,
                                show_mean = FALSE,
                                notches = FALSE,
-                               show_outliers = TRUE) {
+                               show_outliers = TRUE,
+                               sort_by = "performance",
+                               title = NULL,
+                               path = NULL) {
   if (!requireNamespace("ggplot2", quietly = TRUE)) stop("Please install 'ggplot2'.")
 
   if (!metric %in% names(df)) stop(paste("Metric", metric, "not found in data."))
@@ -52,6 +56,10 @@ boxplots_sim_study <- function(df,
         "Consider using filter_sim_study() to subset the data."
       )
     }
+  }
+
+  if (!sort_by %in% c("performance", "alphabet")) {
+    stop("sort_by must be either 'performance' or 'alphabet'")
   }
 
   # Filter methods
@@ -85,7 +93,24 @@ boxplots_sim_study <- function(df,
     }
   }
 
+  # Ranking of x-axis
+  if (sort_by == "performance") {
+    method_medians <- tapply(df[[metric]], df$method, median, na.rm = TRUE)
+    ordered_methods <- names(sort(method_medians))  # lowest median first
+  } else {
+    ordered_methods <- sort(unique(df$method))  # alphabetically
+  }
+  df$method <- factor(df$method, levels = ordered_methods)
+
   # Base plot
+  plot_title <- if (is.null(title)) {
+    paste("Boxplots of", metric, "by Method")
+  } else if (identical(title, FALSE)) {
+    NULL
+  } else {
+    title
+  }
+
   p <- ggplot2::ggplot(df, aes_args) +
     ggplot2::geom_boxplot(
       outlier.shape = if (show_outliers) 19 else NA,
@@ -95,7 +120,7 @@ boxplots_sim_study <- function(df,
     ggplot2::labs(
       x = "Method",
       y = metric,
-      title = paste("Boxplots of", metric, "by Method")
+      title = plot_title
     ) +
     ggplot2::theme_minimal(base_size = 14) +
     ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, hjust = 1))

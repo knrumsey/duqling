@@ -7,6 +7,7 @@
 #' @param methods Optional character vector of method names to include. Default is all.
 #' @param ties_method How to handle ties in ranking (passed to \code{rank()}). Default is "min".
 #' @param use_shapes Logical. Whether to use different point shapes in addition to color. Default is TRUE.
+#' @param title Optional title for plot. Set to \code{FALSE} to suppress title.
 #' @param path Optional file path to save plot (e.g., "figs/CRPS_results.png"). If NULL, the plot is returned instead of saved.
 #'
 #' @return A ggplot object (invisibly), or writes a file if \code{path} is specified.
@@ -22,6 +23,7 @@ rankplot_sim_study <- function(df,
                                methods = NULL,
                                ties_method = "min",
                                use_shapes = TRUE,
+                               title = NULL,
                                path = NULL) {
   if (!requireNamespace("ggplot2", quietly = TRUE)) stop("Please install 'ggplot2'.")
 
@@ -82,12 +84,21 @@ rankplot_sim_study <- function(df,
       ggplot2::scale_shape_manual(values = rep(shapes_vec, length.out = length(unique(cumul_ranks$method))))
   }
 
+  # TITLE Logic
+  plot_title <- if (is.null(title)) {
+    paste(metric, "Results (Rank-Based)")
+  } else if (identical(title, FALSE)) {
+    NULL
+  } else {
+    title
+  }
+
   p <- p +
     ggplot2::scale_color_viridis_d(option = "turbo") +
     ggplot2::labs(
       x = "Rank or better",
       y = "% of scenarios",
-      title = paste(metric, "Results"),
+      title = plot_title,
       color = "Emulator",
       shape = if (use_shapes) "Emulator" else NULL
     ) +

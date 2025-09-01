@@ -10,6 +10,7 @@
 #'   ("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo"),
 #'   or a character vector of two colors (e.g., \code{c("white", "black")}) to be used
 #'   as a custom gradient from low to high rank. Default is \code{"turbo"}.
+#' @param title Optional title for plot. Set to \code{FALSE} to suppress title.
 #' @param path Optional file path to save plot (e.g., "figs/CRPS_results.png"). If NULL, the plot is returned instead of saved.
 #' @return A ggplot heatmap.
 #'
@@ -26,6 +27,7 @@ heatmap_sim_study <- function(df,
                               show_values = NULL,
                               color_scale = "turbo",
                               orientation = "vertical",
+                              title = NULL,
                               path = NULL) {
   if (!requireNamespace("ggplot2", quietly = TRUE)) stop("Please install 'ggplot2'.")
 
@@ -63,11 +65,11 @@ heatmap_sim_study <- function(df,
       scenario_df
     })
     ranked_df <- do.call(rbind, ranked_list)
-    ranked_df$group_id <- apply(ranked_df[, group_by, drop = FALSE], 1, paste, collapse = " × ")
+    ranked_df$group_id <- apply(ranked_df[, group_by, drop = FALSE], 1, paste, collapse = " \u00D7 ")
     agg <- aggregate(rank ~ group_id + method, data = ranked_df, FUN = mean)
     agg$value <- agg$rank
   } else {
-    df$group_id <- apply(df[, group_by, drop = FALSE], 1, paste, collapse = " × ")
+    df$group_id <- apply(df[, group_by, drop = FALSE], 1, paste, collapse = " \u00D7 ")
     agg <- aggregate(df[[base_metric]], by = list(group_id = df$group_id, method = df$method), FUN = mean)
     colnames(agg)[3] <- "value"
   }
@@ -124,11 +126,23 @@ heatmap_sim_study <- function(df,
     stop("Invalid color_scale: must be a viridis option or a 2-element color vector.")
   }
 
+  # Pretty axis label
+  group_pretty_map <- c(
+    "fname" = "Function",
+    "n_train" = "Training Size",
+    "NSR" = "Noise Ratio",
+    "design_type" = "Design",
+    "replication" = "Replication"
+  )
+
+  group_by_pretty <- group_by
+  group_by_pretty[group_by %in% names(group_pretty_map)] <- group_pretty_map[group_by[group_by %in% names(group_pretty_map)]]
+
   # Orientation
   if (orientation == "vertical") {
     aes_args <- ggplot2::aes(x = method, y = group_id, fill = value)
     x_label <- "Method"
-    y_label <- paste(group_by, collapse = " × ")
+    y_label <- paste(group_by_pretty, collapse = " \u00D7 ")
     theme <- ggplot2::theme_minimal(base_size = 14) +
       ggplot2::theme(
         axis.text.y = ggplot2::element_text(size = 8),
@@ -136,7 +150,7 @@ heatmap_sim_study <- function(df,
       )
   } else if (orientation == "horizontal") {
     aes_args <- ggplot2::aes(x = group_id, y = method, fill = value)
-    x_label <- paste(group_by, collapse = " × ")
+    x_label <- paste(group_by_pretty, collapse = " \u00D7 ")
     y_label <- "Method"
     theme <- ggplot2::theme_minimal(base_size = 14) +
       ggplot2::theme(
@@ -147,6 +161,14 @@ heatmap_sim_study <- function(df,
     stop("orientation must be either 'vertical' or 'horizontal'")
   }
 
+  plot_title <- if (is.null(title)) {
+    paste("Average", if (use_rank) "Rank" else "Value", "by", base_metric)
+  } else if (identical(title, FALSE)) {
+    NULL
+  } else {
+    title
+  }
+
   # Plot
   p <- ggplot2::ggplot(full_data, aes_args) +
     ggplot2::geom_tile(color = "white") +
@@ -155,7 +177,7 @@ heatmap_sim_study <- function(df,
       x = x_label,
       y = y_label,
       fill = if (use_rank) "Avg. Rank" else base_metric,
-      title = paste("Average", if (use_rank) "Rank" else "Value", "by", base_metric)
+      title = plot_title
     ) +
     theme
 

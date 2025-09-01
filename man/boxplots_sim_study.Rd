@@ -9,12 +9,14 @@ boxplots_sim_study(
   metric = "CRPS",
   methods = NULL,
   group_by = NULL,
-  path = NULL,
   log_scale_y = FALSE,
   y_limit = NULL,
   show_mean = FALSE,
   notches = FALSE,
-  show_outliers = TRUE
+  show_outliers = TRUE,
+  sort_by = "performance",
+  title = NULL,
+  path = NULL
 )
 }
 \arguments{
@@ -26,8 +28,6 @@ boxplots_sim_study(
 
 \item{group_by}{Optional. A character vector of grouping columns (e.g., \code{"fname"}, \code{"NSR"}).}
 
-\item{path}{Optional file path to save the figure. If NULL, returns a ggplot object.}
-
 \item{log_scale_y}{Logical. Should the y-axis be log-scaled? Default is \code{FALSE}.}
 
 \item{y_limit}{Optional. A numeric vector of length 2 to set y-axis limits.}
@@ -37,6 +37,12 @@ boxplots_sim_study(
 \item{notches}{Logical. Should boxplot notches be shown? Default is \code{FALSE}.}
 
 \item{show_outliers}{Logical. Show boxplot outliers? Default is \code{TRUE}.}
+
+\item{sort_by}{How should methods be sorted on x-axis? Options are default \code{"performance"} or \code{"alphabet"}}
+
+\item{title}{Optional title for plot. Set to \code{FALSE} to suppress title.}
+
+\item{path}{Optional file path to save the figure. If NULL, returns a ggplot object.}
 }
 \value{
 A ggplot object or saves a figure to \code{path}.

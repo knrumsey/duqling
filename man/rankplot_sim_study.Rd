@@ -10,6 +10,7 @@ rankplot_sim_study(
   methods = NULL,
   ties_method = "min",
   use_shapes = TRUE,
+  title = NULL,
   path = NULL
 )
 }
@@ -23,6 +24,8 @@ rankplot_sim_study(
 \item{ties_method}{How to handle ties in ranking (passed to \code{rank()}). Default is "min".}
 
 \item{use_shapes}{Logical. Whether to use different point shapes in addition to color. Default is TRUE.}
+
+\item{title}{Optional title for plot. Set to \code{FALSE} to suppress title.}
 
 \item{path}{Optional file path to save plot (e.g., "figs/CRPS_results.png"). If NULL, the plot is returned instead of saved.}
 }

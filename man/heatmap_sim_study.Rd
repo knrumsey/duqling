@@ -13,6 +13,7 @@ heatmap_sim_study(
   show_values = NULL,
   color_scale = "turbo",
   orientation = "vertical",
+  title = NULL,
   path = NULL
 )
 }
@@ -33,6 +34,8 @@ heatmap_sim_study(
 ("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo"),
 or a character vector of two colors (e.g., \code{c("white", "black")}) to be used
 as a custom gradient from low to high rank. Default is \code{"turbo"}.}
+
+\item{title}{Optional title for plot. Set to \code{FALSE} to suppress title.}
 
 \item{path}{Optional file path to save plot (e.g., "figs/CRPS_results.png"). If NULL, the plot is returned instead of saved.}
 }
