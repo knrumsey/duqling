@@ -19,7 +19,7 @@ heatmap_sim_study(
 \arguments{
 \item{df}{A data frame from \code{run_sim_study()}.}
 
-\item{metric}{Character. The performance metric to use (e.g., "CRPS", "RMSE").}
+\item{metric}{Character. The performance metric to plot (e.g., \code{"CRPS"}, \code{"RMSE"}). By default, ranks are shown; use \code{"CRPS_raw"} or similar to show raw values.}
 
 \item{methods}{Optional character vector of methods to include.}
 

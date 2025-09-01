@@ -9,9 +9,12 @@ paretoplot_sim_study(
   metric = c("CRPS", "t_tot"),
   methods = NULL,
   highlight_method = NA,
+  ties_method = "average",
   pin_axes = TRUE,
-  path = NULL,
-  ties_method = "average"
+  show_legend = TRUE,
+  show_pfront = TRUE,
+  title = NULL,
+  path = NULL
 )
 }
 \arguments{
@@ -23,7 +26,15 @@ paretoplot_sim_study(
 
 \item{highlight_method}{Character vector of methods to label and color. Use \code{NA} to color all (default), or \code{NULL} to color none.}
 
+\item{ties_method}{How to handle ties.}
+
 \item{pin_axes}{Logical. Should axes be pinned at (0, 1) ?}
+
+\item{show_legend}{Logical. Show legend?}
+
+\item{show_pfront}{Logical. Should pareto-front be shown?}
+
+\item{title}{Title for plot. Set to \code{FALSE} to suppress title.}
 
 \item{path}{Optional file path to save plot (e.g., "figs/pareto_plot.png"). If NULL, the plot is returned instead.}
 }

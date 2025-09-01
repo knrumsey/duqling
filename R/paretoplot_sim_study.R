@@ -6,7 +6,11 @@
 #' @param metric Length-2 character vector. The performance and runtime metrics to compare. Default is \code{c("CRPS", "t_tot")}.
 #' @param methods Optional character vector of methods to include.
 #' @param highlight_method Character vector of methods to label and color. Use \code{NA} to color all (default), or \code{NULL} to color none.
+#' @param ties_method How to handle ties.
 #' @param pin_axes Logical. Should axes be pinned at (0, 1) ?
+#' @param show_legend Logical. Show legend?
+#' @param show_pfront Logical. Should pareto-front be shown?
+#' @param title Title for plot. Set to \code{FALSE} to suppress title.
 #' @param path Optional file path to save plot (e.g., "figs/pareto_plot.png"). If NULL, the plot is returned instead.
 #' @return A ggplot object.
 #' @export
@@ -14,9 +18,12 @@ paretoplot_sim_study <- function(df,
                                  metric = c("CRPS", "t_tot"),
                                  methods = NULL,
                                  highlight_method = NA,
+                                 ties_method = "average",
                                  pin_axes = TRUE,
-                                 path = NULL,
-                                 ties_method = "average") {
+                                 show_legend=TRUE,
+                                 show_pfront=TRUE,
+                                 title=NULL,
+                                 path = NULL) {
   if (!requireNamespace("ggplot2", quietly = TRUE)) stop("Please install 'ggplot2'.")
 
   perf_metric <- metric[1]
@@ -24,6 +31,15 @@ paretoplot_sim_study <- function(df,
 
   df[[perf_metric]] <- as.numeric(df[[perf_metric]])
   df[[time_metric]] <- as.numeric(df[[time_metric]])
+
+  pretty_name_map <- c(
+    "t_tot"  = "Speed",
+    "t_pred" = "Prediction Speed",
+    "t_fit"  = "Training Speed"
+  )
+
+  metric_pretty <- metric
+  metric_pretty[metric %in% names(pretty_name_map)] <- pretty_name_map[metric[metric %in% names(pretty_name_map)]]
 
   # Filter methods
   if (!is.null(methods)) {
@@ -63,11 +79,21 @@ paretoplot_sim_study <- function(df,
     }
   }
 
+  # method_stats <- data.frame(
+  #   method = method_list,
+  #   avg_rank_perf = rank_perf_sum / n_scenarios,
+  #   avg_rank_time = rank_time_sum / n_scenarios,
+  #   n_scenarios = n_scenarios,
+  #   stringsAsFactors = FALSE
+  # )
+
+  valid_methods <- names(n_scenarios[n_scenarios > 0])
+
   method_stats <- data.frame(
-    method = method_list,
-    avg_rank_perf = rank_perf_sum / n_scenarios,
-    avg_rank_time = rank_time_sum / n_scenarios,
-    n_scenarios = n_scenarios,
+    method = valid_methods,
+    avg_rank_perf = rank_perf_sum[valid_methods] / n_scenarios[valid_methods],
+    avg_rank_time = rank_time_sum[valid_methods] / n_scenarios[valid_methods],
+    n_scenarios = n_scenarios[valid_methods],
     stringsAsFactors = FALSE
   )
 
@@ -87,8 +113,8 @@ paretoplot_sim_study <- function(df,
   #browser()
 
   # Pareto front detection (lower avg_rank is better)
-  method_stats$avg_rank_perf <- rank_perf_sum / n_scenarios
-  method_stats$avg_rank_time <- rank_time_sum / n_scenarios
+  method_stats$avg_rank_perf <- rank_perf_sum[valid_methods] / n_scenarios[valid_methods]
+  method_stats$avg_rank_time <- rank_time_sum[valid_methods] / n_scenarios[valid_methods]
 
   is_dominated <- function(i, mat) {
     any(mat[-i, "avg_rank_time"] <= mat[i, "avg_rank_time"] &
@@ -114,30 +140,50 @@ paretoplot_sim_study <- function(df,
       values = c("TRUE" = "#1f78b4", "FALSE" = "gray60"),
       guide = "none"
     ) +
-    ggplot2::geom_path(
+    ggplot2::theme_minimal(base_size = 14)
+
+
+  if(show_pfront){
+    p <- p + ggplot2::geom_path(
       data = pareto_df,
       ggplot2::aes(x = score_time, y = score_perf),
       color = "black",
       linewidth = 0.5,
       linetype = "dashed",
       inherit.aes = FALSE
-    ) +
-    ggplot2::scale_shape_manual(
+    )
+  }
+  if(show_legend){
+    p <- p + ggplot2::scale_shape_manual(
       values = c(16, 17),
       guide = ggplot2::guide_legend(title = "Pareto Front")
-    ) +
-    ggplot2::labs(
-      x = paste("Speed Score (1 = Fastest)", "\n← Slower     Faster →"),
-      y = paste("Accuracy Score (1 = Best)", "\n↓ Worse      Better ↑"),
-      title = paste("Pareto Plot (Rank-Based):", metric[1], "vs", metric[2])
-    ) +
-    ggplot2::theme_minimal(base_size = 14)
+    )
+  }else{
+    p <- p + ggplot2::guides(shape = "none")
+  }
+  plot_title <- if (is.null(title)) {
+    paste("Pareto Plot (Rank-Based):", metric[1], "vs", metric[2])
+  } else if (identical(title, FALSE)) {
+    NULL
+  } else {
+    title
+  }
+  p <- p + ggplot2::labs(
+      #x = paste("Speed Score (1 = Fastest)", "\n← Slower     Faster →"),
+      #y = paste("Accuracy Score (1 = Best)", "\n↓ Worse      Better ↑"),
+      #x = paste0(metric[2], "\n← Worse     Better →"),
+      #y = paste0(metric[1], "\n← Worse     Better →"),
+      x = paste0(metric_pretty[2], "\n", "\u2190", " Worse     Better ", "\u2192"),
+      y = paste0(metric_pretty[1], "\n", "\u2190", " Worse     Better ", "\u2192"),
+      title = plot_title
+    )
 
   # Pin axes
   if (pin_axes) {
     p <- p +
       ggplot2::scale_x_continuous(limits = c(0, 1), expand = c(0, 0)) +
-      ggplot2::scale_y_continuous(limits = c(0, 1), expand = c(0, 0))
+      ggplot2::scale_y_continuous(limits = c(0, 1), expand = c(0, 0)) +
+      ggplot2::coord_cartesian(clip = "off")
   } else {
     p <- p + ggplot2::coord_cartesian(clip = "off")
   }
