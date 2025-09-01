@@ -1,10 +1,11 @@
 #' Heatmap of Method Rankings Across Simulation Scenarios
 #'
 #' @param df A data frame from \code{run_sim_study()}.
-#' @param metric Character. The performance metric to use (e.g., "CRPS", "RMSE").
+#' @param metric Character. The performance metric to plot (e.g., \code{"CRPS"}, \code{"RMSE"}). By default, ranks are shown; use \code{"CRPS_raw"} or similar to show raw values.
 #' @param methods Optional character vector of methods to include.
 #' @param group_by Character vector of columns that define each simulation scenario (default = "fname").
 #' @param ties_method How to handle ties in ranking. Passed to \code{rank()}. Default = "min".
+#' @param show_values Logical. Should text given the average "metric" value (rounded to 2 decimal places) be added to the plot?
 #' @param color_scale Either a string specifying one of the 8 viridis color map options
 #'   ("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo"),
 #'   or a character vector of two colors (e.g., \code{c("white", "black")}) to be used
@@ -22,10 +23,15 @@ heatmap_sim_study <- function(df,
                               methods = NULL,
                               group_by = "fname",
                               ties_method = "min",
+                              show_values = NULL,
                               color_scale = "turbo",
                               orientation = "vertical",
                               path = NULL) {
   if (!requireNamespace("ggplot2", quietly = TRUE)) stop("Please install 'ggplot2'.")
+
+  # Determine if we're ranking or showing raw values
+  use_rank <- !grepl("_raw$", metric)
+  base_metric <- sub("_raw$", "", metric)
 
   # Check inputs
   required_fields <- c("fname", "n_train", "NSR", "design_type")
@@ -34,62 +40,85 @@ heatmap_sim_study <- function(df,
 
   if (!all(scenario_fields %in% names(df))) stop("Simulation scenario columns are missing.")
   if (!all(group_by %in% names(df))) stop("Some group_by columns are missing.")
-  if (!metric %in% names(df)) stop(paste("Metric", metric, "not found in df."))
+  if (!base_metric %in% names(df)) stop(paste("Metric", base_metric, "not found in df."))
 
   # Filter methods
   if (!is.null(methods)) {
     df <- df[df$method %in% methods, , drop = FALSE]
   }
 
-  df[[metric]] <- as.numeric(df[[metric]])
+  df[[base_metric]] <- as.numeric(df[[base_metric]])
 
   # Create scenario ID for exact simulation scenarios
   df$scenario_id <- apply(df[, scenario_fields, drop = FALSE], 1, paste, collapse = "_")
 
-  # Rank methods within each scenario
-  scenario_list <- split(df, df$scenario_id)
-  ranked_list <- lapply(scenario_list, function(scenario_df) {
-    scenario_df$rank <- rank(scenario_df[[metric]], ties.method = ties_method)
-    scenario_df
-  })
-  ranked_df <- do.call(rbind, ranked_list)
+  # Initialize placeholder for aggregated data
+  agg <- NULL
 
-  # Create group ID based on group_by
-  ranked_df$group_id <- apply(ranked_df[, group_by, drop = FALSE], 1, paste, collapse = "_")
-
-  # Average rank per method per group
-  agg <- aggregate(rank ~ group_id + method, data = ranked_df, FUN = mean)
+  if (use_rank) {
+    # Rank methods within each scenario
+    scenario_list <- split(df, df$scenario_id)
+    ranked_list <- lapply(scenario_list, function(scenario_df) {
+      scenario_df$rank <- rank(scenario_df[[base_metric]], ties.method = ties_method)
+      scenario_df
+    })
+    ranked_df <- do.call(rbind, ranked_list)
+    ranked_df$group_id <- apply(ranked_df[, group_by, drop = FALSE], 1, paste, collapse = " × ")
+    agg <- aggregate(rank ~ group_id + method, data = ranked_df, FUN = mean)
+    agg$value <- agg$rank
+  } else {
+    df$group_id <- apply(df[, group_by, drop = FALSE], 1, paste, collapse = " × ")
+    agg <- aggregate(df[[base_metric]], by = list(group_id = df$group_id, method = df$method), FUN = mean)
+    colnames(agg)[3] <- "value"
+  }
 
   # Get full grid of group × method
   group_levels <- unique(agg$group_id)
   if ("fname" %in% group_by) {
-    fname_order <- unique(df$fname)  # preserves original order
+    fname_order <- unique(df$fname)
     group_levels <- group_levels[order(match(group_levels, fname_order))]
   }
-  #method_levels <- if (!is.null(methods)) methods else sort(unique(agg$method))
-  method_means <- aggregate(rank ~ method, data = agg, mean)
-  method_levels <- method_means$method[order(method_means$rank)]  # lowest = best
-  grid <- expand.grid(group_id = group_levels, method = method_levels, stringsAsFactors = FALSE)
 
+  if (use_rank) {
+    method_means <- aggregate(value ~ method, data = agg, mean)
+    method_levels <- method_means$method[order(method_means$value)]  # best ranks first
+  } else {
+    method_levels <- if (!is.null(methods)) methods else sort(unique(agg$method))
+  }
+
+  grid <- expand.grid(group_id = group_levels, method = method_levels, stringsAsFactors = FALSE)
   full_data <- merge(grid, agg, by = c("group_id", "method"), all.x = TRUE)
   full_data$method <- factor(full_data$method, levels = method_levels)
   full_data$group_id <- factor(full_data$group_id, levels = group_levels)
 
-  # Color scale stuff
-  n_methods <- length(unique(full_data$method))
+  # Auto show values only for small grids
+  if (is.null(show_values)) {
+    n_rows <- length(unique(full_data$group_id))
+    n_cols <- length(unique(full_data$method))
+    show_values <- (n_rows <= 8 && n_cols <= 8)
+  }
+
+  # Color scale limits
+  if (use_rank) {
+    limits <- c(1, length(method_levels))
+  } else {
+    limits <- range(full_data$value, na.rm = TRUE)
+  }
+
+  # Color scale
   if (is.character(color_scale) && length(color_scale) == 1 && color_scale %in% c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")) {
     fill_scale <- ggplot2::scale_fill_viridis_c(
       option = color_scale,
       direction = -1,
       na.value = "grey90",
-      limits = c(1, n_methods)
+      limits = limits
     )
   } else if (is.character(color_scale) && length(color_scale) == 2) {
     fill_scale <- ggplot2::scale_fill_gradient(
       low = color_scale[1],
       high = color_scale[2],
       na.value = "grey90",
-      limits = c(1, n_methods)
+      limits = limits
     )
   } else {
     stop("Invalid color_scale: must be a viridis option or a 2-element color vector.")
@@ -97,7 +126,7 @@ heatmap_sim_study <- function(df,
 
   # Orientation
   if (orientation == "vertical") {
-    aes_args <- ggplot2::aes(x = method, y = group_id, fill = rank)
+    aes_args <- ggplot2::aes(x = method, y = group_id, fill = value)
     x_label <- "Method"
     y_label <- paste(group_by, collapse = " × ")
     theme <- ggplot2::theme_minimal(base_size = 14) +
@@ -106,7 +135,7 @@ heatmap_sim_study <- function(df,
         axis.text.x = ggplot2::element_text(angle = 90, hjust = 1, vjust = 0.5)
       )
   } else if (orientation == "horizontal") {
-    aes_args <- ggplot2::aes(x = group_id, y = method, fill = rank)
+    aes_args <- ggplot2::aes(x = group_id, y = method, fill = value)
     x_label <- paste(group_by, collapse = " × ")
     y_label <- "Method"
     theme <- ggplot2::theme_minimal(base_size = 14) +
@@ -125,10 +154,17 @@ heatmap_sim_study <- function(df,
     ggplot2::labs(
       x = x_label,
       y = y_label,
-      fill = "Avg. Rank",
-      title = paste("Average Rank by", metric)
+      fill = if (use_rank) "Avg. Rank" else base_metric,
+      title = paste("Average", if (use_rank) "Rank" else "Value", "by", base_metric)
     ) +
     theme
+
+  if (show_values) {
+    p <- p + ggplot2::geom_text(
+      ggplot2::aes(label = sprintf("%.2f", value)),
+      size = 3
+    )
+  }
 
   if (!is.null(path)) {
     ggplot2::ggsave(filename = path, plot = p, width = 12, height = 6, units = "in", dpi = 350)

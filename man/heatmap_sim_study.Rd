@@ -10,6 +10,7 @@ heatmap_sim_study(
   methods = NULL,
   group_by = "fname",
   ties_method = "min",
+  show_values = NULL,
   color_scale = "turbo",
   orientation = "vertical",
   path = NULL
@@ -25,6 +26,8 @@ heatmap_sim_study(
 \item{group_by}{Character vector of columns that define each simulation scenario (default = "fname").}
 
 \item{ties_method}{How to handle ties in ranking. Passed to \code{rank()}. Default = "min".}
+
+\item{show_values}{Logical. Should text given the average "metric" value (rounded to 2 decimal places) be added to the plot?}
 
 \item{color_scale}{Either a string specifying one of the 8 viridis color map options
 ("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo"),
