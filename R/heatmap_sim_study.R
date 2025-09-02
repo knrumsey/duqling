@@ -31,6 +31,16 @@ heatmap_sim_study <- function(df,
                               path = NULL) {
   if (!requireNamespace("ggplot2", quietly = TRUE)) stop("Please install 'ggplot2'.")
 
+  # In case df comes from run_sim_study_data()
+  if (!"fname" %in% names(df) && "dname" %in% names(df)) {
+    df$fname <- df$dname
+    df$rep <- df$fold
+    df$replication <- df$fold
+    df$n_train <- NA
+    df$NSR <- NA
+    df$design_type <- NA
+  }
+
   # Determine if we're ranking or showing raw values
   use_rank <- !grepl("_raw$", metric)
   base_metric <- sub("_raw$", "", metric)

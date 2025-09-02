@@ -2,7 +2,7 @@
 % Please edit documentation in R/run_sim_study_data.R
 \name{run_sim_study_data}
 \alias{run_sim_study_data}
-\title{Reproducible Simulation Study (Data)}
+\title{Reproducible Simulation Study (Real Data)}
 \usage{
 run_sim_study_data(
   fit_func,
@@ -13,9 +13,12 @@ run_sim_study_data(
   seed = 42,
   conf_level = c(0.8, 0.9, 0.95, 0.99),
   score = TRUE,
+  x_scale01 = TRUE,
   method_names = NULL,
   custom_data_names = NULL,
   mc_cores = 1,
+  fallback_on_error = TRUE,
+  print_error = FALSE,
   verbose = TRUE
 )
 }
@@ -36,16 +39,40 @@ run_sim_study_data(
 
 \item{score}{Logical. Should CRPS be computed?}
 
+\item{x_scale01}{Logical. Should the inputs be internally scaled to be between 0 and 1? (Default TRUE).}
+
 \item{method_names}{A vector of method names, length equal to \code{length(fit_func)}. If NULL, the indexed names \code{my_method<i>} will be used.}
 
 \item{custom_data_names}{An optional vector of dataset names corresponding to the argument \code{dsets}.}
 
 \item{mc_cores}{How many cores to use for parallelization over replications.}
 
+\item{fallback_on_error}{When \code{TRUE} (default), we use a null model (\code{N(mean(y_train), sd(y_train))}) for robustness if a failure is detected in either \code{fit_func} or \code{pred_func}.}
+
+\item{print_error}{Logical (default FALSE). Should error messages (from \code{fit_func} or \code{pred_func})be printed?}
+
 \item{verbose}{should progress be reported?}
 }
 \value{
-See details
+A data frame with one row per dataset × fold × method combination. Columns include:
+  \itemize{
+    \item \code{dname}: Dataset name.
+    \item \code{method}: Method name.
+    \item \code{n}: Number of test points in the fold.
+    \item \code{input_dim}: Input dimension.
+    \item \code{fold}: Fold index.
+    \item \code{fold_size}: Number of points in the fold.
+    \item \code{t_fit}: Elapsed time (seconds) for model fitting (if applicable).
+    \item \code{t_pred}: Elapsed time (seconds) for model prediction (if applicable).
+    \item \code{t_tot}: Total elapsed time for fitting and prediction.
+    \item \code{failure_type}: Indicates if the method failed at "fit", "pred", or "none" (if no failure).
+    \item \code{RMSE}: Root mean squared error on the test set.
+    \item \code{FVU}: Fraction of variance unexplained (RMSE^2 divided by total variance).
+    \item \code{COVER<level>}: Coverage rates for each specified confidence level (e.g., \code{COVER0.8}, \code{COVER0.9}, etc.).
+    \item \code{MIS<level>}: Mean interval scores for each specified confidence level.
+    \item \code{CRPS}: Mean continuous ranked probability score (CRPS) on the test set.
+    \item \code{CRPS_min}, \code{CRPS_Q1}, \code{CRPS_med}, \code{CRPS_Q3}, \code{CRPS_max}: Summary statistics (minimum, first quartile, median, third quartile, maximum) for the CRPS distribution over the test set.
+  }
 }
 \description{
 Reproducible code for simulation studies with real data sets.
@@ -56,18 +83,17 @@ Only \code{fit_func} needs to be specified, but only the total time will be repo
 }
 \examples{
 \dontrun{
-library(BASS)
-
-my_fit <- function(X, y){
-  bass(X, y, g1=0.001, g2=0.001)
-}
-my_pred <- function(obj, Xt){
-  predict(obj, Xt)
+my_fit <- function(X, y) lm(y ~ ., data = as.data.frame(X))
+my_pred <- function(mod, Xt) {
+  mu <- predict(mod, as.data.frame(Xt))
+  s  <- sd(residuals(mod))
+  replicate(1000, mu + rnorm(length(mu), 0, s))
 }
 
-run_sim_study_data(fit_func, pred_func,
-   dnames=c("pbx9501_gold", "strontium_plume_p104"),
-   folds=c(2, 3))
+run_sim_study_data(fit_func = my_fit,
+                   pred_func = my_pred,
+                   dnames = c("pbx9501_gold"),
+                   folds = 5)
 }
 }
 \references{

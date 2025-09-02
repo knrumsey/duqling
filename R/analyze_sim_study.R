@@ -43,6 +43,16 @@ summarize_sim_study <- function(df,
                                 fvu_thresh = 0.01,
                                 ties_method="min"){
 
+  # In case df comes from run_sim_study_data()
+  if (!"fname" %in% names(df) && "dname" %in% names(df)) {
+    df$fname <- df$dname
+    df$rep <- df$fold
+    df$replication <- df$fold
+    df$n_train <- NA
+    df$NSR <- NA
+    df$design_type <- NA
+  }
+
   # Check for required columns
   required_cols <- c("method", "fname", "n_train", "NSR", "design_type", "replication", "RMSE", "CRPS", "t_tot", "failure_type")
   missing_cols <- setdiff(required_cols, colnames(df))
@@ -226,6 +236,12 @@ filter_sim_study <- function(df,
                              NSR = NULL,
                              design_type = NULL,
                              replication = NULL) {
+
+  # In case df comes from run_sim_study_data()
+  if (!"fname" %in% names(df) && "dname" %in% names(df)) {
+    df$fname <- df$dname
+  }
+
   # Rename "n" to "n_train" internally if needed
   if ("n" %in% names(df) && !"n_train" %in% names(df)) {
     names(df)[names(df) == "n"] <- "n_train"
@@ -264,7 +280,7 @@ filter_sim_study <- function(df,
 #'
 #' Joins two simulation study result data frames, allowing for mismatched columns.
 #'
-#' @param df1 A data frame from \code{run_sim_study()} or similar.
+#' @param df1 A data frame from \code{run_sim_study()}.
 #' @param df2 Another data frame to join with \code{df1}.
 #' @param on_mismatch Character string specifying how to handle mismatched columns.
 #'   Options are \code{"union"} (default) to include all columns and pad with \code{NA}s as needed,
@@ -284,6 +300,39 @@ filter_sim_study <- function(df,
 #' @export
 join_sim_study <- function(df1, df2, on_mismatch = c("union", "intersect")) {
   on_mismatch <- match.arg(on_mismatch)
+
+  # Unify run_sim_study() and run_sim_study_data() if needed
+  # We do this by renaming $dname -> $fname by safely merging the two columns
+  if ("dname" %in% names(df1)) {
+    if (!"fname" %in% names(df1)) {
+      df1$fname <- df1$dname
+    } else {
+      # Fill NAs in fname from dname
+      df1$fname[is.na(df1$fname)] <- df1$dname[is.na(df1$fname)]
+    }
+
+    if(!all(c("n_train", "NSR", "design_type") %in% names(df1))){
+      df1$replication <- df1$fold
+      df1$n_train <- NA
+      df1$NSR <- NA
+      df1$design_type <- NA
+    }
+  }
+
+  if ("dname" %in% names(df2)) {
+    if (!"fname" %in% names(df2)) {
+      df2$fname <- df2$dname
+    } else {
+      df2$fname[is.na(df2$fname)] <- df2$dname[is.na(df2$fname)]
+    }
+
+    if(!all(c("n_train", "NSR", "design_type") %in% names(df2))){
+      df2$replication <- df2$fold
+      df2$n_train <- NA
+      df2$NSR <- NA
+      df2$design_type <- NA
+    }
+  }
 
   cols1 <- names(df1)
   cols2 <- names(df2)

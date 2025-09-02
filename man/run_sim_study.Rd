@@ -19,6 +19,7 @@ run_sim_study(
   method_names = NULL,
   mc_cores = 1,
   fallback_on_error = TRUE,
+  print_error = FALSE,
   verbose = TRUE
 )
 }
@@ -50,6 +51,8 @@ run_sim_study(
 \item{mc_cores}{How many cores to use for parallelization over replications.}
 
 \item{fallback_on_error}{When \code{TRUE} (default), we use a null model (\code{N(mean(y_train), sd(y_train))}) for robustness if a failure is detected in either \code{fit_func} or \code{pred_func}.}
+
+\item{print_error}{Logical (default FALSE). Should error messages (from \code{fit_func} or \code{pred_func})be printed?}
 
 \item{verbose}{should progress be reported?}
 }

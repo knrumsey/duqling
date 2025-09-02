@@ -7,7 +7,7 @@
 join_sim_study(df1, df2, on_mismatch = c("union", "intersect"))
 }
 \arguments{
-\item{df1}{A data frame from \code{run_sim_study()} or similar.}
+\item{df1}{A data frame from \code{run_sim_study()}.}
 
 \item{df2}{Another data frame to join with \code{df1}.}
 

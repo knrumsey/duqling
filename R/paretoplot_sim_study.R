@@ -26,6 +26,15 @@ paretoplot_sim_study <- function(df,
                                  path = NULL) {
   if (!requireNamespace("ggplot2", quietly = TRUE)) stop("Please install 'ggplot2'.")
 
+  # In case df comes from run_sim_study_data()
+  if (!"fname" %in% names(df) && "dname" %in% names(df)) {
+    df$fname <- df$dname
+    df$replication <- df$fold
+    df$n_train <- NA
+    df$NSR <- NA
+    df$design_type <- NA
+  }
+
   perf_metric <- metric[1]
   time_metric <- metric[2]
 
@@ -62,7 +71,7 @@ paretoplot_sim_study <- function(df,
   n_scenarios <- setNames(rep(0, K), method_list)
 
   for (scenario in scenario_list) {
-    valid <- scenario$failure_type == "none"
+    valid <- scenario$failure_type %in% c("none", "fit", "pred", "time")
     if (sum(valid) < 1) next
 
     valid_df <- scenario[valid, , drop = FALSE]
@@ -88,6 +97,7 @@ paretoplot_sim_study <- function(df,
   # )
 
   valid_methods <- names(n_scenarios[n_scenarios > 0])
+
 
   method_stats <- data.frame(
     method = valid_methods,
@@ -143,7 +153,7 @@ paretoplot_sim_study <- function(df,
     ggplot2::theme_minimal(base_size = 14)
 
 
-  if(show_pfront){
+  if(show_pfront && nrow(pareto_df) > 1){
     p <- p + ggplot2::geom_path(
       data = pareto_df,
       ggplot2::aes(x = score_time, y = score_perf),

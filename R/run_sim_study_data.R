@@ -1,4 +1,4 @@
-#' Reproducible Simulation Study (Data)
+#' Reproducible Simulation Study (Real Data)
 #'
 #' Reproducible code for simulation studies with real data sets.
 #'
@@ -10,32 +10,53 @@
 #' @param seed Seed for random number generators. For reproducibility, we discourage the use of this argument.
 #' @param conf_level Confidence level for interval estimates. If \code{length(conf_level) > 1}, then \code{pred_func} should return a matrix with \code{1 + 2*length(conf_level)} columns, with 2 columns of lower and upper bounds for each value in \code{conf_}
 #' @param score Logical. Should CRPS be computed?
+#' @param x_scale01 Logical. Should the inputs be internally scaled to be between 0 and 1? (Default TRUE).
 #' @param method_names A vector of method names, length equal to \code{length(fit_func)}. If NULL, the indexed names \code{my_method<i>} will be used.
 #' @param custom_data_names An optional vector of dataset names corresponding to the argument \code{dsets}.
 #' @param mc_cores How many cores to use for parallelization over replications.
+#' @param fallback_on_error When \code{TRUE} (default), we use a null model (\code{N(mean(y_train), sd(y_train))}) for robustness if a failure is detected in either \code{fit_func} or \code{pred_func}.
+#' @param print_error Logical (default FALSE). Should error messages (from \code{fit_func} or \code{pred_func})be printed?
 #' @param verbose should progress be reported?
-#' @return See details
+#' @return A data frame with one row per dataset × fold × method combination. Columns include:
+#'   \itemize{
+#'     \item \code{dname}: Dataset name.
+#'     \item \code{method}: Method name.
+#'     \item \code{n}: Number of test points in the fold.
+#'     \item \code{input_dim}: Input dimension.
+#'     \item \code{fold}: Fold index.
+#'     \item \code{fold_size}: Number of points in the fold.
+#'     \item \code{t_fit}: Elapsed time (seconds) for model fitting (if applicable).
+#'     \item \code{t_pred}: Elapsed time (seconds) for model prediction (if applicable).
+#'     \item \code{t_tot}: Total elapsed time for fitting and prediction.
+#'     \item \code{failure_type}: Indicates if the method failed at "fit", "pred", or "none" (if no failure).
+#'     \item \code{RMSE}: Root mean squared error on the test set.
+#'     \item \code{FVU}: Fraction of variance unexplained (RMSE^2 divided by total variance).
+#'     \item \code{COVER<level>}: Coverage rates for each specified confidence level (e.g., \code{COVER0.8}, \code{COVER0.9}, etc.).
+#'     \item \code{MIS<level>}: Mean interval scores for each specified confidence level.
+#'     \item \code{CRPS}: Mean continuous ranked probability score (CRPS) on the test set.
+#'     \item \code{CRPS_min}, \code{CRPS_Q1}, \code{CRPS_med}, \code{CRPS_Q3}, \code{CRPS_max}: Summary statistics (minimum, first quartile, median, third quartile, maximum) for the CRPS distribution over the test set.
+#'   }
+#'
 #' @details Code to conduct a reproducible simulation study to compare emulators. By reporting the parameters to the study, other authors can compare their results directly.
 #' Only \code{fit_func} needs to be specified, but only the total time will be reported. The simplest (and recommended) approach is that the \code{fit_func} (or \code{pred_func}) should return a matrix of posterior samples, with one column per test point (e.g., per row in \code{X_test}). Any number of rows (predictive samples) is allowed. In this case, the mean of the samples is used as a prediction and the R \code{stats::quantile} function is used to construct confidence intervals. This default behavior can be changed by instead allowing \code{fit_func} (or \code{pred_func}) to return a named list with fields i) \code{samples} (required), ii) \code{preds} (optional; a vector of predictions), and iii) intervals (optional; a 2 by n by k array of interval bounds where n is the number of test points and k is \code{length(conf_level)}).
 #'
 #' @references
 #' Surjanovic, Sonja, and Derek Bingham. "Virtual library of simulation experiments: test functions and datasets." Simon Fraser University, Burnaby, BC, Canada, accessed May 13 (2013): 2015.
-#' @export
 #' @examples
 #' \dontrun{
-#' library(BASS)
-#'
-#' my_fit <- function(X, y){
-#'   bass(X, y, g1=0.001, g2=0.001)
-#' }
-#' my_pred <- function(obj, Xt){
-#'   predict(obj, Xt)
+#' my_fit <- function(X, y) lm(y ~ ., data = as.data.frame(X))
+#' my_pred <- function(mod, Xt) {
+#'   mu <- predict(mod, as.data.frame(Xt))
+#'   s  <- sd(residuals(mod))
+#'   replicate(1000, mu + rnorm(length(mu), 0, s))
 #' }
 #'
-#' run_sim_study_data(fit_func, pred_func,
-#'    dnames=c("pbx9501_gold", "strontium_plume_p104"),
-#'    folds=c(2, 3))
-#'}
+#' run_sim_study_data(fit_func = my_fit,
+#'                    pred_func = my_pred,
+#'                    dnames = c("pbx9501_gold"),
+#'                    folds = 5)
+#' }
+#' @export
 run_sim_study_data <- function(fit_func, pred_func=NULL,
                           dnames=get_sim_data_tiny(),
                           dsets=NULL,
@@ -43,9 +64,12 @@ run_sim_study_data <- function(fit_func, pred_func=NULL,
                           seed = 42,
                           conf_level = c(0.8, 0.9, 0.95, 0.99),
                           score=TRUE,
+                          x_scale01=TRUE,
                           method_names=NULL,
                           custom_data_names=NULL,
                           mc_cores=1,
+                          fallback_on_error=TRUE,
+                          print_error=FALSE,
                           verbose=TRUE){
 
   # error handling here
@@ -54,6 +78,8 @@ run_sim_study_data <- function(fit_func, pred_func=NULL,
     method_names <- names(fit_func)
   }
   n_custom_data <- length(dsets)
+  dnames_custom <- NULL
+
   if(n_custom_data > 0){
     if(!is.null(dsets$X)){
       if(n_custom_data == 2){
@@ -67,9 +93,20 @@ run_sim_study_data <- function(fit_func, pred_func=NULL,
         stop("dsets should be a list of lists. Check documentation.")
       }
     }
-    dnames <- c(dnames, paste0("custom", 1:n_custom_data))
+    if(is.null(custom_data_names)){
+      if(is.null(names(dsets))){
+        dnames_custom <- paste0("custom", 1:n_custom_data)
+      }else{
+        dnames_custom <- names(dsets)
+      }
+    }else{
+      if(length(custom_data_names) != n_custom_data) stop("custom_data_names does not match dsets length")
+      dnames_custom <- custom_data_names
+    }
     custom_cnt <- 1
   }
+  is_custom <- c(rep(FALSE, length(dnames)), rep(TRUE, length(dnames_custom)))
+  dnames <- c(dnames, dnames_custom)
 
   if(length(folds) == 1){
     folds <- rep(folds, length(dnames))
@@ -78,15 +115,17 @@ run_sim_study_data <- function(fit_func, pred_func=NULL,
   DF_full <- NULL
   for(dd in seq_along(dnames)){
     dn <- dnames[dd]
-    dnum <- str2num(dn)
-    set.seed(seed + str2num(dn))
+    seed_t <- seed + str2num(dn)
     if(verbose) cat("Starting dataset ", dd, "/", length(dnames), ": ", dn, "\n", sep="")
 
     # Check if this is a custom dataset
-    if(grepl("custom", dn)){
+    #if(grepl("custom", dn)){
+    if(is_custom[dd]){
       X <- dsets[[custom_cnt]]$X
       y <- dsets[[custom_cnt]]$y
-      cdn <- custom_data_names[custom_cnt]
+      #Handling this case differently now
+      #cdn <- custom_data_names[custom_cnt]
+      cdn <- dn
       custom_cnt <- custom_cnt + 1
     }else{
       # Load data from UQDataverse
@@ -94,9 +133,13 @@ run_sim_study_data <- function(fit_func, pred_func=NULL,
       X <- as.matrix(curr$X)
       y <- curr$y
     }
+    if(x_scale01){
+      X <- apply(X, 2, scale_range)
+    }
     n <- nrow(X)
     p <- ncol(X)
     # Get CV information
+    set.seed(seed_t)
     K <- folds[dd]
     if(K == 0) stop("Cannot have 0 folds")
     if(K > 0){
@@ -115,21 +158,29 @@ run_sim_study_data <- function(fit_func, pred_func=NULL,
 
     if(mc_cores == 1){
       results <- lapply(X=1:K, FUN=run_one_sim_case_data,
-                        XX=X, yy=y, groups=groups, cv_type=cv_type,
+                        seed_t=seed_t, XX=X, yy=y,
+                        groups=groups, cv_type=cv_type,
                         dn=dn, score=score,
                         conf_level=conf_level,
                         method_names=method_names,
                         custom_data_name=cdn,
-                        fit_func=fit_func, pred_func=pred_func, verbose=verbose)
+                        fit_func=fit_func, pred_func=pred_func,
+                        fallback=fallback_on_error,
+                        verbose=verbose,
+                        print_error=print_error)
     }else{
       results <- parallel::mclapply(1:K, run_one_sim_case_data,
-                                    XX=X, yy=y, groups=groups, cv_type=cv_type,
+                                    seed_t=seed_t, XX=X, yy=y,
+                                    groups=groups, cv_type=cv_type,
                                     dn=dn, score=score,
                                     conf_level=conf_level,
                                     method_names=method_names,
                                     custom_data_name=cdn,
-                                    fit_func=fit_func, pred_func=pred_func, verbose=verbose,
-                                    mc_cores=mc_cores)
+                                    fit_func=fit_func, pred_func=pred_func,
+                                    fallback=fallback_on_error,
+                                    verbose=verbose,
+                                    print_error=print_error,
+                                    mc.cores=mc_cores)
     }
     # Collect results for current setting
     DF_curr <- results[[1]]
@@ -155,11 +206,13 @@ k.chunks = function(n, K){
   return(groups)
 }
 
-run_one_sim_case_data <- function(k, XX, yy, groups, cv_type,
+run_one_sim_case_data <- function(k, seed_t, XX, yy, groups, cv_type,
                                   dn, score,
-                                  conf_level, interval, method_names, custom_data_name,
+                                  conf_level, method_names, custom_data_name,
                                   fit_func, pred_func,
-                                  verbose){
+                                  fallback,
+                                  verbose,
+                                  print_error){
   # Partition data
   #K <- length(unique(groups))
   kk <- NULL
@@ -191,6 +244,7 @@ run_one_sim_case_data <- function(k, XX, yy, groups, cv_type,
     DF_curr <- data.frame(method=my_method,
                           dname=cdn, input_dim=p, n=n,
                           fold=k, fold_size=mk)
+    failure_type <- "none"
 
     fit_func_curr <- ifelse(is.function(fit_func), fit_func, fit_func[[ii]])
     if(is.function(pred_func)){
@@ -206,22 +260,56 @@ run_one_sim_case_data <- function(k, XX, yy, groups, cv_type,
     # Call fit_func()
     if(is.null(pred_func_curr)){
       tictoc::tic()
-      preds <- fit_func_curr(X_train, y_train, X_test)
+      preds <- try(fit_func_curr(X_train, y_train, X_test), silent=!print_error)
+      if(inherits(preds, "try-error")){
+        # Fall back on baseline model
+        failure_type <- "fit"
+        if(fallback){
+          set.seed(seed_t) # re-set seed so null model always returns same predictions
+          preds_numeric <- mean(y_train) + rt(1000*nrow(X_test), df=n-1) * sd(y_train) * sqrt(1 + 1/n)
+          preds <- matrix(preds_numeric,
+                          nrow=1000, ncol=nrow(X_test))
+        }else{
+          stop(paste("Failure in fit_func:", attr(preds, "condition")$message))
+        }
+      }
       t_tot <- tictoc::toc(quiet=!verbose)
 
       DF_curr$t_tot <- t_tot$toc - t_tot$tic
+      DF_curr$failure_type <- failure_type
     }else{
       tictoc::tic()
-      fitted_object <- fit_func_curr(X_train, y_train)
+      fitted_object <- try(fit_func_curr(X_train, y_train), silent=!print_error)
+      if(inherits(fitted_object, "try-error")){
+        if(fallback){
+          fitted_object <- NA # Should lead to failure in preds as well.
+          failure_type <- "fit"
+        }else{
+          stop(paste("Failure in fit_func:", attr(fitted_object, "condition")$message))
+        }
+      }
       t_fit <- tictoc::toc(quiet=!verbose)
 
       tictoc::tic()
-      preds <- pred_func_curr(fitted_object, X_test)
+      preds <- try(pred_func_curr(fitted_object, X_test), silent=!print_error)
+      if(inherits(preds, "try-error")){
+        # Fall back on baseline model
+        if(failure_type == "none") failure_type <- "pred"
+        if(fallback){
+          set.seed(seed_t) # re-set seed so null model always returns same predictions
+          preds_numeric <- mean(y_train) + rt(1000*nrow(X_test), df=n-1) * sd(y_train) * sqrt(1 + 1/n)
+          preds <- matrix(preds_numeric,
+                          nrow=1000, ncol=nrow(X_test))
+        }else{
+          stop(paste("Failure in pred_func:", attr(preds, "condition")$message))
+        }
+      }
       t_pred <- tictoc::toc(quiet=!verbose)
 
       DF_curr$t_fit <- t_fit$toc - t_fit$tic
       DF_curr$t_pred <- t_pred$toc - t_pred$tic
       DF_curr$t_tot <- DF_curr$t_fit + DF_curr$t_pred
+      DF_curr$failure_type <- failure_type
     }
 
     #browser()
@@ -277,8 +365,8 @@ run_one_sim_case_data <- function(k, XX, yy, groups, cv_type,
           bounds <- apply(preds, 2, stats::quantile, probs=c(alpha_curr/2, 1-alpha_curr/2))
 
           term1 <- apply(bounds, 2, diff)
-          term2 <- 2*(bounds[,1] - y_test)*as.numeric(y_test < bounds[,1])/alpha_curr
-          term3 <- 2*(y_test - bounds[,2])*as.numeric(y_test > bounds[,2])/alpha_curr
+          term2 <- 2*(bounds[1,] - y_test)*as.numeric(y_test < bounds[1,])/alpha_curr
+          term3 <- 2*(y_test - bounds[2,])*as.numeric(y_test > bounds[2,])/alpha_curr
           DF_curr[,ncol(DF_curr)+1] <- mean(term1 + term2 + term3)
         }
         nms <- c(nms, paste0("COVER", round(conf_level, 7)), paste0("MIS", round(conf_level, 7)))
@@ -290,12 +378,13 @@ run_one_sim_case_data <- function(k, XX, yy, groups, cv_type,
         if(verbose) cat("Computing CRPS")
         CRPS_vec <- unlist(lapply(1:n_test, function(i) crpsf(y_test[i], preds[,i])))
         csumm <- summary(CRPS_vec)
-        DF_curr$CRPS <- csumm[4]
-        DF_curr$CRPS_min <- csumm[1]
-        DF_curr$CRPS_Q1 <- csumm[2]
-        DF_curr$CRPS_med <- csumm[3]
-        DF_curr$CRPS_Q3 <- csumm[5]
-        DF_curr$CRPS_max <- csumm[6]
+        DF_curr$CRPS      <- as.numeric(csumm[4])
+        DF_curr$CRPS_min  <- as.numeric(csumm[1])
+        DF_curr$CRPS_Q1   <- as.numeric(csumm[2])
+        DF_curr$CRPS_med  <- as.numeric(csumm[3])
+        DF_curr$CRPS_Q3   <- as.numeric(csumm[5])
+        DF_curr$CRPS_max  <- as.numeric(csumm[6])
+
         if(verbose) cat("\nDone.")
       }
     }
@@ -343,8 +432,8 @@ run_one_sim_case_data <- function(k, XX, yy, groups, cv_type,
           bounds <- apply(preds, 2, stats::quantile, probs=c(alpha_curr/2, 1-alpha_curr/2))
 
           term1 <- apply(bounds, 2, diff)
-          term2 <- 2*(bounds[,1] - y_test)*as.numeric(y_test < bounds[,1])/alpha_curr
-          term3 <- 2*(y_test - bounds[,2])*as.numeric(y_test > bounds[,2])/alpha_curr
+          term2 <- 2*(bounds[1,] - y_test)*as.numeric(y_test < bounds[1,])/alpha_curr
+          term3 <- 2*(y_test - bounds[2,])*as.numeric(y_test > bounds[2,])/alpha_curr
           DF_curr[,ncol(DF_curr)+1] <- mean(term1 + term2 + term3)
         }
         nms <- c(nms, paste0("COVER", round(conf_level, 7)), paste0("MIS", round(conf_level, 7)))
@@ -356,12 +445,12 @@ run_one_sim_case_data <- function(k, XX, yy, groups, cv_type,
         if(verbose) cat("Computing CRPS")
         CRPS_vec <- unlist(lapply(1:n_test, function(i) crpsf(y_test[i], preds[,i])))
         csumm <- summary(CRPS_vec)
-        DF_curr$CRPS <- csumm[4]
-        DF_curr$CRPS_min <- csumm[1]
-        DF_curr$CRPS_Q1 <- csumm[2]
-        DF_curr$CRPS_med <- csumm[3]
-        DF_curr$CRPS_Q3 <- csumm[5]
-        DF_curr$CRPS_max <- csumm[6]
+        DF_curr$CRPS      <- as.numeric(csumm[4])
+        DF_curr$CRPS_min  <- as.numeric(csumm[1])
+        DF_curr$CRPS_Q1   <- as.numeric(csumm[2])
+        DF_curr$CRPS_med  <- as.numeric(csumm[3])
+        DF_curr$CRPS_Q3   <- as.numeric(csumm[5])
+        DF_curr$CRPS_max  <- as.numeric(csumm[6])
         if(verbose) cat("\nDone.")
       }
     }
@@ -375,5 +464,11 @@ run_one_sim_case_data <- function(k, XX, yy, groups, cv_type,
   return(DF_res)
 }
 
-
+scale_range <- function(x, r = NULL){
+  if (is.null(r))
+    r <- range(x)
+  if ((r[2] - r[1]) == 0)
+    return(x - r[1])
+  return((x - r[1])/(r[2] - r[1]))
+}
 

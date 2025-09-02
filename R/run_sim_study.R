@@ -16,6 +16,7 @@
 #' @param method_names A vector of method names, length equal to \code{length(fit_func)}. If NULL, the indexed names \code{my_method<i>} will be used.
 #' @param mc_cores How many cores to use for parallelization over replications.
 #' @param fallback_on_error When \code{TRUE} (default), we use a null model (\code{N(mean(y_train), sd(y_train))}) for robustness if a failure is detected in either \code{fit_func} or \code{pred_func}.
+#' @param print_error Logical (default FALSE). Should error messages (from \code{fit_func} or \code{pred_func})be printed?
 #' @param verbose should progress be reported?
 #' @return A data frame where each row corresponds to the results of a single simulation scenario, replication index, and method. The columns include:
 #'   \itemize{
@@ -93,6 +94,7 @@ run_sim_study <- function(fit_func, pred_func=NULL,
                           method_names=NULL,
                           mc_cores=1,
                           fallback_on_error=TRUE,
+                          print_error=FALSE,
                           verbose=TRUE){
 
   if(length(replications) == 1){
@@ -383,7 +385,7 @@ run_one_sim_case <- function(rr, seed, fn, fnum, p, n, nsr, dsgn, n_test, conf_l
       # Call fit_func()
       if(is.null(pred_func_curr)){
         tictoc::tic()
-        preds <- try(fit_func_curr(X_train, y_train, X_test), silent=TRUE)
+        preds <- try(fit_func_curr(X_train, y_train, X_test), silent=!print_error)
         if(inherits(preds, "try-error")){
           # Fall back on baseline model
           failure_type <- "fit"
@@ -402,7 +404,7 @@ run_one_sim_case <- function(rr, seed, fn, fnum, p, n, nsr, dsgn, n_test, conf_l
         DF_curr$failure_type <- failure_type
       }else{
         tictoc::tic()
-        fitted_object <- try(fit_func_curr(X_train, y_train), silent=TRUE)
+        fitted_object <- try(fit_func_curr(X_train, y_train), silent=!print_error)
         if(inherits(fitted_object, "try-error")){
           if(fallback){
             fitted_object <- NA # Should lead to failure in preds as well.
@@ -414,7 +416,7 @@ run_one_sim_case <- function(rr, seed, fn, fnum, p, n, nsr, dsgn, n_test, conf_l
         t_fit <- tictoc::toc(quiet=!verbose)
 
         tictoc::tic()
-        preds <- try(pred_func_curr(fitted_object, X_test), silent=TRUE)
+        preds <- try(pred_func_curr(fitted_object, X_test), silent=!print_error)
         if(inherits(preds, "try-error")){
           # Fall back on baseline model
           if(failure_type == "none") failure_type <- "pred"
@@ -470,8 +472,8 @@ run_one_sim_case <- function(rr, seed, fn, fnum, p, n, nsr, dsgn, n_test, conf_l
 
             # Negatively oriented mean interval score (Raftery & Gneiting)
             term1 <- apply(bounds, 2, diff)
-            term2 <- 2*(bounds[,1] - y_test)*as.numeric(y_test < bounds[,1])/alpha_curr
-            term3 <- 2*(y_test - bounds[,2])*as.numeric(y_test > bounds[,2])/alpha_curr
+            term2 <- 2*(bounds[1,] - y_test)*as.numeric(y_test < bounds[1,])/alpha_curr
+            term3 <- 2*(y_test - bounds[2,])*as.numeric(y_test > bounds[2,])/alpha_curr
             DF_curr[,ncol(DF_curr)+1] <- mean(term1 + term2 + term3)
           }
           nms <- c(nms, paste0("COVER", round(conf_level, 7)), paste0("MIS", round(conf_level, 7)))
@@ -536,8 +538,8 @@ run_one_sim_case <- function(rr, seed, fn, fnum, p, n, nsr, dsgn, n_test, conf_l
             bounds <- apply(preds, 2, stats::quantile, probs=c(alpha_curr/2, 1-alpha_curr/2))
 
             term1 <- apply(bounds, 2, diff)
-            term2 <- 2*(bounds[,1] - y_test)*as.numeric(y_test < bounds[,1])/alpha_curr
-            term3 <- 2*(y_test - bounds[,2])*as.numeric(y_test > bounds[,2])/alpha_curr
+            term2 <- 2*(bounds[1,] - y_test)*as.numeric(y_test < bounds[1,])/alpha_curr
+            term3 <- 2*(y_test - bounds[2,])*as.numeric(y_test > bounds[2,])/alpha_curr
             DF_curr[,ncol(DF_curr)+1] <- mean(term1 + term2 + term3)
           }
           nms <- c(nms, paste0("COVER", round(conf_level, 7)), paste0("MIS", round(conf_level, 7)))
