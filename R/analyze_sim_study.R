@@ -260,4 +260,55 @@ filter_sim_study <- function(df,
 }
 
 
+#' Join Simulation Study Results
+#'
+#' Joins two simulation study result data frames, allowing for mismatched columns.
+#'
+#' @param df1 A data frame from \code{run_sim_study()} or similar.
+#' @param df2 Another data frame to join with \code{df1}.
+#' @param on_mismatch Character string specifying how to handle mismatched columns.
+#'   Options are \code{"union"} (default) to include all columns and pad with \code{NA}s as needed,
+#'   or \code{"intersect"} to retain only columns common to both data frames.
+#'
+#' @return A combined data frame.
+#' @examples
+#' df1 <- data.frame(a = 1:3, b = letters[1:3])
+#' df2 <- data.frame(b = letters[4:5], c = 10:11)
+#'
+#' # Keep all columns (union)
+#' join_sim_study(df1, df2, on_mismatch = "union")
+#'
+#' # Keep only common columns (intersect)
+#' join_sim_study(df1, df2, on_mismatch = "intersect")
+#'
+#' @export
+join_sim_study <- function(df1, df2, on_mismatch = c("union", "intersect")) {
+  on_mismatch <- match.arg(on_mismatch)
+
+  cols1 <- names(df1)
+  cols2 <- names(df2)
+
+  if (on_mismatch == "intersect") {
+    common_cols <- intersect(cols1, cols2)
+    df1 <- df1[common_cols]
+    df2 <- df2[common_cols]
+  } else if (on_mismatch == "union") {
+    all_cols <- union(cols1, cols2)
+
+    add_missing_cols <- function(df, target_cols) {
+      for (col in setdiff(target_cols, names(df))) {
+        df[[col]] <- NA
+      }
+      # Reorder to match target_cols
+      df <- df[target_cols]
+      return(df)
+    }
+
+    df1 <- add_missing_cols(df1, all_cols)
+    df2 <- add_missing_cols(df2, all_cols)
+  }
+
+  result <- rbind(df1, df2)
+  return(result)
+}
 
