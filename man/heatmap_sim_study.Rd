@@ -13,6 +13,8 @@ heatmap_sim_study(
   show_values = NULL,
   color_scale = "turbo",
   orientation = "vertical",
+  transformation = NULL,
+  colorbar_labels = NULL,
   title = NULL,
   path = NULL
 )
@@ -34,6 +36,12 @@ heatmap_sim_study(
 ("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo"),
 or a character vector of two colors (e.g., \code{c("white", "black")}) to be used
 as a custom gradient from low to high rank. Default is \code{"turbo"}.}
+
+\item{orientation}{Optional: "horizontal" or "vertical"}
+
+\item{transformation}{A function defining a transformation to be applied to the metric of choice.}
+
+\item{colorbar_labels}{A named list with fields \code{$breaks} and \code{$labels} for the colorbar.}
 
 \item{title}{Optional title for plot. Set to \code{FALSE} to suppress title.}
 

@@ -10,6 +10,9 @@
 #'   ("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo"),
 #'   or a character vector of two colors (e.g., \code{c("white", "black")}) to be used
 #'   as a custom gradient from low to high rank. Default is \code{"turbo"}.
+#' @param orientation Optional: "horizontal" or "vertical"
+#' @param transformation A function defining a transformation to be applied to the metric of choice.
+#' @param colorbar_labels A named list with fields \code{$breaks} and \code{$labels} for the colorbar.
 #' @param title Optional title for plot. Set to \code{FALSE} to suppress title.
 #' @param path Optional file path to save plot (e.g., "figs/CRPS_results.png"). If NULL, the plot is returned instead of saved.
 #' @return A ggplot heatmap.
@@ -27,6 +30,8 @@ heatmap_sim_study <- function(df,
                               show_values = NULL,
                               color_scale = "turbo",
                               orientation = "vertical",
+                              transformation=NULL,
+                              colorbar_labels=NULL,
                               title = NULL,
                               path = NULL) {
   if (!requireNamespace("ggplot2", quietly = TRUE)) stop("Please install 'ggplot2'.")
@@ -91,18 +96,25 @@ heatmap_sim_study <- function(df,
     group_levels <- group_levels[order(match(group_levels, fname_order))]
   }
 
-  if (use_rank) {
-    method_means <- aggregate(value ~ method, data = agg, mean)
-    method_levels <- method_means$method[order(method_means$value)]  # best ranks first
-  } else {
-    method_levels <- if (!is.null(methods)) methods else sort(unique(agg$method))
-  }
+  # if (use_rank) {
+  #   method_means <- aggregate(value ~ method, data = agg, mean)
+  #   method_levels <- method_means$method[order(method_means$value)]  # best ranks first
+  # } else {
+  #   method_levels <- if (!is.null(methods)) methods else sort(unique(agg$method))
+  # }
+  method_means <- aggregate(value ~ method, data = agg, mean)
+  method_levels <- method_means$method[order(method_means$value)]
   n_methods <- length(method_levels)
 
   grid <- expand.grid(group_id = group_levels, method = method_levels, stringsAsFactors = FALSE)
   full_data <- merge(grid, agg, by = c("group_id", "method"), all.x = TRUE)
   full_data$method <- factor(full_data$method, levels = method_levels)
   full_data$group_id <- factor(full_data$group_id, levels = group_levels)
+
+  # Optionally transform values (after averaging)
+  if (!is.null(transformation)) {
+    full_data$value <- transformation(full_data$value)
+  }
 
   # Auto show values only for small grids
   if (is.null(show_values)) {
@@ -119,20 +131,29 @@ heatmap_sim_study <- function(df,
   }
 
   # Color scale
-  if (is.character(color_scale) && length(color_scale) == 1 && color_scale %in% c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")) {
+  if (is.character(color_scale) && length(color_scale) == 1 &&
+      color_scale %in% c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")) {
+
     fill_scale <- ggplot2::scale_fill_viridis_c(
       option = color_scale,
       direction = -1,
       na.value = "grey90",
-      limits = limits
+      limits = limits,
+      breaks = if (!is.null(colorbar_labels)) colorbar_labels$breaks else waiver(),
+      labels = if (!is.null(colorbar_labels)) colorbar_labels$labels else waiver()
     )
+
   } else if (is.character(color_scale) && length(color_scale) == 2) {
+
     fill_scale <- ggplot2::scale_fill_gradient(
       low = color_scale[1],
       high = color_scale[2],
       na.value = "grey90",
-      limits = limits
+      limits = limits,
+      breaks = if (!is.null(colorbar_labels)) colorbar_labels$breaks else waiver(),
+      labels = if (!is.null(colorbar_labels)) colorbar_labels$labels else waiver()
     )
+
   } else {
     stop("Invalid color_scale: must be a viridis option or a 2-element color vector.")
   }
@@ -148,8 +169,6 @@ heatmap_sim_study <- function(df,
 
   group_by_pretty <- group_by
   group_by_pretty[group_by %in% names(group_pretty_map)] <- group_pretty_map[group_by[group_by %in% names(group_pretty_map)]]
-
-
 
   # Orientation
   if (orientation == "vertical") {
