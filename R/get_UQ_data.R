@@ -126,7 +126,7 @@ get_emulation_data <- function(dname){
   if(dname == "stochastic_sir"){
     tmp <- get_UQ_data("stochastic_sir")
     res$X <- tmp[,-1]
-    res$y <- tmp[,1]
+    res$y <- as.numeric(tmp[,1])
     return(res)
   }
   if(dname == "e3sm"){
@@ -259,7 +259,7 @@ get_emulation_data <- function(dname){
     outputs <- readr::read_delim(url, delim="\t")
     url <- "https://dataverse.harvard.edu/api/access/datafile/10338342"
     inputs <- readr::read_delim(url, delim="\t")
-    res$y <- outputs[,1]
+    res$y <- as.numeric(outputs[,1])
     res$X <- as.matrix(inputs)
     return(res)
   }
@@ -268,7 +268,7 @@ get_emulation_data <- function(dname){
     outputs <- readr::read_delim(url, delim="\t")
     url <- "https://dataverse.harvard.edu/api/access/datafile/10338342"
     inputs <- readr::read_delim(url, delim="\t")
-    res$y <- outputs[,2]
+    res$y <- as.numeric(outputs[,2])
     res$X <- as.matrix(inputs)
     return(res)
   }
@@ -277,7 +277,7 @@ get_emulation_data <- function(dname){
     outputs <- readr::read_delim(url, delim="\t")
     url <- "https://dataverse.harvard.edu/api/access/datafile/10338342"
     inputs <- readr::read_delim(url, delim="\t")
-    res$y <- outputs[,3]
+    res$y <- as.numeric(outputs[,3])
     res$X <- as.matrix(inputs)
     return(res)
   }
