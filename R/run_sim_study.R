@@ -139,12 +139,12 @@ run_sim_study <- function(fit_func, pred_func=NULL,
             results <- lapply(rep_vec, run_one_sim_case,
                    seed=seed, fn=fn, fnum=NA, p=p, n=n, conf_level=conf_level, score=score,
                    nsr=NSR[jj], dsgn=design_type[kk], n_test=n_test,
-                   method_names=method_names, fit_func=fit_func, pred_func=pred_func, fallback=fallback_on_error, verbose=verbose)
+                   method_names=method_names, fit_func=fit_func, pred_func=pred_func, fallback=fallback_on_error, print_error=print_error, verbose=verbose)
           }else{
             results <- parallel::mclapply(rep_vec, run_one_sim_case,
                               seed=seed, fn=fn, fnum=NA, p=p, n=n, conf_level=conf_level, score=score,
                               nsr=NSR[jj], dsgn=design_type[kk], n_test=n_test,
-                              method_names=method_names, fit_func=fit_func, pred_func=pred_func, fallback=fallback_on_error, verbose=verbose,
+                              method_names=method_names, fit_func=fit_func, pred_func=pred_func, fallback=fallback_on_error, print_error=print_error, verbose=verbose,
                               mc.cores=mc_cores)
           }
 
@@ -284,7 +284,7 @@ get_case_seed <- function(seed, n_train, design_type, NSR, fname, rep){
 }
 
 
-run_one_sim_case <- function(rr, seed, fn, fnum, p, n, nsr, dsgn, n_test, conf_level, score, method_names, fit_func, pred_func, fallback, verbose){
+run_one_sim_case <- function(rr, seed, fn, fnum, p, n, nsr, dsgn, n_test, conf_level, score, method_names, fit_func, pred_func, fallback, print_error, verbose){
     # Generate training data
     #seed_t <- transform_seed(seed, n, dsgn, nsr, fnum, rr)
     dont_need_this_anymore <- fnum

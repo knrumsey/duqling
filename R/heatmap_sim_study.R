@@ -139,8 +139,8 @@ heatmap_sim_study <- function(df,
       direction = -1,
       na.value = "grey90",
       limits = limits,
-      breaks = if (!is.null(colorbar_labels)) colorbar_labels$breaks else waiver(),
-      labels = if (!is.null(colorbar_labels)) colorbar_labels$labels else waiver()
+      breaks = if (!is.null(colorbar_labels)) colorbar_labels$breaks else ggplot2::waiver(),
+      labels = if (!is.null(colorbar_labels)) colorbar_labels$labels else ggplot2::waiver()
     )
 
   } else if (is.character(color_scale) && length(color_scale) == 2) {
