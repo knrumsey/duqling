@@ -18,7 +18,7 @@
 #' rankplot_sim_study(results, metric = "RMSE", methods = c("BART", "GP"), path = "figs/rmse.png")
 #' }
 #' @export
-rankplot_sim_study <- function(df,
+rankplot_sim_study_deprecated <- function(df,
                                metric = "CRPS",
                                methods = NULL,
                                ties_method = "min",

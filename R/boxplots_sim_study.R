@@ -31,7 +31,7 @@
 #' boxplots_sim_study(results, metric = "CRPS", group_by = c("fname", "NSR"))
 #' }
 #' @export
-boxplots_sim_study <- function(df,
+boxplots_sim_study_deprecated <- function(df,
                                metric = "CRPS",
                                methods = NULL,
                                group_by = NULL,

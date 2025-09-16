@@ -35,7 +35,7 @@
 #' summarize_sim_study(res, methods = c("GP", "BART"), topX = 3)
 #' }
 #' @export
-summarize_sim_study <- function(df,
+summarize_sim_study_deprecated <- function(df,
                                 group_by = NULL,
                                 methods = NULL,
                                 topX = 5,
@@ -229,7 +229,7 @@ summarize_sim_study <- function(df,
 #' rankplot_sim_study(filtered, metric = "CRPS")
 #' }
 #' @export
-filter_sim_study <- function(df,
+filter_sim_study_deprecated <- function(df,
                              methods = NULL,
                              fname = NULL,
                              n_train = NULL,
@@ -298,7 +298,7 @@ filter_sim_study <- function(df,
 #' join_sim_study(df1, df2, on_mismatch = "intersect")
 #'
 #' @export
-join_sim_study <- function(df1, df2, on_mismatch = c("union", "intersect")) {
+join_sim_study_deprecated <- function(df1, df2, on_mismatch = c("union", "intersect")) {
   on_mismatch <- match.arg(on_mismatch)
 
   # Unify run_sim_study() and run_sim_study_data() if needed

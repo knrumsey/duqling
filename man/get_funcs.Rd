@@ -7,6 +7,7 @@
 \alias{get_sim_functions_medium}
 \alias{get_sim_functions_short}
 \alias{get_sim_functions_tiny}
+\alias{get_paper_funcs}
 \title{Sim Study Function Lists}
 \usage{
 get_sim_functions_full()
@@ -18,6 +19,8 @@ get_sim_functions_medium()
 get_sim_functions_short()
 
 get_sim_functions_tiny()
+
+get_paper_funcs()
 }
 \description{
 Sim Study Function Lists

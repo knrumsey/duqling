@@ -22,7 +22,7 @@
 #' heatmap_sim_study(df, metric = "CRPS", group_by = c("fname", "NSR"))
 #' }
 #' @export
-heatmap_sim_study <- function(df,
+heatmap_sim_study_deprecated <- function(df,
                               metric = "CRPS",
                               methods = NULL,
                               group_by = "fname",
@@ -159,12 +159,19 @@ heatmap_sim_study <- function(df,
   }
 
   # Pretty axis label
+  id_label <- switch(obj$meta$source_type,
+                     "fun"   = "Function",
+                     "data"  = "Dataset",
+                     "mixed" = "Function/Dataset",
+                     "unknown" = "Function/Dataset")
   group_pretty_map <- c(
-    "fname" = "Function",
+    "id" = id_label,
     "n_train" = "Training Size",
     "NSR" = "Noise Ratio",
     "design_type" = "Design",
-    "replication" = "Replication"
+    "replication" = "Replication",
+    "fold_size" = "Fold Size",
+    "source" = "Source"
   )
 
   group_by_pretty <- group_by

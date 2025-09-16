@@ -14,11 +14,11 @@
 #' @param path Optional file path to save plot (e.g., "figs/pareto_plot.png"). If NULL, the plot is returned instead.
 #' @return A ggplot object.
 #' @export
-paretoplot_sim_study <- function(df,
+paretoplot_sim_study_deprecated <- function(df,
                                  metric = c("CRPS", "t_tot"),
                                  methods = NULL,
                                  highlight_method = NA,
-                                 ties_method = "average",
+                                 ties_method = "min",
                                  pin_axes = TRUE,
                                  show_legend=TRUE,
                                  show_pfront=TRUE,
