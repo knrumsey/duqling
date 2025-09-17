@@ -8,8 +8,8 @@ ensure_metric(
   obj,
   metric,
   ties_method = "min",
-  epsilon = NULL,
-  upper_bound = NULL,
+  epsilon = 0,
+  upper_bound = Inf,
   log = TRUE,
   trim = 0
 )

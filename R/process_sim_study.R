@@ -281,12 +281,12 @@ relativize_sim_study <- function(obj,
         vals / min_val
       }
 
-      if (log) {
-        ratio <- log(ratio)
-      }
-
       if (!is.null(upper_bound)) {
         ratio <- pmin(ratio, upper_bound)
+      }
+
+      if (log) {
+        ratio <- log10(ratio)
       }
 
       df[[new_col]][idx] <- ratio
@@ -315,45 +315,61 @@ relativize_sim_study <- function(obj,
 ensure_metric <- function(obj,
                           metric,
                           ties_method = "min",
-                          epsilon = NULL,
-                          upper_bound = NULL,
+                          epsilon = 0,
+                          upper_bound = Inf,
                           log = TRUE,
                           trim = 0) {
   if (!inherits(obj, "duq_sim_study")) {
     stop("Please provide a duq_sim_study object (from process_sim_study()).", call. = FALSE)
   }
 
-  df <- obj$df
-  if (metric %in% names(df)) return(obj)  # already exists
+  # Normalize inputs to be same length as metric
+  n <- length(metric)
+  ties_method <- rep_len(ties_method, n)
+  epsilon     <- rep_len(epsilon, n)
+  upper_bound <- rep_len(upper_bound, n)
+  log         <- rep_len(log, n)
+  trim        <- rep_len(trim, n)
 
-  # Figure out suffix
-  if (grepl("_rank$", metric)) {
-    base <- sub("_rank$", "", metric)
-    warning("Column '", metric, "' not found. Computing via rank_sim_study().")
-    obj <- rank_sim_study(obj, metric = base, ties_method = ties_method, auc = FALSE)
+  for (i in seq_along(metric)) {
+    m <- metric[i]
+    tm <- ties_method[i]
+    eps <- epsilon[i]
+    ub <- upper_bound[i]
+    lg <- log[i]
+    tr <- trim[i]
 
-  } else if (grepl("_auc$", metric)) {
-    base <- sub("_auc$", "", metric)
-    warning("Column '", metric, "' not found. Computing via rank_sim_study(auc=TRUE).")
-    obj <- rank_sim_study(obj, metric = base, ties_method = ties_method, auc = TRUE)
+    df <- obj$df
+    if (m %in% names(df)) next  # already exists
 
-  } else if (grepl("_rel_log$", metric)) {
-    base <- sub("_rel_log$", "", metric)
-    warning("Column '", metric, "' not found. Computing via relative_sim_study(log=TRUE).")
-    obj <- relativize_sim_study(obj, metric = base, epsilon = epsilon, upper_bound = upper_bound, log = TRUE)
+    if (grepl("_rank$", m)) {
+      base <- sub("_rank$", "", m)
+      warning("Column '", m, "' not found. Computing via rank_sim_study().")
+      obj <- rank_sim_study(obj, metric = base, ties_method = tm, auc = FALSE)
 
-  } else if (grepl("_rel$", metric)) {
-    base <- sub("_rel$", "", metric)
-    warning("Column '", metric, "' not found. Computing via relative_sim_study(log=FALSE).")
-    obj <- relativize_sim_study(obj, metric = base, epsilon = epsilon, upper_bound = upper_bound, log = FALSE)
+    } else if (grepl("_auc$", m)) {
+      base <- sub("_auc$", "", m)
+      warning("Column '", m, "' not found. Computing via rank_sim_study(auc=TRUE).")
+      obj <- rank_sim_study(obj, metric = base, ties_method = tm, auc = TRUE)
 
-  } else if (grepl("_norm$", metric)) {
-    base <- sub("_norm$", "", metric)
-    warning("Column '", metric, "' not found. Computing via normalize_sim_study().")
-    obj <- normalize_sim_study(obj, metric = base, trim = trim)
+    } else if (grepl("_rel_log$", m)) {
+      base <- sub("_rel_log$", "", m)
+      warning("Column '", m, "' not found. Computing via relative_sim_study(log=TRUE).")
+      obj <- relativize_sim_study(obj, metric = base, epsilon = eps, upper_bound = ub, log = TRUE)
 
-  } else {
-    stop("Don't know how to ensure metric '", metric, "'.")
+    } else if (grepl("_rel$", m)) {
+      base <- sub("_rel$", "", m)
+      warning("Column '", m, "' not found. Computing via relative_sim_study(log=FALSE).")
+      obj <- relativize_sim_study(obj, metric = base, epsilon = eps, upper_bound = ub, log = FALSE)
+
+    } else if (grepl("_norm$", m)) {
+      base <- sub("_norm$", "", m)
+      warning("Column '", m, "' not found. Computing via normalize_sim_study().")
+      obj <- normalize_sim_study(obj, metric = base, trim = tr)
+
+    } else {
+      stop("Don't know how to ensure metric '", m, "'.")
+    }
   }
 
   obj
