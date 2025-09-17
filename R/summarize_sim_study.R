@@ -489,9 +489,10 @@ paretoplot_sim_study <- function(obj,
   stopifnot(length(metric) == 2)
 
   # Ensure metrics exist
-  for (m in metric) {
-    obj <- ensure_metric(obj, m, ...)
-  }
+  #for (m in metric) {
+  #  obj <- ensure_metric(obj, m, ...)
+  #}
+  obj <- ensure_metric(obj, metric, ...)
   df <- obj$df
 
   # Compute average across scenarios for each method
