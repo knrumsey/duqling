@@ -6,8 +6,8 @@
 \usage{
 filter_sim_study(
   obj,
-  ids = NULL,
-  methods = NULL,
+  id = NULL,
+  method = NULL,
   n_train = NULL,
   design_type = NULL,
   NSR = NULL,
@@ -22,10 +22,6 @@ filter_sim_study(
 }
 \arguments{
 \item{obj}{A \code{duq_sim_study} object from \code{process_sim_study()}.}
-
-\item{ids}{Character vector of IDs to keep (matches \code{id}).}
-
-\item{methods}{Character vector of methods to keep (matches \code{method}).}
 
 \item{n_train}{Numeric vector of training sizes to keep.}
 
@@ -49,6 +45,10 @@ filtering, e.g. \code{expr = n_train <= 500}.}
 
 \item{rerank}{Logical; if TRUE, recompute ranks (via \code{rank_sim_study()})
 for any rank columns present. Default is FALSE.}
+
+\item{ids}{Character vector of IDs to keep (matches \code{id}).}
+
+\item{methods}{Character vector of methods to keep (matches \code{method}).}
 }
 \value{
 A \code{duq_sim_study} object with filtered rows (and possibly fewer

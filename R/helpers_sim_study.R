@@ -6,9 +6,10 @@ lookup_sigma <- function(fname){
     cantilever_D=3.286210e-01,
     cantilever_S=7.842194e+03,
     circuit=1.141898e+00,
-    const_fn=0.000000e+00   + 1e-7, # Don't return 0 here
-    const_fn15=0.000000e+00 + 1e-7, # Don't return 0 here
-    const_fn3=0.000000e+00  + 1e-7, # Don't return 0 here
+    # arranged so that CRPS is roughly 0.56 for baseline after scaling, when NSR != 0
+    const_fn=0.000000e+00   + 1e-7 * 0.7366 / 0.56, # Don't return 0 here
+    const_fn15=0.000000e+00 + 1e-7 * 0.7366 / 0.56, # Don't return 0 here
+    const_fn3=0.000000e+00  + 1e-7 * 0.7366 / 0.56, # Don't return 0 here
     crater=1.415364e+00,
     cube3_rotate=7.037742e-01,
     cube3=5.572555e-01,

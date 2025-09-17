@@ -209,6 +209,7 @@ summarize_sim_study <- function(obj,
 #' @param group_by Optional column name for grouping (e.g. \code{"NSR"} or
 #'   \code{"source"}). If provided, plots grouped distributions side by side
 #'   within each method.
+#' @param ... additional arguments for ensure_metric.
 #'
 #' @return A \code{ggplot} object.
 #' @export
@@ -222,7 +223,8 @@ boxplots_sim_study <- function(obj,
                                violin = FALSE,
                                sort_by = c("performance","alphabetical"),
                                title = NULL,
-                               group_by = NULL) {
+                               group_by = NULL,
+                               ...) {
   if (!requireNamespace("ggplot2", quietly = TRUE)) {
     stop("Please install ggplot2 to use this plotting function.", call. = FALSE)
   }
@@ -231,7 +233,7 @@ boxplots_sim_study <- function(obj,
   }
 
   # Ensure the requested metric column exists
-  obj <- ensure_metric(obj, metric, ties_method = ties_method)
+  obj <- ensure_metric(obj, metric, ...)
   df  <- obj$df
 
   if (!metric %in% names(df)) {
@@ -380,10 +382,9 @@ rankplot_sim_study <- function(obj,
   }
 
   # Ensure rank column exists
-  if(is.null(obj$df[[paste0(metric, "_rank")]])){
-    obj <- rank_sim_study(obj, metric = metric, ties_method = ties_method)
-  }
-  df <- obj$df
+  # Ensure metric column exists (rank or derived)
+  obj <- ensure_metric(obj, metric, ties_method = ties_method)
+  df  <- obj$df
 
   rank_col <- paste0(metric, "_rank")
   if (!rank_col %in% names(df)) {

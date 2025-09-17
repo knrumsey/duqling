@@ -453,8 +453,8 @@ join_sim_study <- function(obj1, obj2, keep_extra_metrics = FALSE) {
 #'   columns if \code{metrics} is specified).
 #' @export
 filter_sim_study <- function(obj,
-                             ids = NULL,
-                             methods = NULL,
+                             id = NULL,
+                             method = NULL,
                              n_train = NULL,
                              design_type = NULL,
                              NSR = NULL,
@@ -468,7 +468,11 @@ filter_sim_study <- function(obj,
   if (!inherits(obj, "duq_sim_study")) {
     stop("Please provide a duq_sim_study object (from process_sim_study()).", call. = FALSE)
   }
+  # Backwards compatability preserved
+  ids <- id
+  methods <- method
 
+  # Get df
   df <- obj$df
 
   # Build logical mask (start all TRUE)

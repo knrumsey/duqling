@@ -15,7 +15,8 @@ boxplots_sim_study(
   violin = FALSE,
   sort_by = c("performance", "alphabetical"),
   title = NULL,
-  group_by = NULL
+  group_by = NULL,
+  ...
 )
 }
 \arguments{
@@ -47,6 +48,8 @@ If FALSE, suppress the title.}
 \item{group_by}{Optional column name for grouping (e.g. \code{"NSR"} or
 \code{"source"}). If provided, plots grouped distributions side by side
 within each method.}
+
+\item{...}{additional arguments for ensure_metric.}
 }
 \value{
 A \code{ggplot} object.
