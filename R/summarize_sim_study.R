@@ -366,14 +366,15 @@ boxplots_sim_study <- function(obj,
 #'   to color. Default is TRUE.
 #' @param title Optional title for plot. If NULL (default), generates a title
 #'   from \code{metric}. If FALSE, suppresses the title.
+#' @param ... Additional arguments passed to ensure_metric
 #'
 #' @return A \code{ggplot} object.
 #' @export
 rankplot_sim_study <- function(obj,
                                metric = "CRPS",
-                               ties_method = "min",
                                use_shapes = TRUE,
-                               title = NULL) {
+                               title = NULL,
+                               ...) {
   if (!requireNamespace("ggplot2", quietly = TRUE)) {
     stop("Please install ggplot2 to use this plotting function.", call. = FALSE)
   }
@@ -383,10 +384,9 @@ rankplot_sim_study <- function(obj,
 
   # Ensure rank column exists
   # Ensure metric column exists (rank or derived)
-  obj <- ensure_metric(obj, metric, ties_method = ties_method)
-  df  <- obj$df
-
   rank_col <- paste0(metric, "_rank")
+  obj <- ensure_metric(obj, rank_col, ...)
+  df  <- obj$df
   if (!rank_col %in% names(df)) {
     stop("Failed to compute ranks for metric '", metric, "'.", call. = FALSE)
   }

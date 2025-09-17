@@ -4,27 +4,23 @@
 \alias{rankplot_sim_study}
 \title{Cumulative Rank Plot for Emulator Performance}
 \usage{
-rankplot_sim_study(
-  obj,
-  metric = "CRPS",
-  ties_method = "min",
-  use_shapes = TRUE,
-  title = NULL
-)
+rankplot_sim_study(obj, metric = "CRPS", use_shapes = TRUE, title = NULL, ...)
 }
 \arguments{
 \item{obj}{A \code{duq_sim_study} object from \code{process_sim_study()}.}
 
 \item{metric}{Character; the name of the metric to rank by (e.g. "CRPS").}
 
-\item{ties_method}{Passed to \code{rank_sim_study()} (how to handle ties).
-Default is "min".}
-
 \item{use_shapes}{Logical; whether to use different point shapes in addition
 to color. Default is TRUE.}
 
 \item{title}{Optional title for plot. If NULL (default), generates a title
 from \code{metric}. If FALSE, suppresses the title.}
+
+\item{...}{Additional arguments passed to ensure_metric}
+
+\item{ties_method}{Passed to \code{rank_sim_study()} (how to handle ties).
+Default is "min".}
 }
 \value{
 A \code{ggplot} object.
