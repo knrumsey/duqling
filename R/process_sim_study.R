@@ -512,7 +512,8 @@ filter_sim_study <- function(obj,
 
   # Apply expr if provided
   if (!is.null(expr)) {
-    expr_keep <- eval(substitute(expr), envir = df, enclos = parent.frame())
+    #expr_keep <- eval(substitute(expr), envir = df, enclos = parent.frame())
+    expr_keep <- eval(expr, envir = df, enclos = parent.frame())
     if (!is.logical(expr_keep) || length(expr_keep) != nrow(df)) {
       stop("expr must evaluate to a logical vector of length nrow(df).", call. = FALSE)
     }
