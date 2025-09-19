@@ -705,7 +705,10 @@ heatmap_sim_study <- function(obj,
   n_methods <- length(method_levels)
 
   agg$method <- factor(agg$method, levels = method_levels)
-  agg$group_id <- factor(agg$group_id, levels = unique(agg$group_id))
+  if(!is.factor(agg$group_id)){
+    agg$group_id <- factor(agg$group_id, levels = unique(agg$group_id))
+  }
+
 
   # Decide whether to show values
   if (is.null(show_values)) {

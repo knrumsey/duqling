@@ -7,10 +7,12 @@
 quack(
   fname = NULL,
   input_dim = NULL,
-  input_cat = NULL,
-  response_type = NULL,
+  response = NULL,
   stochastic = NULL,
-  sorted = TRUE
+  has_categorical = NULL,
+  sorted = TRUE,
+  show_sigma = FALSE,
+  ...
 )
 }
 \arguments{
@@ -18,13 +20,15 @@ quack(
 
 \item{input_dim}{a vector specifying the input dimension of the function}
 
-\item{input_cat}{logical, should functions with categorical inputs be included?}
-
-\item{response_type}{a string in the set c("all", "uni", "multi", "func") specifying which response type is requested.}
+\item{response}{a string in the set c("all", "univariate", "multivariate", "functional") specifying which response type is requested.}
 
 \item{stochastic}{logical. Is function response stochastic?}
 
+\item{has_categorical}{logical, should functions with categorical inputs be included?}
+
 \item{sorted}{Should results be sorted (by input dimension and then alphabetically)}
+
+\item{show_sigma}{Should we try to retrieve the variance of the function response across its default input range? Not available for all functions. (Not actively supported, use with caution).}
 }
 \value{
 See details
@@ -38,7 +42,7 @@ If fname is specified, this function returns a list with the number of input dim
 \examples{
 quack("borehole")
 
-quack(input_dim=c(1, 2), input_cat = FALSE, response_type = "uni")
+quack(input_dim=c(1, 2), has_categorical = FALSE, response = "univariate")
 }
 \references{
 Surjanovic, Sonja, and Derek Bingham. "Virtual library of simulation experiments: test functions and datasets." Simon Fraser University, Burnaby, BC, Canada, accessed May 13 (2013): 2015.

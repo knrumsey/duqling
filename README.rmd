@@ -158,6 +158,7 @@ results <- run_sim_study(my_fit, my_pred,
                          n_train = c(100, 500),
                          NSR = c(0, 1/5),
                          design_type = "LHS",
+                         method_names <- c("my_method"),
                          replications = 5)
 ```
 
@@ -199,6 +200,40 @@ results <- run_sim_study_data(my_fit, my_pred,
                 dnames=c("pbx9501_gold", "strontium_plume_p104"),
                 folds=c(5, 10))
 ```
+
+##  Analysis and visualization
+
+The `duqling` package provides many tools for analyzing emulator results and generating publication-ready figures. An example analysis proceeds as follows:
+
+```{R, eval=FALSE}
+# Process your sim study results from before
+duq_obj <- process_sim_study(results)
+
+# Load in data from the big simulation study (Rumsey et al 2025; coming soon)
+load("data/existing_results.Rda") # --> results_paper
+
+# Now you can join your results together!
+duq_obj <- join_sim_study(duq_obj,
+                          process_sim_study(results_paper))
+
+# Filter down to just the results you want
+duq_obj_sub <- filter_sim_study(duq_obj, 
+                                id = c("dms_additive", "borehole", "welch20"),
+                                n_train = 500,
+                                NSR = 0,
+                                method = c("my_method", "gp", "bnn", "confrf"))
+
+# Now you can make plots and summaries!
+summarize_sim_study(duq_obj_sub, summarize = c("time", "CRPS"))
+rankplot_sim_study(duq_obj_sub, "RMSE")
+heatmap_sim_study(duq_obj_sub, "CRPS")
+paretoplot_sim_study(duq_obj_sub, c("CRPS_rel", "time_rel_log"))
+
+# View boxplots
+boxplots_sim_study(filter_sim_study(duq_obj_sub, id="borehole"), "CRPS_norm")
+```
+
+
 
 
 ### Release Information

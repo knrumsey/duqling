@@ -52,76 +52,78 @@ found with the command
 
 ``` r
 duqling::quack()
-#>                      fname input_dim input_cat response_type stochastic
-#> 1                 const_fn         1     FALSE           uni          n
-#> 2               forrester1         1     FALSE           uni          n
-#> 3  forrester1_low_fidelity         1     FALSE           uni          n
-#> 4                   grlee1         1     FALSE           uni          n
-#> 5                   banana         2     FALSE           uni          n
-#> 6             dms_additive         2     FALSE           uni          n
-#> 7          dms_complicated         2     FALSE           uni          n
-#> 8             dms_harmonic         2     FALSE           uni          n
-#> 9               dms_radial         2     FALSE           uni          n
-#> 10              dms_simple         2     FALSE           uni          n
-#> 11              foursquare         2     FALSE           uni          n
-#> 12                  grlee2         2     FALSE           uni          n
-#> 13      lim_non_polynomial         2     FALSE           uni          n
-#> 14          lim_polynomial         2     FALSE           uni          n
-#> 15             multivalley         2     FALSE           uni          n
-#> 16                 ripples         2     FALSE           uni          n
-#> 17             simple_poly         2     FALSE           uni          n
-#> 18                squiggle         2     FALSE           uni          n
-#> 19                   star2         2     FALSE           uni          n
-#> 20           twin_galaxies         2     FALSE           uni          n
-#> 21               const_fn3         3     FALSE           uni          n
-#> 22                   cube3         3     FALSE           uni          n
-#> 23            cube3_rotate         3     FALSE           uni          n
-#> 24            detpep_curve         3     FALSE           uni          n
-#> 25               Gfunction         3     FALSE           uni          n
-#> 26                ishigami         3     FALSE           uni          n
-#> 27                 rabbits         3     FALSE           uni          n
-#> 28                sharkfin         3     FALSE           uni          n
-#> 29          simple_machine         3     FALSE          func          n
-#> 30                   vinet         3     FALSE          func          n
-#> 31              ocean_circ         4     FALSE           uni          y
-#> 32                   park4         4     FALSE           uni          n
-#> 33      park4_low_fidelity         4     FALSE           uni          n
-#> 34               pollutant         4     FALSE          func          n
-#> 35           pollutant_uni         4     FALSE           uni          n
-#> 36         beam_deflection         5     FALSE          func          n
-#> 37                   cube5         5     FALSE           uni          n
-#> 38                friedman         5     FALSE           uni          n
-#> 39            short_column         5     FALSE           uni          n
-#> 40       simple_machine_cm         5     FALSE          func          n
-#> 41       stochastic_piston         5     FALSE           uni          y
-#> 42            cantilever_D         6     FALSE           uni          n
-#> 43            cantilever_S         6     FALSE           uni          n
-#> 44                 circuit         6     FALSE           uni          n
-#> 45              Gfunction6         6     FALSE           uni          n
-#> 46                  grlee6         6     FALSE           uni          n
-#> 47                  crater         7     FALSE           uni          n
-#> 48               gamma_mix         7     FALSE           uni          n
-#> 49                  piston         7     FALSE           uni          n
-#> 50                borehole         8     FALSE           uni          n
-#> 51   borehole_low_fidelity         8     FALSE           uni          n
-#> 52                 detpep8         8     FALSE           uni          n
-#> 53                   ebola         8     FALSE           uni          n
-#> 54                   robot         8     FALSE           uni          n
-#> 55                dts_sirs         9     FALSE          func          y
-#> 56            steel_column         9     FALSE           uni          n
-#> 57                  sulfur         9     FALSE           uni          n
-#> 58              friedman10        10     FALSE           uni          n
-#> 59                ignition        10     FALSE           uni          n
-#> 60              wingweight        10     FALSE           uni          n
-#> 61             Gfunction12        12     FALSE           uni          n
-#> 62              const_fn15        15     FALSE           uni          n
-#> 63                    oo15        15     FALSE           uni          n
-#> 64                  permdb        16     FALSE           uni          n
-#> 65             Gfunction18        18     FALSE           uni          n
-#> 66              friedman20        20     FALSE           uni          n
-#> 67                 welch20        20     FALSE           uni          n
-#> 68            d_onehundred       100     FALSE         multi          n
-#> 69              onehundred       100     FALSE           uni          n
+#>                      fname input_dim     response has_categorical stochastic
+#> 1                 const_fn         1   univariate           FALSE      FALSE
+#> 2               forrester1         1   univariate           FALSE      FALSE
+#> 3  forrester1_low_fidelity         1   univariate           FALSE      FALSE
+#> 4                   grlee1         1   univariate           FALSE      FALSE
+#> 5                   banana         2   univariate           FALSE      FALSE
+#> 6             dms_additive         2   univariate           FALSE      FALSE
+#> 7          dms_complicated         2   univariate           FALSE      FALSE
+#> 8             dms_harmonic         2   univariate           FALSE      FALSE
+#> 9               dms_radial         2   univariate           FALSE      FALSE
+#> 10              dms_simple         2   univariate           FALSE      FALSE
+#> 11              foursquare         2   univariate           FALSE      FALSE
+#> 12                  grlee2         2   univariate           FALSE      FALSE
+#> 13      lim_non_polynomial         2   univariate           FALSE      FALSE
+#> 14          lim_polynomial         2   univariate           FALSE      FALSE
+#> 15             multivalley         2   univariate           FALSE      FALSE
+#> 16                 ripples         2   univariate           FALSE      FALSE
+#> 17             simple_poly         2   univariate           FALSE      FALSE
+#> 18                squiggle         2   univariate           FALSE      FALSE
+#> 19                   star2         2   univariate           FALSE      FALSE
+#> 20           twin_galaxies         2   univariate           FALSE      FALSE
+#> 21               const_fn3         3   univariate           FALSE      FALSE
+#> 22                   cube3         3   univariate           FALSE      FALSE
+#> 23            cube3_rotate         3   univariate           FALSE      FALSE
+#> 24            detpep_curve         3   univariate           FALSE      FALSE
+#> 25               Gfunction         3   univariate           FALSE      FALSE
+#> 26                ishigami         3   univariate           FALSE      FALSE
+#> 27                 rabbits         3   univariate           FALSE      FALSE
+#> 28                sharkfin         3   univariate           FALSE      FALSE
+#> 29          simple_machine         3   functional           FALSE      FALSE
+#> 30                   vinet         3   functional           FALSE      FALSE
+#> 31              ocean_circ         4   univariate           FALSE       TRUE
+#> 32                   park4         4   univariate           FALSE      FALSE
+#> 33      park4_low_fidelity         4   univariate           FALSE      FALSE
+#> 34               pollutant         4   functional           FALSE      FALSE
+#> 35           pollutant_uni         4   univariate           FALSE      FALSE
+#> 36         beam_deflection         5   functional           FALSE      FALSE
+#> 37                   cube5         5   univariate           FALSE      FALSE
+#> 38                friedman         5   univariate           FALSE      FALSE
+#> 39            short_column         5   univariate           FALSE      FALSE
+#> 40       simple_machine_cm         5   functional           FALSE      FALSE
+#> 41       stochastic_piston         5   univariate           FALSE       TRUE
+#> 42                 bs_call         6   functional           FALSE       TRUE
+#> 43                  bs_put         6   functional           FALSE       TRUE
+#> 44            cantilever_D         6   univariate           FALSE      FALSE
+#> 45            cantilever_S         6   univariate           FALSE      FALSE
+#> 46                 circuit         6   univariate           FALSE      FALSE
+#> 47              Gfunction6         6   univariate           FALSE      FALSE
+#> 48                  grlee6         6   univariate           FALSE      FALSE
+#> 49                  crater         7   univariate           FALSE      FALSE
+#> 50               gamma_mix         7   univariate           FALSE      FALSE
+#> 51                  piston         7   univariate           FALSE      FALSE
+#> 52                borehole         8   univariate           FALSE      FALSE
+#> 53   borehole_low_fidelity         8   univariate           FALSE      FALSE
+#> 54                 detpep8         8   univariate           FALSE      FALSE
+#> 55                   ebola         8   univariate           FALSE      FALSE
+#> 56                   robot         8   univariate           FALSE      FALSE
+#> 57                dts_sirs         9   functional           FALSE       TRUE
+#> 58            steel_column         9   univariate           FALSE      FALSE
+#> 59                  sulfur         9   univariate           FALSE      FALSE
+#> 60              friedman10        10   univariate           FALSE      FALSE
+#> 61                ignition        10   univariate           FALSE      FALSE
+#> 62              wingweight        10   univariate           FALSE      FALSE
+#> 63             Gfunction12        12   univariate           FALSE      FALSE
+#> 64              const_fn15        15   univariate           FALSE      FALSE
+#> 65                    oo15        15   univariate           FALSE      FALSE
+#> 66                  permdb        16   univariate           FALSE      FALSE
+#> 67             Gfunction18        18   univariate           FALSE      FALSE
+#> 68              friedman20        20   univariate           FALSE      FALSE
+#> 69                 welch20        20   univariate           FALSE      FALSE
+#> 70            d_onehundred       100 multivariate           FALSE      FALSE
+#> 71              onehundred       100   univariate           FALSE      FALSE
 ```
 
 A list of all functions meeting certain criterion can be found with the
@@ -129,24 +131,24 @@ command
 
 ``` r
 duqling::quack(input_dim=4:7, stochastic="n")
-#>                 fname input_dim input_cat response_type stochastic
-#> 32              park4         4     FALSE           uni          n
-#> 33 park4_low_fidelity         4     FALSE           uni          n
-#> 34          pollutant         4     FALSE          func          n
-#> 35      pollutant_uni         4     FALSE           uni          n
-#> 36    beam_deflection         5     FALSE          func          n
-#> 37              cube5         5     FALSE           uni          n
-#> 38           friedman         5     FALSE           uni          n
-#> 39       short_column         5     FALSE           uni          n
-#> 40  simple_machine_cm         5     FALSE          func          n
-#> 42       cantilever_D         6     FALSE           uni          n
-#> 43       cantilever_S         6     FALSE           uni          n
-#> 44            circuit         6     FALSE           uni          n
-#> 45         Gfunction6         6     FALSE           uni          n
-#> 46             grlee6         6     FALSE           uni          n
-#> 47             crater         7     FALSE           uni          n
-#> 48          gamma_mix         7     FALSE           uni          n
-#> 49             piston         7     FALSE           uni          n
+#>                 fname input_dim   response has_categorical stochastic
+#> 1               park4         4 univariate           FALSE      FALSE
+#> 2  park4_low_fidelity         4 univariate           FALSE      FALSE
+#> 3           pollutant         4 functional           FALSE      FALSE
+#> 4       pollutant_uni         4 univariate           FALSE      FALSE
+#> 5     beam_deflection         5 functional           FALSE      FALSE
+#> 6               cube5         5 univariate           FALSE      FALSE
+#> 7            friedman         5 univariate           FALSE      FALSE
+#> 8        short_column         5 univariate           FALSE      FALSE
+#> 9   simple_machine_cm         5 functional           FALSE      FALSE
+#> 10       cantilever_D         6 univariate           FALSE      FALSE
+#> 11       cantilever_S         6 univariate           FALSE      FALSE
+#> 12            circuit         6 univariate           FALSE      FALSE
+#> 13         Gfunction6         6 univariate           FALSE      FALSE
+#> 14             grlee6         6 univariate           FALSE      FALSE
+#> 15             crater         7 univariate           FALSE      FALSE
+#> 16          gamma_mix         7 univariate           FALSE      FALSE
+#> 17             piston         7 univariate           FALSE      FALSE
 ```
 
 A detailed description of each function (the `borehole()` function, for
@@ -154,16 +156,13 @@ example) can be found with the command
 
 ``` r
 duqling::quack("borehole")
-#> $input_dim
-#> [1] 8
+#> Function: borehole 
+#>   Input dimension: 8 
+#>   Response type: univariate 
+#>   Stochastic: No 
+#>   Has categorical inputs: FALSE 
 #> 
-#> $input_cat
-#> [1] FALSE
-#> 
-#> $response_type
-#> [1] "uni"
-#> 
-#> $input_range
+#> Input ranges:
 #>        [,1]      [,2]
 #> rw     0.05      0.15
 #> r    100.00  50000.00
@@ -289,6 +288,7 @@ results <- run_sim_study(my_fit, my_pred,
                          n_train = c(100, 500),
                          NSR = c(0, 1/5),
                          design_type = "LHS",
+                         method_names <- c("my_method"),
                          replications = 5)
 ```
 
@@ -373,6 +373,40 @@ previous section on simulation studies for details.
 results <- run_sim_study_data(my_fit, my_pred,
                 dnames=c("pbx9501_gold", "strontium_plume_p104"),
                 folds=c(5, 10))
+```
+
+## Analysis and visualization
+
+The `duqling` package provides many tools for analyzing emulator results
+and generating publication-ready figures. An example analysis proceeds
+as follows:
+
+``` r
+# Process your sim study results from before
+duq_obj <- process_sim_study(results)
+
+# Load in data from the big simulation study (Rumsey et al 2025; coming soon)
+load("data/existing_results.Rda") # --> results_paper
+
+# Now you can join your results together!
+duq_obj <- join_sim_study(duq_obj,
+                          process_sim_study(results_paper))
+
+# Filter down to just the results you want
+duq_obj_sub <- filter_sim_study(duq_obj, 
+                                id = c("dms_additive", "borehole", "welch20"),
+                                n_train = 500,
+                                NSR = 0,
+                                method = c("my_method", "gp", "bnn", "confrf"))
+
+# Now you can make plots and summaries!
+summarize_sim_study(duq_obj_sub, summarize = c("time", "CRPS"))
+rankplot_sim_study(duq_obj_sub, "RMSE")
+heatmap_sim_study(duq_obj_sub, "CRPS")
+paretoplot_sim_study(duq_obj_sub, c("CRPS_rel", "time_rel_log"))
+
+# View boxplots
+boxplots_sim_study(filter_sim_study(duq_obj_sub, id="borehole"), "CRPS_norm")
 ```
 
 ### Release Information
