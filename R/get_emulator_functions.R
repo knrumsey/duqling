@@ -204,6 +204,9 @@ fit_bppr <- function(X, y){
   if(sd(y) == 0) y <- y + rnorm(y, 0, 1e-7)
   BayesPPR::bppr(X, y)
 }
+pred_bppr <- function(obj, Xt){
+  predict(obj, Xt)
+}
 
 # 4. Bayesian linear model
 fit_blm <- function(X, y){
