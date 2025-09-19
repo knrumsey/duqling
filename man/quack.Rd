@@ -12,6 +12,7 @@ quack(
   has_categorical = NULL,
   sorted = TRUE,
   show_sigma = FALSE,
+  verbose = TRUE,
   ...
 )
 }
@@ -29,6 +30,8 @@ quack(
 \item{sorted}{Should results be sorted (by input dimension and then alphabetically)}
 
 \item{show_sigma}{Should we try to retrieve the variance of the function response across its default input range? Not available for all functions. (Not actively supported, use with caution).}
+
+\item{verbose}{Print information?}
 }
 \value{
 See details

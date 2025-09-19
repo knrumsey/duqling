@@ -22,7 +22,7 @@ v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/li
 [![](https://img.shields.io/badge/release%20version-2.1.0-blue.svg)](https://github.com/knrumsey/duqling)
 
 
-```{r, eval=TRUE, echo=FALSE, fig.cap="This logo was designed by Imagine AI Art Studio", out.width='50%'}
+```{r, eval=TRUE, echo=FALSE, fig.cap="", out.width='50%'}
 knitr::include_graphics("inst/logos/DUQLING.png")
 ```
 

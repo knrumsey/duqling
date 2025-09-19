@@ -116,7 +116,7 @@ run_sim_study <- function(fit_func, pred_func=NULL,
 
   # error handling here
   if(is.null(fnames)){
-    fnames = quack(input_dim = 1)$fname
+    fnames = quack(input_dim = 1, verbose=FALSE)$fname
   }
   if(is.null(method_names)){
       method_names <- names(fit_func)
@@ -125,7 +125,7 @@ run_sim_study <- function(fit_func, pred_func=NULL,
   DF_full <- NULL
   for(ff in seq_along(fnames)){
     fn <- fnames[ff]
-    p <- quack(fn)$input_dim
+    p <- quack(fn, verbose=FALSE)$input_dim
     #fnum <- which(fn == quack(sorted=FALSE)$fname)
     #fnum <- str2num(fn)
     if(verbose) cat("Starting function ", ff, "/", length(fnames), ": ", fn, "\n", sep="")

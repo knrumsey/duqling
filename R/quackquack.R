@@ -9,6 +9,7 @@
 #' @param stochastic logical. Is function response stochastic?
 #' @param sorted Should results be sorted (by input dimension and then alphabetically)
 #' @param show_sigma Should we try to retrieve the variance of the function response across its default input range? Not available for all functions. (Not actively supported, use with caution).
+#' @param verbose Print information?
 #' @return See details
 #' @details If fname is specified, this function returns a list with the number of input dimensions and a p x 2 matrix of input ranges. If fname is not specified, then `quackquack` returns a list of function names which satisfy the requirements specified by the other inputs. If no arguments are specified, then a list of all functions is returned.
 #' @references
@@ -18,13 +19,13 @@
 #' quack("borehole")
 #'
 #' quack(input_dim=c(1, 2), has_categorical = FALSE, response = "univariate")
-quack <- function(fname=NULL, input_dim=NULL, response=NULL, stochastic=NULL, has_categorical=NULL, sorted=TRUE, show_sigma=FALSE, ...){
-  quackquack2(fname, input_dim, response, stochastic, has_categorical, sorted, show_sigma, ...)
+quack <- function(fname=NULL, input_dim=NULL, response=NULL, stochastic=NULL, has_categorical=NULL, sorted=TRUE, show_sigma=FALSE, verbose=TRUE, ...){
+  quackquack(fname, input_dim, response, stochastic, has_categorical, sorted, show_sigma, verbose, ...)
 }
 
 quackquack <- function(fname=NULL, input_dim=NULL,
                        response=NULL, stochastic=NULL, has_categorical=NULL,
-                       sorted=TRUE, show_sigma=FALSE, ...){
+                       sorted=TRUE, show_sigma=FALSE, verbose=TRUE, ...){
   dots <- list(...)
 
   # Backward compatibility: response_type arg
@@ -48,7 +49,9 @@ quackquack <- function(fname=NULL, input_dim=NULL,
       }
       tmp <- get(qq_name, envir = asNamespace("duqling"))()
       tmp <- .format_quack(tmp, fnames[i])
-      print_quack(tmp)
+      if(verbose){
+        print_quack(tmp)
+      }
       out[[i]] <- tmp
     }
     if(length(fnames) == 1){
