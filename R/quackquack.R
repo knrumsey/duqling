@@ -22,266 +22,164 @@ quack <- function(fname=NULL, input_dim=NULL, response=NULL, stochastic=NULL, ha
   quackquack2(fname, input_dim, response, stochastic, has_categorical, sorted, show_sigma, ...)
 }
 
+quackquack <- function(fname=NULL, input_dim=NULL,
+                       response=NULL, stochastic=NULL, has_categorical=NULL,
+                       sorted=TRUE, show_sigma=FALSE, ...){
+  dots <- list(...)
+
+  # Backward compatibility: response_type arg
+  if (!is.null(dots$response_type) && is.null(response)) {
+    response <- dots$response_type
+    dots$response_type <- NULL
+  }
+
+  if (is.character(stochastic)){
+    stochastic <- (stochastic == "y")
+  }
+
+  # Case 1: fname specified -> return info for one or more functions
+  if (!is.null(fname)) {
+    fnames <- as.character(fname)
+    out <- list()
+    for(i in seq_along(fnames)){
+      qq_name <- paste0("quackquack_", fnames[i])
+      if (!exists(qq_name, envir = asNamespace("duqling"))){
+        stop("fname ", fnames[i], " is not recognized.")
+      }
+      tmp <- get(qq_name, envir = asNamespace("duqling"))()
+      tmp <- .format_quack(tmp, fnames[i])
+      print_quack(tmp)
+      out[[i]] <- tmp
+    }
+    if(length(fnames) == 1){
+      out <- out[[1]]
+    }
+    return(invisible(out))
+  }
+
+  # Hard code in the list of stochastic functions
+  STOCHASTIC_LIST <- c( "ocean_circ",
+                        "stochastic_piston",
+                        "bs_call",
+                        "bs_put",
+                        "dts_sirs")
+
+  ns <- asNamespace("duqling")
+  all_funs <- ls(ns, pattern = "^quackquack_")
+  fnames <- sub("^quackquack_", "", all_funs)
+  master_list <- NULL
+  for(i in seq_along(fnames)){
+    qq_name <- all_funs[i]
+    tmp <- get(qq_name, envir = asNamespace("duqling"))()
+    tmp <- .format_quack(tmp, fnames[i])
+    curr_row <- data.frame(fname=fnames[i],
+                           input_dim = tmp$input_dim,
+                           response = tmp$response,
+                           has_categorical = tmp$has_categorical)
+
+    curr_row$stochastic <- tmp$stochastic
+    if(fnames[i] %in% STOCHASTIC_LIST){
+      curr_row$stochastic <- TRUE
+    }else{
+      if(is.null(curr_row$stochastic)){
+        curr_row$stochastic <- FALSE
+      }
+      if(is.character(curr_row$stochastic)){
+        curr_row$stochastic <- curr_row$stochastic == "y"
+      }
+    }
+
+    if(show_sigma){
+      sig <- lookup_sigma(fnames[i])
+      if(!is.null(sig)){
+        curr_row$sigma <- sig
+      }else{
+        curr_row$sigma <- NA
+      }
+    }
+
+    # Check conditions here
+    conditions_met <- TRUE
+    tmp <- curr_row
+
+    # Filter by input_dim (exact match against vector of allowed dims)
+    if (!is.null(input_dim)) {
+      if (!(tmp$input_dim %in% input_dim)) conditions_met <- FALSE
+    }
+
+    # Filter by has_categorical
+    if (!is.null(has_categorical)) {
+      if (tmp$has_categorical != has_categorical) conditions_met <- FALSE
+    }
+
+    # Filter by response (with partial matching, backward compat for response_type)
+    if (!is.null(response)) {
+      resp_val <- tolower(tmp$response)
+      # allow partial matching like "uni" or "u"
+      ok <- any(sapply(response, function(r) grepl(tolower(r), resp_val)))
+      if (!ok) conditions_met <- FALSE
+    }
+
+    # Filter by stochastic (accepts TRUE/FALSE or "y"/"n")
+    if (!is.null(stochastic)) {
+      stoch_val <- tmp$stochastic
+      # normalize inputs
+      if (is.character(stochastic)) {
+        stochastic <- tolower(stochastic) == "y"
+      }
+      if (!(stoch_val %in% stochastic)) conditions_met <- FALSE
+    }
+
+    if(conditions_met){
+      if(is.null(master_list)){
+        master_list <- curr_row
+      }else{
+        master_list <- rbind(master_list, curr_row)
+      }
+    }
+  }
+
+  if (is.null(master_list)) {
+    return("No functions found meeting the criteria")
+  } else {
+    if(sorted){
+      master_list <- master_list[order(master_list$input_dim, master_list$fname),]
+      rownames(master_list) <- 1:nrow(master_list)
+    }
+    return(master_list)
+  }
+}
 
 
-#' Not ready to delete this just yet, but I made a much cleaner version of it. On a trial period.
-# quackquack <- function(fname=NULL, input_dim=NULL, has_categorical=NULL, response=NULL, stochastic=NULL, sorted=TRUE, ...){
-#   dots <- list(...)
-#   if (!is.null(dots$response)) {
-#     if (is.null(response)) {
-#       response <- dots$response
-#     }
-#     dots$response <- NULL
-#   }
-#
-#   tmp_fname <- fname
-#   tmp_input_dim <- input_dim
-#   tmp_has_categorical <- has_categorical
-#   tmp_response <- response
-#   tmp_stochastic <- stochastic
-#
-#   if(!is.null(tmp_fname)){
-#     # Check to see that function exists
-#     if(tmp_fname %in% quack()$fname){
-#       fff <- get(paste0("quackquack_", fname))
-#       return(fff())
-#     }else{
-#       stop("fname not recognized. Use quack() for full list of functions.")
-#     }
-#   }
-#
-#
-#   # CREATE MASTER LIST OF FUNCTIONS
-#   # add function borehole
-#   master_list <- data.frame(fname="borehole", input_dim=8, has_categorical=FALSE, response="univariate", stochastic=FALSE)
-#   # add function borehole_low_fidelity
-#   new_func <- data.frame(fname="borehole_low_fidelity", input_dim=8, has_categorical=FALSE, response="univariate", stochastic=FALSE)
-#   master_list <- rbind(master_list, new_func)
-#   # add functions dms
-#   new_func <- data.frame(fname=c("dms_simple", "dms_radial", "dms_harmonic", "dms_additive", "dms_complicated"),
-#                          input_dim=rep(2, 5), has_categorical=rep(FALSE, 5), response=rep("univariate", 5), stochastic=rep(FALSE, 5))
-#   master_list <- rbind(master_list, new_func)
-#   # add function piston
-#   new_func <- data.frame(fname="piston", input_dim=7, has_categorical=FALSE, response="univariate", stochastic=FALSE)
-#   master_list <- rbind(master_list, new_func)
-#   # add function stochastic_piston
-#   new_func <- data.frame(fname="stochastic_piston", input_dim=5, has_categorical=FALSE, response="univariate", stochastic=TRUE)
-#   master_list <- rbind(master_list, new_func)
-#   # add pollutant functions
-#   new_func <- data.frame(fname=c("pollutant", "pollutant_uni"), input_dim=c(4,4), has_categorical=c(FALSE, FALSE), response=c("functional", "univariate"), stochastic=c(FALSE, FALSE))
-#   master_list <- rbind(master_list, new_func)
-#   # add grlee functions
-#   new_func <- data.frame(fname=c("grlee1", "grlee2", "grlee6"), input_dim=c(1,2,6), has_categorical=rep(FALSE,3), response=rep("univariate",3), stochastic=rep(FALSE, 3))
-#   master_list <- rbind(master_list, new_func)
-#   # add lim functions
-#   new_func <- data.frame(fname=c("lim_polynomial", "lim_non_polynomial"), input_dim=c(2,2), has_categorical=c(FALSE, FALSE), response=c("univariate", "univariate"), stochastic=c(FALSE, FALSE))
-#   master_list <- rbind(master_list, new_func)
-#   # add ripples function
-#   new_func <- data.frame(fname="ripples", input_dim=2, has_categorical = FALSE, response="univariate", stochastic=FALSE)
-#   master_list <- rbind(master_list, new_func)
-#   # add twin_galaxies function
-#   new_func <- data.frame(fname="twin_galaxies", input_dim=2, has_categorical = FALSE, response="univariate", stochastic=FALSE)
-#   master_list <- rbind(master_list, new_func)
-#   # add simple machine functions
-#   new_func <- data.frame(fname=c("simple_machine", "simple_machine_cm"), input_dim=c(3, 5), has_categorical = rep(FALSE,2), response=rep("functional",2), stochastic=c(FALSE, FALSE))
-#   master_list <- rbind(master_list, new_func)
-#   # add ocean circ
-#   new_func <- data.frame(fname="ocean_circ", input_dim=4, has_categorical = FALSE, response="univariate", stochastic=TRUE)
-#   master_list <- rbind(master_list, new_func)
-#   # add squiggle function
-#   new_func <- data.frame(fname="squiggle", input_dim=2, has_categorical=FALSE, response="univariate", stochastic = FALSE)
-#   master_list <- rbind(master_list, new_func)
-#   # add friedman function
-#   new_func <- data.frame(fname="friedman", input_dim=5, has_categorical=FALSE, response="univariate", stochastic=FALSE)
-#   master_list <- rbind(master_list, new_func)
-#   new_func <- data.frame(fname="friedman10", input_dim=10, has_categorical=FALSE, response="univariate", stochastic=FALSE)
-#   master_list <- rbind(master_list, new_func)
-#   new_func <- data.frame(fname="friedman20", input_dim=20, has_categorical=FALSE, response="univariate", stochastic=FALSE)
-#   master_list <- rbind(master_list, new_func)
-#   # add sirs model
-#   new_func <- data.frame(fname="dts_sirs", input_dim=9, has_categorical=FALSE, response="functional", stochastic=TRUE)
-#   master_list <- rbind(master_list, new_func)
-#   # add detpep functions
-#   new_func <- data.frame(fname=c("detpep_curve", "detpep8", "welch20"),
-#                          input_dim=c(3, 8, 20), has_categorical=c(FALSE, FALSE, FALSE),
-#                          response=rep("univariate", 3), stochastic=rep(FALSE, 3))
-#   master_list <- rbind(master_list, new_func)
-#   # add circuit model
-#   new_func <- data.frame(fname="circuit", input_dim=6, has_categorical=FALSE, response="univariate", stochastic=FALSE)
-#   master_list <- rbind(master_list, new_func)
-#   # add robot model
-#   new_func <- data.frame(fname="robot", input_dim=8, has_categorical=FALSE, response="univariate", stochastic=FALSE)
-#   master_list <- rbind(master_list, new_func)
-#   # add wingweight model
-#   new_func <- data.frame(fname="wingweight", input_dim=10, has_categorical=FALSE, response="univariate", stochastic=FALSE)
-#   master_list <- rbind(master_list, new_func)
-#   # add constant functions
-#   new_func <- data.frame(fname=c("const_fn", "const_fn3", "const_fn15"),
-#                          input_dim=c(1, 3, 15), has_categorical=c(FALSE, FALSE, FALSE),
-#                          response=rep("univariate", 3), stochastic=rep(FALSE, 3))
-#   master_list <- rbind(master_list, new_func)
-#   # add michalewicz model
-#   new_func <- data.frame(fname="multivalley", input_dim=2, has_categorical=FALSE, response="univariate", stochastic=FALSE)
-#   master_list <- rbind(master_list, new_func)
-#   # add vinet eos model
-#   new_func <- data.frame(fname="vinet", input_dim=3, has_categorical=FALSE, response="functional", stochastic=FALSE)
-#   master_list <- rbind(master_list, new_func)
-#   # add sharkfin
-#   new_func <- data.frame(fname="sharkfin", input_dim=3, has_categorical=FALSE, response="univariate", stochastic=FALSE)
-#   master_list <- rbind(master_list, new_func)
-#   # add foursquare
-#   new_func <- data.frame(fname="foursquare", input_dim=2, has_categorical=FALSE, response="univariate", stochastic=FALSE)
-#   master_list <- rbind(master_list, new_func)
-#   # add Rosenbrocks banana
-#   new_func <- data.frame(fname="banana", input_dim=2, has_categorical=FALSE, response="univariate", stochastic=FALSE)
-#   master_list <- rbind(master_list, new_func)
-#   # add ishigami function
-#   new_func <- data.frame(fname="ishigami", input_dim=3, has_categorical=FALSE, response="univariate", stochastic=FALSE)
-#   master_list <- rbind(master_list, new_func)
-#   # add simple poly
-#   new_func <- data.frame(fname="simple_poly", input_dim=2, has_categorical=FALSE, response="univariate", stochastic=FALSE)
-#   master_list <- rbind(master_list, new_func)
-#   # add cube functions
-#   new_func <- rbind(data.frame(fname="cube3", input_dim=3, has_categorical=FALSE, response="univariate", stochastic=FALSE),
-#                     data.frame(fname="cube3_rotate", input_dim=3, has_categorical=FALSE, response="univariate", stochastic=FALSE),
-#                     data.frame(fname="cube5", input_dim=5, has_categorical=FALSE, response="univariate", stochastic=FALSE))
-#   master_list <- rbind(master_list, new_func)
-#   # add mock-ignition function
-#   new_func <- data.frame(fname="ignition", input_dim=10, has_categorical=FALSE, response="univariate", stochastic=FALSE)
-#   master_list <- rbind(master_list, new_func)
-#   # Add beam-deflection function
-#   new_func <- data.frame(fname="beam_deflection", input_dim=5, has_categorical=FALSE, response="functional", stochastic=FALSE)
-#   master_list <- rbind(master_list, new_func)
-#   # Add crater function
-#   new_func <- data.frame(fname="crater", input_dim=7, has_categorical=FALSE, response="univariate", stochastic=FALSE)
-#   master_list <- rbind(master_list, new_func)
-#   # Add cantilever functions
-#   new_func <- rbind(data.frame(fname="cantilever_D", input_dim=6, has_categorical=FALSE, response="univariate", stochastic=FALSE),
-#                     data.frame(fname="cantilever_S", input_dim=6, has_categorical=FALSE, response="univariate", stochastic=FALSE))
-#   master_list <- rbind(master_list, new_func)
-#   # Add short and steel column
-#   new_func <- data.frame(fname="steel_column", input_dim=9, has_categorical=FALSE, response="univariate", stochastic=FALSE)
-#   master_list <- rbind(master_list, new_func)
-#   new_func <- data.frame(fname="short_column", input_dim=5, has_categorical=FALSE, response="univariate", stochastic=FALSE)
-#   master_list <- rbind(master_list, new_func)
-#   # Add sulfur
-#   new_func <- data.frame(fname="sulfur", input_dim=9, has_categorical=FALSE, response="univariate", stochastic=FALSE)
-#   master_list <- rbind(master_list, new_func)
-#   # add G functions
-#   new_func <- rbind(data.frame(fname="Gfunction", input_dim=3, has_categorical=FALSE, response="univariate", stochastic=FALSE),
-#                     data.frame(fname="Gfunction6", input_dim=6, has_categorical=FALSE, response="univariate", stochastic=FALSE),
-#                     data.frame(fname="Gfunction12", input_dim=12, has_categorical=FALSE, response="univariate", stochastic=FALSE),
-#                     data.frame(fname="Gfunction18", input_dim=18, has_categorical=FALSE, response="univariate", stochastic=FALSE))
-#   master_list <- rbind(master_list, new_func)
-#   # Add park functions
-#   new_func <- data.frame(fname="park4", input_dim=4, has_categorical=FALSE, response="univariate", stochastic=FALSE)
-#   master_list <- rbind(master_list, new_func)
-#   # add function borehole_low_fidelity
-#   new_func <- data.frame(fname="park4_low_fidelity", input_dim=4, has_categorical=FALSE, response="univariate", stochastic=FALSE)
-#   master_list <- rbind(master_list, new_func)
-#   # add 100D function
-#   new_func <- data.frame(fname="onehundred", input_dim=100, has_categorical=FALSE, response="univariate", stochastic=FALSE)
-#   master_list <- rbind(master_list, new_func)
-#   # add gradient 100D function
-#   new_func <- data.frame(fname="d_onehundred", input_dim=100, has_categorical=FALSE, response="multivariate", stochastic=FALSE)
-#   master_list <- rbind(master_list, new_func)
-#   # add ebola function
-#   new_func <- data.frame(fname="ebola", input_dim=8, has_categorical=FALSE, response="univariate", stochastic=FALSE)
-#   master_list <- rbind(master_list, new_func)
-#   # add star2 function
-#   new_func <- data.frame(fname="star2", input_dim=2, has_categorical=FALSE, response="univariate", stochastic=FALSE)
-#   master_list <- rbind(master_list, new_func)
-#   # add forrester functions
-#   new_func <- data.frame(fname="forrester1", input_dim=1, has_categorical=FALSE, response="univariate", stochastic=FALSE)
-#   master_list <- rbind(master_list, new_func)
-#   new_func <- data.frame(fname="forrester1_low_fidelity", input_dim=1, has_categorical=FALSE, response="univariate", stochastic=FALSE)
-#   master_list <- rbind(master_list, new_func)
-#   # Add Oakley and O'hagan function
-#   new_func <- data.frame(fname="oo15", input_dim=15, has_categorical=FALSE, response="univariate", stochastic=FALSE)
-#   master_list <- rbind(master_list, new_func)
-#   # Add rabbits
-#   new_func <- data.frame(fname="rabbits", input_dim=3, has_categorical=FALSE, response="univariate", stochastic=FALSE)
-#   master_list <- rbind(master_list, new_func)
-#   # Add gamma_mix
-#   new_func <- data.frame(fname="gamma_mix", input_dim=7, has_categorical=FALSE, response="univariate", stochastic=FALSE)
-#   master_list <- rbind(master_list, new_func)
-#   # Add permdb
-#   new_func <- data.frame(fname="permdb", input_dim=16, has_categorical=FALSE, response="univariate", stochastic=FALSE)
-#   master_list <- rbind(master_list, new_func)
-#   # Add blackscholes
-#   new_func <- data.frame(fname=c("bs_call", "bs_put"), input_dim=c(6,6), has_categorical=c(FALSE, FALSE), response=c("functional", "functional"), stochastic=c(TRUE, TRUE))
-#   master_list <- rbind(master_list, new_func)
-#
-#   # Sort list
-#   if(sorted){
-#     master_list <- master_list[order(master_list$fname),]
-#     master_list <- master_list[order(master_list$input_dim),]
-#     rownames(master_list) <- 1:nrow(master_list)
-#   }
-#
-#   # Not supported anymore
-#   ## Add noise levels
-#   # recompute_noise <- FALSE
-#   # if(recompute_noise){
-#   #   tab <- master_list
-#   #   Nsims <- 1000
-#   #   X <- lhs::randomLHS(Nsims, 20)
-#   #   noise_vec <- rep(NA, nrow(tab))
-#   #   for(i in 1:nrow(tab)){
-#   #     fname <- tab$fname[i]
-#   #     ff <- get(fname, envir=asNamespace("duqling"))
-#   #     tmp <- get(paste0("quackquack_", fname), envir=asNamespace("duqling"))
-#   #     if(tmp()$response == "univariate"){
-#   #       XX <- X[,1:tmp()$input_dim, drop=FALSE]
-#   #       y <- apply(XX, 1, ff, scale01=TRUE)
-#   #       noise_vec[i] <- sd(y)
-#   #     }
-#   #   }
-#   #   master_list$noise <- round(noise_vec, 4)
-#   #   for(i in 1:length(noise_vec)) cat(noise_vec[i], ", ")
-#   #   return(TRUE)
-#   # }else{
-#   #   noise_vec <- c(0 , 1.305875 , 360.2585 , 1.006089 , 1.00005 , 0.9132416 , 1.009811 , 0.9707915 , 0.3843342 , 0.08473954 , 1.91615 , 1.633466 , 0.354706 , 0.0797161 , 0.4775317 , 0.5098403 , 1.011876 , 0 , 35.84058 , 3.721238 , 0.2873336 , NA , NA , 13.5659 , NA , 0.8257302 , 4.857915 , NA , 0.1355501 , 1.174008 , 0.7268092 , 0.1357079 , 112.6912 , 89.67627 , 36.31331 , 0.5275391 , NA , 4.857915 , 46.78881 , 0 , 4.857915 , 2.089928)
-#   #   master_list$noise <- round(noise_vec, 4)
-#   # }
-#
-#
-#   return_list <- master_list
-#   #PROCESS FUNCTION DATA FRAME BASED ON REQUIREMENTS
-#   if(!is.null(tmp_input_dim)){
-#     tmp <- tmp_input_dim
-#     return_list <- subset(return_list, subset=input_dim %in% tmp)
-#   }
-#
-#   if(!is.null(tmp_has_categorical)){
-#     tmp <- tmp_has_categorical
-#     return_list <- subset(return_list, subset=has_categorical == tmp)
-#   }
-#
-#   #if(!is.null(tmp_response)){
-#   #  tmp <- tmp_response
-#   #  return_list <- subset(return_list, subset=response %in% tmp)
-#   #}
-#
-#   if (!is.null(tmp_response)) {
-#     tmp <- grep(paste(tmp_response, collapse="|"),
-#                 return_list$response,
-#                 ignore.case = TRUE, value = TRUE)
-#     return_list <- subset(return_list, subset=response %in% tmp)
-#   }
-#
-#   if(!is.null(tmp_stochastic)){
-#     tmp <- tmp_stochastic
-#     if (is.character(tmp)) {
-#       tmp <- (tmp == "y")
-#     }
-#     return_list <- subset(return_list, subset=stochastic %in% tmp)
-#   }
-#
-#   if(nrow(return_list) == 0){
-#     return("No functions found meeting the criteria")
-#   }else{
-#     return(return_list)
-#   }
-# }
+# Private helper to pretty-print individual quackquack_<fname> objects
+.format_quack <- function(obj, fname) {
+  out <- list(
+    fname        = fname,
+    input_dim    = obj$input_dim,
+    has_categorical = if(!is.null(obj$input_cat)) obj$input_cat else NA,
+    response     = switch(obj$response_type,
+                          "uni"  = "univariate",
+                          "func" = "functional",
+                          "multi"= "multivariate",
+                          obj$response_type),
+    stochastic   = if (is.character(obj$stochastic)) tolower(obj$stochastic) == "y" else obj$stochastic,
+    input_range  = obj$input_range
+  )
+  invisible(out)
+}
 
+# Print method for duqling_quack objects
+print_quack <- function(x, ...) {
+  if(is.null(x$stochastic)) x$stochastic <- "No"
+
+  cat("Function:", x$fname, "\n")
+  cat("  Input dimension:", x$input_dim, "\n")
+  cat("  Response type:", x$response, "\n")
+  cat("  Stochastic:", x$stochastic, "\n")
+  cat("  Has categorical inputs:", x$has_categorical, "\n\n")
+
+  if (!is.null(x$input_range)) {
+    cat("Input ranges:\n")
+    print(x$input_range)
+  }
+}
