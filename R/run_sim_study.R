@@ -10,7 +10,7 @@
 #' @param n_train the sample size (or vector of sample sizes) for each training set
 #' @param n_test the sample size for each testing set
 #' @param NSR the noise to signal ratio (inverse of the more-standard signal to noise ratio).
-#' @param design_type How should the training and testing designs be generated? Options are "LHS", "grid" and "random"
+#' @param design_type How should the training and testing designs be generated? Options are \code{"LHS"}, \code{"grid"}, \code{"random"}, or \code{"custom"}. See details for information on custom designs.
 #' @param replications The replications to run. Can be a single integer \code{r} (runs replications 1 to r), a vector of integers (runs only those specific replications), or a single negative integer \code{-k} (runs only replication k).
 #' @param seed Seed for random number generators. For reproducibility, we discourage the use of this argument.
 #' @param method_names A vector of method names, length equal to \code{length(fit_func)}. If NULL, the indexed names \code{my_method<i>} will be used.
@@ -18,10 +18,11 @@
 #' @param fallback_on_error When \code{TRUE} (default), we use a null model (\code{N(mean(y_train), sd(y_train))}) for robustness if a failure is detected in either \code{fit_func} or \code{pred_func}.
 #' @param print_error Logical (default FALSE). Should error messages (from \code{fit_func} or \code{pred_func})be printed?
 #' @param verbose should progress be reported?
+#' @param ... Additional arguments for advance (custom) usage. See vignette for details.
 #' @return A data frame where each row corresponds to the results of a single simulation scenario, replication index, and method. The columns include:
 #'   \itemize{
 #'     \item \code{method}: Name of the fitted method, if provided. Unique names (\code{method<indx>}) names are assigned otherwise.
-#'     \item \code{fname}: The test function name from \code{duqling::quack()$fname}.
+#'     \item \code{fname}: The test function name from \code{duqling::quack()$fname}. See details for custom functions.
 #'     \item \code{input_dim}: Input dimension of the test function.
 #'     \item \code{n}: Number of training points.
 #'     \item \code{NSR}: Noise-to-signal ratio used in data generation.
@@ -41,6 +42,53 @@
 #' Additional columns may be included for other metrics or settings depending on options provided.
 #' @details Code to conduct a reproducible simulation study to compare emulators. By reporting the parameters to the study, other authors can compare their results directly.
 #' Only \code{fit_func} needs to be specified, but only the total time will be reported. The simplest (and recommended) approach is that the \code{fit_func} (or \code{pred_func}) should return a matrix of posterior samples, with one column per test point (e.g., per row in \code{X_test}). Any number of rows (predictive samples) is allowed. In this case, the mean of the samples is used as a prediction and the R \code{quantile} function is used to construct confidence intervals. This default behavior can be changed by instead allowing \code{fit_func} (or \code{pred_func}) to return a named list with fields i) \code{samples} (required), ii) \code{preds} (optional; a vector of predictions), and iii) intervals (optional; a 2 by n by k array of interval bounds where n is the number of test points and k is \code{length(conf_level)}).
+#'
+#' @section Custom functions and designs:
+#'
+#' Advanced users can extend \code{run_sim_study()} with their own test
+#' functions or design types without modifying the package code.
+#'
+#' \emph{Custom functions:}
+#'
+#' - To supply a custom test function, create a list with fields:
+#'
+#'   - \code{$func}: a function with signature \code{f(x, scale01)} that returns
+#'     a scalar. Here \code{x} is a numeric vector of length \code{p}, and
+#'     \code{scale01} is a logical flag indicating whether inputs have been
+#'     scaled to \eqn{[0,1]^p}.
+#'
+#'   - \code{$input_dim}: an integer specifying the input dimension \code{p}.
+#'
+#' - Pass this list as an extra argument to \code{run_sim_study()} with an
+#' arbitrary name, e.g.
+#' \preformatted{
+#'   f <- function(x, scale01=TRUE) x[1] - x[2]^2
+#'   my_list <- list(func = f, input_dim = 5)
+#'   run_sim_study(fit_func, pred_func, fnames = "custom_foobar", foobar = my_list)
+#' }
+#'
+#' - Inside \code{fnames}, use the string \code{"custom_<name>"} to refer to
+#' your custom function (here, \code{"custom_foobar"}).
+#'
+#' \emph{Custom designs:}
+#' - The \code{design_type} argument may also be set to \code{"custom"}.
+#'
+#' - In this case, you must supply an additional argument \code{design_func}
+#'   (through \code{...}), which should be a function of \code{n} and \code{p}
+#'   returning an \eqn{n \times p} design matrix.
+#'
+#' - Example:
+#' \preformatted{
+#'   correlated_design <- function(n, p) {
+#'     d <- lhs::randomLHS(n, p)
+#'     d[,1] <- (d[,2] + d[,3]) / 2
+#'     d
+#'   }
+#'   run_sim_study(fit_func, pred_func,
+#'                 fnames = "ishigami",
+#'                 design_type = "custom",
+#'                 design_func = correlated_design)
+#' }
 #'
 #' @references Surjanovic, Sonja, and Derek Bingham. "Virtual library of simulation experiments: test functions and datasets." Simon Fraser University, Burnaby, BC, Canada, accessed May 13 (2013): 2015.
 #' @export
@@ -95,7 +143,10 @@ run_sim_study <- function(fit_func, pred_func=NULL,
                           mc_cores=1,
                           fallback_on_error=TRUE,
                           print_error=FALSE,
-                          verbose=TRUE){
+                          verbose=TRUE,
+                          ...){
+  # Capture ... for advanced custom usage
+  dots <- list(...)
 
   if(length(replications) == 1){
     if(replications < 0){
@@ -125,9 +176,13 @@ run_sim_study <- function(fit_func, pred_func=NULL,
   DF_full <- NULL
   for(ff in seq_along(fnames)){
     fn <- fnames[ff]
-    p <- quack(fn, verbose=FALSE)$input_dim
-    #fnum <- which(fn == quack(sorted=FALSE)$fname)
-    #fnum <- str2num(fn)
+    # Handle custom functions
+    if(is_custom(fn)){
+      fn_sub <- substr(fn, 8, nchar(fn))
+      p <- dots[[fn_sub]]$input_dim
+    }else{
+      p <- quack(fn, verbose=FALSE)$input_dim
+    }
     if(verbose) cat("Starting function ", ff, "/", length(fnames), ": ", fn, "\n", sep="")
     for(ii in seq_along(n_train)){
       n <- n_train[ii]
@@ -139,12 +194,12 @@ run_sim_study <- function(fit_func, pred_func=NULL,
             results <- lapply(rep_vec, run_one_sim_case,
                    seed=seed, fn=fn, fnum=NA, p=p, n=n, conf_level=conf_level, score=score,
                    nsr=NSR[jj], dsgn=design_type[kk], n_test=n_test,
-                   method_names=method_names, fit_func=fit_func, pred_func=pred_func, fallback=fallback_on_error, print_error=print_error, verbose=verbose)
+                   method_names=method_names, fit_func=fit_func, pred_func=pred_func, fallback=fallback_on_error, print_error=print_error, verbose=verbose, dots=dots)
           }else{
             results <- parallel::mclapply(rep_vec, run_one_sim_case,
                               seed=seed, fn=fn, fnum=NA, p=p, n=n, conf_level=conf_level, score=score,
                               nsr=NSR[jj], dsgn=design_type[kk], n_test=n_test,
-                              method_names=method_names, fit_func=fit_func, pred_func=pred_func, fallback=fallback_on_error, print_error=print_error, verbose=verbose,
+                              method_names=method_names, fit_func=fit_func, pred_func=pred_func, fallback=fallback_on_error, print_error=print_error, verbose=verbose, dots=dots,
                               mc.cores=mc_cores)
           }
 
@@ -168,6 +223,10 @@ run_sim_study <- function(fit_func, pred_func=NULL,
   return(DF_full)
 }
 
+is_custom <- function(fn) {
+  if (length(fn) != 1 || !is.character(fn)) return(FALSE)
+  grepl("^custom_", fn)
+}
 
 expand_grid <- function(xx, k){
   p <- length(xx)
@@ -189,10 +248,6 @@ expand_grid <- function(xx, k){
   return(X)
 }
 
-# Deprecated - using Rabin fingerprinting (rolling polynomial hash)
-#str2num <- function(str){
-#  sum((1:nchar(str))*as.numeric(unlist(iconv(str, to="ASCII", toRaw=TRUE))))
-#}
 
 rmsef <- function(x, y){
   sqrt(mean((x-y)^2))
@@ -274,7 +329,7 @@ get_case_seed <- function(seed, n_train, design_type, NSR, fname, rep){
     s4 <- 0
     s5 <- round(NSR * 1e4)
   }
-  s6 <- switch(design_type, LHS = 1, grid = 2, random = 3)
+  s6 <- switch(design_type, LHS = 1, grid = 2, random = 3, custom=4)
 
   B <- 101
   ss <- 0
@@ -284,13 +339,18 @@ get_case_seed <- function(seed, n_train, design_type, NSR, fname, rep){
 }
 
 
-run_one_sim_case <- function(rr, seed, fn, fnum, p, n, nsr, dsgn, n_test, conf_level, score, method_names, fit_func, pred_func, fallback, print_error, verbose){
+run_one_sim_case <- function(rr, seed, fn, fnum, p, n, nsr, dsgn, n_test, conf_level, score, method_names, fit_func, pred_func, fallback, print_error, verbose, dots){
     # Generate training data
     #seed_t <- transform_seed(seed, n, dsgn, nsr, fnum, rr)
     dont_need_this_anymore <- fnum
     seed_t <- get_case_seed(seed, n, dsgn, nsr, fn, rr)
     set.seed(seed_t)
-    f <- get(fn, loadNamespace("duqling"))
+    if(is_custom(fn)){
+      fn_sub <- substr(fn, 8, nchar(fn))
+      f <- dots[[fn_sub]]$func
+    }else{
+      f <- get(fn, loadNamespace("duqling"))
+    }
     if(dsgn == "LHS"){
       if(n <= 1200){
         X_train <- lhs::maximinLHS(n, p)
@@ -333,26 +393,41 @@ run_one_sim_case <- function(rr, seed, fn, fnum, p, n, nsr, dsgn, n_test, conf_l
         }
         y_train <- y_train + stats::rnorm(n, 0, noise_lvl)
         X_test  <- matrix(stats::runif(n_test*p), ncol=p)
-      }else{ # grid
-        ni = ceiling(n^(1/p))
-        xx <- seq(0, 1, length.out = ni)
-        X_train <- expand_grid(xx, p)
-        n <- nrow(X_train)
+      }else{
+        if(dsgn == "custom"){
+          X_train <- dots$design_func(n, p)
+          y_train <- apply(X_train, 1, f, scale01=TRUE)
+          v_train <- stats::var(y_train)
+          if(v_train == 0){
+            noise_lvl <- 1e-6 * sqrt(nsr)  # Cannot make sense of SNR when there is no signal
+            total_var <- 1e-12 * (1 + nsr)
+          }else{
+            noise_lvl <- sqrt(v_train * nsr)
+            total_var <- v_train * (1 + nsr)
+          }
+          y_train <- y_train + stats::rnorm(n, 0, noise_lvl)
+          X_test  <- matrix(stats::runif(n_test*p), ncol=p)
+        }else{ # grid
+          ni = ceiling(n^(1/p))
+          xx <- seq(0, 1, length.out = ni)
+          X_train <- expand_grid(xx, p)
+          n <- nrow(X_train)
 
-        y_train <- apply(X_train, 1, f, scale01=TRUE)
-        v_train <- stats::var(y_train)
-        if(v_train == 0){
-          noise_lvl <- 1e-6 * sqrt(nsr)  # Cannot make sense of SNR when there is no signal
-          total_var <- 1e-12 * (1 + nsr)
-        }else{
-          noise_lvl <- sqrt(v_train * nsr)
-          total_var <- v_train * (1 + nsr)
+          y_train <- apply(X_train, 1, f, scale01=TRUE)
+          v_train <- stats::var(y_train)
+          if(v_train == 0){
+            noise_lvl <- 1e-6 * sqrt(nsr)  # Cannot make sense of SNR when there is no signal
+            total_var <- 1e-12 * (1 + nsr)
+          }else{
+            noise_lvl <- sqrt(v_train * nsr)
+            total_var <- v_train * (1 + nsr)
+          }
+          y_train <- y_train + stats::rnorm(n, 0, noise_lvl)
+
+          nit = ceiling(n_test^(1/p))
+          xxt <- seq(0, 1, length.out = nit)
+          X_test <- expand_grid(xxt, p)
         }
-        y_train <- y_train + stats::rnorm(n, 0, noise_lvl)
-
-        nit = ceiling(n_test^(1/p))
-        xxt <- seq(0, 1, length.out = nit)
-        X_test <- expand_grid(xxt, p)
       }
     }
     y_test <- apply(X_test, 1, f, scale01=TRUE) # no noise for testing data

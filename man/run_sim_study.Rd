@@ -20,7 +20,8 @@ run_sim_study(
   mc_cores = 1,
   fallback_on_error = TRUE,
   print_error = FALSE,
-  verbose = TRUE
+  verbose = TRUE,
+  ...
 )
 }
 \arguments{
@@ -40,7 +41,7 @@ run_sim_study(
 
 \item{NSR}{the noise to signal ratio (inverse of the more-standard signal to noise ratio).}
 
-\item{design_type}{How should the training and testing designs be generated? Options are "LHS", "grid" and "random"}
+\item{design_type}{How should the training and testing designs be generated? Options are \code{"LHS"}, \code{"grid"}, \code{"random"}, or \code{"custom"}. See details for information on custom designs.}
 
 \item{replications}{The replications to run. Can be a single integer \code{r} (runs replications 1 to r), a vector of integers (runs only those specific replications), or a single negative integer \code{-k} (runs only replication k).}
 
@@ -55,12 +56,14 @@ run_sim_study(
 \item{print_error}{Logical (default FALSE). Should error messages (from \code{fit_func} or \code{pred_func})be printed?}
 
 \item{verbose}{should progress be reported?}
+
+\item{...}{Additional arguments for advance (custom) usage. See vignette for details.}
 }
 \value{
 A data frame where each row corresponds to the results of a single simulation scenario, replication index, and method. The columns include:
   \itemize{
     \item \code{method}: Name of the fitted method, if provided. Unique names (\code{method<indx>}) names are assigned otherwise.
-    \item \code{fname}: The test function name from \code{duqling::quack()$fname}.
+    \item \code{fname}: The test function name from \code{duqling::quack()$fname}. See details for custom functions.
     \item \code{input_dim}: Input dimension of the test function.
     \item \code{n}: Number of training points.
     \item \code{NSR}: Noise-to-signal ratio used in data generation.
@@ -86,6 +89,55 @@ Reproducible code for simulation studies.
 Code to conduct a reproducible simulation study to compare emulators. By reporting the parameters to the study, other authors can compare their results directly.
 Only \code{fit_func} needs to be specified, but only the total time will be reported. The simplest (and recommended) approach is that the \code{fit_func} (or \code{pred_func}) should return a matrix of posterior samples, with one column per test point (e.g., per row in \code{X_test}). Any number of rows (predictive samples) is allowed. In this case, the mean of the samples is used as a prediction and the R \code{quantile} function is used to construct confidence intervals. This default behavior can be changed by instead allowing \code{fit_func} (or \code{pred_func}) to return a named list with fields i) \code{samples} (required), ii) \code{preds} (optional; a vector of predictions), and iii) intervals (optional; a 2 by n by k array of interval bounds where n is the number of test points and k is \code{length(conf_level)}).
 }
+\section{Custom functions and designs}{
+
+
+Advanced users can extend \code{run_sim_study()} with their own test
+functions or design types without modifying the package code.
+
+\emph{Custom functions:}
+
+- To supply a custom test function, create a list with fields:
+
+  - \code{$func}: a function with signature \code{f(x, scale01)} that returns
+    a scalar. Here \code{x} is a numeric vector of length \code{p}, and
+    \code{scale01} is a logical flag indicating whether inputs have been
+    scaled to \eqn{[0,1]^p}.
+
+  - \code{$input_dim}: an integer specifying the input dimension \code{p}.
+
+- Pass this list as an extra argument to \code{run_sim_study()} with an
+arbitrary name, e.g.
+\preformatted{
+  f <- function(x, scale01=TRUE) x[1] - x[2]^2
+  my_list <- list(func = f, input_dim = 5)
+  run_sim_study(fit_func, pred_func, fnames = "custom_foobar", foobar = my_list)
+}
+
+- Inside \code{fnames}, use the string \code{"custom_<name>"} to refer to
+your custom function (here, \code{"custom_foobar"}).
+
+\emph{Custom designs:}
+- The \code{design_type} argument may also be set to \code{"custom"}.
+
+- In this case, you must supply an additional argument \code{design_func}
+  (through \code{...}), which should be a function of \code{n} and \code{p}
+  returning an \eqn{n \times p} design matrix.
+
+- Example:
+\preformatted{
+  correlated_design <- function(n, p) {
+    d <- lhs::randomLHS(n, p)
+    d[,1] <- (d[,2] + d[,3]) / 2
+    d
+  }
+  run_sim_study(fit_func, pred_func,
+                fnames = "ishigami",
+                design_type = "custom",
+                design_func = correlated_design)
+}
+}
+
 \examples{
 
 # METHOD 1: Linear Regression
