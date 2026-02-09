@@ -315,7 +315,6 @@ fit_apce <- function(X, y){
 pred_apce <- function(obj, Xt) predict(obj, Xt)
 
 # 9. Conformal Random Forest
-library(conforest)
 fit_confrf <- function(X, y){
   if(sd(y) == 0) y <- y + rnorm(y,0,1e-9)
   conforest::rfok(X, y)
