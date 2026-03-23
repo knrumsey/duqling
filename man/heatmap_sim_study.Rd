@@ -6,7 +6,7 @@
 \usage{
 heatmap_sim_study(
   obj,
-  metric = "CRPS",
+  metric = "CRPS_rank",
   group_by = "id",
   show_values = NULL,
   color_scale = "turbo",
@@ -21,7 +21,7 @@ heatmap_sim_study(
 \arguments{
 \item{obj}{A \code{duq_sim_study} object from \code{process_sim_study()}.}
 
-\item{metric}{Character; the performance metric column to plot (default "CRPS").
+\item{metric}{Character; the performance metric column to plot (default "CRPS_rank").
 Can include derived suffixes like \code{"_rank"}, \code{"_auc"},
 \code{"_rel"}, \code{"_rel_log"}, or \code{"_norm"}.}
 
