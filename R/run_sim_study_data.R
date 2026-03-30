@@ -215,13 +215,13 @@ run_one_sim_case_data <- function(k, seed_t, XX, yy, groups, cv_type,
                                   print_error){
   # Partition data
   #K <- length(unique(groups))
-  kk <- NULL
+  #kk <- NULL
   if(cv_type == "cv"){
     indx <- which(groups == k)
     mk <- length(indx)
   }
   if(cv_type == "boot"){
-    indx <- groups[[kk]]
+    indx <- groups[[k]]
     mk <- length(unique(indx))
   }
 
@@ -229,7 +229,8 @@ run_one_sim_case_data <- function(k, seed_t, XX, yy, groups, cv_type,
   y_test <- yy[indx]
   X_train <- XX[-unique(indx),]
   y_train <- yy[-unique(indx)]
-  n <- n_test <- nrow(X_test)
+  n_test <- nrow(X_test)
+  n <- nrow(X_train)
   p <- ncol(X_test)
 
   # Fit models
