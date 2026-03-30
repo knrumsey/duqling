@@ -621,7 +621,7 @@ run_one_sim_case <- function(rr, seed, fn, fnum, p, n, nsr, dsgn, n_test, conf_l
             if(mu_check && s_check){
               if(length(s_tmp) == 1) s_tmp <- rep(s_tmp, n_test)
               preds$samples <- sapply(seq_len(n_test), function(i) {
-                stats::rnorm(1000, mean = mu[i], sd = s[i])
+                stats::rnorm(1000, mean = mu_tmp[i], sd = s_tmp[i])
               })
             }else{
               stop("preds and/or sd fields are the wrong length. ")
@@ -629,16 +629,15 @@ run_one_sim_case <- function(rr, seed, fn, fnum, p, n, nsr, dsgn, n_test, conf_l
           }
         }
         if(is.null(preds$preds)){
-          preds$preds <- rowMeans(preds$samples)
+          preds$preds <- colMeans(preds$samples)
         }
         if(is.null(preds$intervals)){
           n_conf <- length(conf_level)
           intervals <- array(NA, dim=c(2, n_test, n_conf))
           for(iii in seq_along(conf_level)){
             alpha_curr <- 1 - conf_level[iii]
-            intervals[,,iii] <- apply(preds$samples, 1, stats::quantile, probs=c(alpha_curr/2, 1-alpha_curr/2))
+            intervals[,,iii] <- apply(preds$samples, 2, stats::quantile, probs=c(alpha_curr/2, 1-alpha_curr/2))
           }
-          if(n_conf == 1) intervals <- intervals[,,1]
           preds$intervals <- intervals
         }
 
@@ -687,7 +686,7 @@ run_one_sim_case <- function(rr, seed, fn, fnum, p, n, nsr, dsgn, n_test, conf_l
         # CALCULATE CRPS
         if(score){
           if(verbose) cat("Computing CRPS")
-          CRPS_vec <- unlist(lapply(1:n_test, function(i) crpsf(y_test[i], preds[,i])))
+          CRPS_vec <- unlist(lapply(1:n_test, function(i) crpsf(y_test[i], preds$samples[,i])))
           csumm <- summary(CRPS_vec)
           DF_curr$CRPS      <- as.numeric(csumm[4])
           DF_curr$CRPS_min  <- as.numeric(csumm[1])
@@ -710,10 +709,10 @@ run_one_sim_case <- function(rr, seed, fn, fnum, p, n, nsr, dsgn, n_test, conf_l
 #' Details:
 #'
 #' fit_func can return any of the following
-#'   A) an M by n matrix of predictive samples (recommended)
+#'   A) an n x M matrix of predictive samples (recommended)
 #'   B) a n-vector of predictions (will be converted to an n by 1 matrix)
 #'   C) a named list with fields
-#'      - preds: An n-vector of predictions. If NULL, then rowMeans(samples) will be used.
+#'      - preds: An n-vector of predictions. If NULL, then colMeans(samples) will be used.
 #'      - intervals: A 2 by n by K array (or a matrix, if K = 1) where K = length(conf_level). If NULL, then quantiles of the samples field will be used.
 #'      - samples: An n by M matrix of samples from the predictive distribution
 
