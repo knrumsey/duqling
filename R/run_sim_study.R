@@ -40,54 +40,83 @@
 #'     \item \code{CRPS_min}, \code{CRPS_Q1}, \code{CRPS_med}, \code{CRPS_Q3}, \code{CRPS_max}: Summary statistics (minimum, first quartile, median, third quartile, maximum) for the CRPS distribution over the test set.
 #'   }
 #' Additional columns may be included for other metrics or settings depending on options provided.
-#' @details Code to conduct a reproducible simulation study to compare emulators. By reporting the parameters to the study, other authors can compare their results directly.
-#' Only \code{fit_func} needs to be specified, but only the total time will be reported. The simplest (and recommended) approach is that the \code{fit_func} (or \code{pred_func}) should return a matrix of posterior samples, with one column per test point (e.g., per row in \code{X_test}). Any number of rows (predictive samples) is allowed. In this case, the mean of the samples is used as a prediction and the R \code{quantile} function is used to construct confidence intervals. This default behavior can be changed by instead allowing \code{fit_func} (or \code{pred_func}) to return a named list with fields i) \code{samples} (required), ii) \code{preds} (optional; a vector of predictions), and iii) intervals (optional; a 2 by n by k array of interval bounds where n is the number of test points and k is \code{length(conf_level)}).
+#'
+#' @details Code to conduct a reproducible simulation study for emulator comparison.
+#' By reporting the study settings, other authors can compare results directly.
+#'
+#' Only \code{fit_func} is strictly required, but in that case only total runtime
+#' will be reported. The simplest (and recommended) interface is for
+#' \code{fit_func} (or \code{pred_func}) to return a numeric matrix of posterior
+#' samples, with one column per test point (e.g., per row of \code{X_test}) and
+#' one row per predictive draw. Any number of predictive samples is allowed. In
+#' this default case, point predictions are taken to be the column means, and
+#' prediction intervals are constructed using the R \code{quantile} function.
+#'
+#' Alternatively, \code{fit_func} (or \code{pred_func}) may return a named list.
+#' The field \code{samples} is normally required and should again be a matrix with
+#' one column per test point. If \code{samples} is omitted, then both
+#' \code{preds} and \code{sd} must be supplied, and \code{samples} will be
+#' approximated internally using Normal draws centered at \code{preds} with
+#' standard deviation \code{sd}. The optional field \code{preds} should be a
+#' numeric vector of point predictions of length equal to the number of test
+#' points. The optional field \code{intervals} should be a \code{2 x n x k} array
+#' of interval bounds, where \code{n} is the number of test points and
+#' \code{k = length(conf_level)}. When supplied, \code{preds} and
+#' \code{intervals} are used directly for point- and interval-based metrics;
+#' otherwise they are constructed from \code{samples}.
 #'
 #' @section Custom functions and designs:
 #'
 #' Advanced users can extend \code{run_sim_study()} with their own test
 #' functions or design types without modifying the package code.
 #'
-#' \emph{Custom functions:}
+#' \strong{Custom functions}
 #'
-#' - To supply a custom test function, create a list with fields:
+#' To supply a custom test function, create a list with fields:
 #'
-#'   - \code{$func}: a function with signature \code{f(x, scale01)} that returns
-#'     a scalar. Here \code{x} is a numeric vector of length \code{p}, and
-#'     \code{scale01} is a logical flag indicating whether inputs have been
-#'     scaled to \eqn{[0,1]^p}.
+#' \itemize{
+#'   \item \code{func}: a function with signature \code{f(x, scale01)} that
+#'   returns a scalar. Here \code{x} is a numeric vector of length \code{p},
+#'   and \code{scale01} is a logical flag indicating whether inputs are expected
+#'   to be in \eqn{[0,1]^p}.
 #'
-#'   - \code{$input_dim}: an integer specifying the input dimension \code{p}.
-#'
-#' - Pass this list as an extra argument to \code{run_sim_study()} with an
-#' arbitrary name, e.g.
-#' \preformatted{
-#'   f <- function(x, scale01=TRUE) x[1] - x[2]^2
-#'   my_list <- list(func = f, input_dim = 5)
-#'   run_sim_study(fit_func, pred_func, fnames = "custom_foobar", foobar = my_list)
+#'   \item \code{input_dim}: an integer specifying the input dimension \code{p}.
 #' }
 #'
-#' - Inside \code{fnames}, use the string \code{"custom_<name>"} to refer to
+#' Pass this list as an extra argument to \code{run_sim_study()} with an
+#' arbitrary name. For example:
+#'
+#' \preformatted{
+#' f <- function(x, scale01=TRUE) x[1] - x[2]^2
+#' my_list <- list(func = f, input_dim = 5)
+#' run_sim_study(fit_func, pred_func,
+#'               fnames = "custom_foobar",
+#'               foobar = my_list)
+#' }
+#'
+#' Inside \code{fnames}, use the string \code{"custom_<name>"} to refer to
 #' your custom function (here, \code{"custom_foobar"}).
 #'
-#' \emph{Custom designs:}
-#' - The \code{design_type} argument may also be set to \code{"custom"}.
+#' \strong{Custom designs}
 #'
-#' - In this case, you must supply an additional argument \code{design_func}
-#'   (through \code{...}), which should be a function of \code{n} and \code{p}
-#'   returning an \eqn{n \times p} design matrix.
+#' The \code{design_type} argument may also be set to \code{"custom"}. In this
+#' case, you must supply an additional argument \code{design_func} (through
+#' \code{...}), which should be a function of \code{n} and \code{p} returning
+#' an \eqn{n \times p} design matrix.
 #'
-#' - Example:
+#' For example:
+#'
 #' \preformatted{
-#'   correlated_design <- function(n, p) {
-#'     d <- lhs::randomLHS(n, p)
-#'     d[,1] <- (d[,2] + d[,3]) / 2
-#'     d
-#'   }
-#'   run_sim_study(fit_func, pred_func,
-#'                 fnames = "ishigami",
-#'                 design_type = "custom",
-#'                 design_func = correlated_design)
+#' correlated_design <- function(n, p) {
+#'   d <- lhs::randomLHS(n, p)
+#'   d[,1] <- (d[,2] + d[,3]) / 2
+#'   d
+#' }
+#'
+#' run_sim_study(fit_func, pred_func,
+#'               fnames = "ishigami",
+#'               design_type = "custom",
+#'               design_func = correlated_design)
 #' }
 #'
 #' @references Surjanovic, Sonja, and Derek Bingham. "Virtual library of simulation experiments: test functions and datasets." Simon Fraser University, Burnaby, BC, Canada, accessed May 13 (2013): 2015.
@@ -427,6 +456,7 @@ run_one_sim_case <- function(rr, seed, fn, fnum, p, n, nsr, dsgn, n_test, conf_l
           nit = ceiling(n_test^(1/p))
           xxt <- seq(0, 1, length.out = nit)
           X_test <- expand_grid(xxt, p)
+          n_test <- nrow(X_test)
         }
       }
     }
@@ -532,12 +562,14 @@ run_one_sim_case <- function(rr, seed, fn, fnum, p, n, nsr, dsgn, n_test, conf_l
         n_conf <- length(conf_level)
         if(n_conf > 0){
           nms <- names(DF_curr)
+          empirical_coverages <- rep(NA, n_conf) # Adding IAE
           for(iii in seq_along(conf_level)){
             alpha_curr <- 1 - conf_level[iii]
             bounds <- apply(preds, 2, stats::quantile, probs=c(alpha_curr/2, 1-alpha_curr/2))
 
             # Coverage
-            DF_curr[,ncol(DF_curr)+1] <- mean((y_test >= bounds[1,]) * (y_test <= bounds[2,]))
+            empirical_coverages[iii] <- mean((y_test >= bounds[1,]) & (y_test <= bounds[2,]))
+            DF_curr[,ncol(DF_curr)+1] <- empirical_coverages[iii]
           }
 
           # INTERVAL SCORES
@@ -553,6 +585,9 @@ run_one_sim_case <- function(rr, seed, fn, fnum, p, n, nsr, dsgn, n_test, conf_l
           }
           nms <- c(nms, paste0("COVER", round(conf_level, 7)), paste0("MIS", round(conf_level, 7)))
           colnames(DF_curr) <- nms
+
+          # Add IAE-alpha (from Marrel and Iooss 2024; reviewer request)
+          DF_curr$IAE_alpha <- mean(abs(empirical_coverages - conf_level))
         }
 
         # CALUCLATE CRPS
@@ -572,8 +607,26 @@ run_one_sim_case <- function(rr, seed, fn, fnum, p, n, nsr, dsgn, n_test, conf_l
 
       # CASE: Function returns a named list
       if(is.list(preds)){
+        #if(is.null(preds$samples)){
+        #  stop("If pred/fit function returns a list, the samples field must be specified.")
+        #}
         if(is.null(preds$samples)){
-          stop("If pred/fit function returns a list, the samples field must be specified.")
+          if(is.null(preds$sd) || is.null(preds$preds)){
+            stop("If pred/fit function returns a list, the samples field must be specified, or both preds and sd must be provided.")
+          }else{
+            mu_tmp <- as.numeric(preds$preds)
+            s_tmp  <- as.numeric(preds$sd)
+            mu_check  <- length(mu_tmp) == n_test
+            s_check   <- length(s_tmp)== n_test || length(s_tmp) == 1
+            if(mu_check && s_check){
+              if(length(s_tmp) == 1) s_tmp <- rep(s_tmp, n_test)
+              preds$samples <- sapply(seq_len(n_test), function(i) {
+                stats::rnorm(1000, mean = mu[i], sd = s[i])
+              })
+            }else{
+              stop("preds and/or sd fields are the wrong length. ")
+            }
+          }
         }
         if(is.null(preds$preds)){
           preds$preds <- rowMeans(preds$samples)
@@ -590,7 +643,7 @@ run_one_sim_case <- function(rr, seed, fn, fnum, p, n, nsr, dsgn, n_test, conf_l
         }
 
         # CALCULATE RMSE
-        y_hat <- colMeans(preds$preds)
+        y_hat <- as.numeric(preds$preds)
         rmse_curr <- rmsef(y_test, y_hat)
         DF_curr$RMSE <- rmse_curr
         DF_curr$FVU  <- rmse_curr^2/stats::var(y_test)
@@ -598,19 +651,26 @@ run_one_sim_case <- function(rr, seed, fn, fnum, p, n, nsr, dsgn, n_test, conf_l
         # CALCULATE COVERAGES
         n_conf <- length(conf_level)
         if(n_conf > 0){
+          if(!identical(dim(preds$intervals), c(2L, n_test, n_conf))){
+            warning("preds$intervals has the wrong dimensions; see documentation")
+            preds$intervals <- array(preds$intervals, dim=c(2,n_test,n_conf))
+          }
+
           nms <- names(DF_curr)
+          empirical_coverages <- rep(NA, n_conf)
           #COVERAGES
           for(iii in seq_along(conf_level)){
             alpha_curr <- 1 - conf_level[iii]
-            bounds <- apply(preds, 2, stats::quantile, probs=c(alpha_curr/2, 1-alpha_curr/2))
+            bounds <- preds$intervals[,,iii]
 
-            DF_curr[,ncol(DF_curr)+1] <- mean((y_test >= bounds[1,]) * (y_test <= bounds[2,]))
+            empirical_coverages[iii] <- mean((y_test >= bounds[1,]) & (y_test <= bounds[2,]))
+            DF_curr[,ncol(DF_curr)+1] <- empirical_coverages[iii]
           }
 
           # INTERVAL SCORES
           for(iii in seq_along(conf_level)){
             alpha_curr <- 1 - conf_level[iii]
-            bounds <- apply(preds, 2, stats::quantile, probs=c(alpha_curr/2, 1-alpha_curr/2))
+            bounds <- preds$intervals[,,iii]
 
             term1 <- apply(bounds, 2, diff)
             term2 <- 2*(bounds[1,] - y_test)*as.numeric(y_test < bounds[1,])/alpha_curr
@@ -619,6 +679,9 @@ run_one_sim_case <- function(rr, seed, fn, fnum, p, n, nsr, dsgn, n_test, conf_l
           }
           nms <- c(nms, paste0("COVER", round(conf_level, 7)), paste0("MIS", round(conf_level, 7)))
           colnames(DF_curr) <- nms
+
+          # Add IAE-alpha (from Marrel and Iooss 2024; reviewer request)
+          DF_curr$IAE_alpha <- mean(abs(empirical_coverages - conf_level))
         }
 
         # CALCULATE CRPS

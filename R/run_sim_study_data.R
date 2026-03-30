@@ -352,12 +352,14 @@ run_one_sim_case_data <- function(k, seed_t, XX, yy, groups, cv_type,
       n_conf <- length(conf_level)
       if(n_conf > 0){
         nms <- names(DF_curr)
+        empirical_coverages <- rep(NA, n_conf)
         #COVERAGES
         for(iii in seq_along(conf_level)){
           alpha_curr <- 1 - conf_level[iii]
           bounds <- apply(preds, 2, stats::quantile, probs=c(alpha_curr/2, 1-alpha_curr/2))
 
-          DF_curr[,ncol(DF_curr)+1] <- mean((y_test >= bounds[1,]) * (y_test <= bounds[2,]))
+          empirical_coverages[iii] <- mean((y_test >= bounds[1,]) & (y_test <= bounds[2,]))
+          DF_curr[,ncol(DF_curr)+1] <- empirical_coverages[iii]
         }
 
         # INTERVAL SCORES
@@ -419,12 +421,14 @@ run_one_sim_case_data <- function(k, seed_t, XX, yy, groups, cv_type,
       n_conf <- length(conf_level)
       if(n_conf > 0){
         nms <- names(DF_curr)
+        empirical_coverages <- rep(NA, n_conf)
         #COVERAGES
         for(iii in seq_along(conf_level)){
           alpha_curr <- 1 - conf_level[iii]
           bounds <- apply(preds, 2, stats::quantile, probs=c(alpha_curr/2, 1-alpha_curr/2))
 
-          DF_curr[,ncol(DF_curr)+1] <- mean((y_test >= bounds[1,]) * (y_test <= bounds[2,]))
+          empirical_coverages[iii] <- mean((y_test >= bounds[1,]) & (y_test <= bounds[2,]))
+          DF_curr[,ncol(DF_curr)+1] <- empirical_coverages[iii]
         }
 
         # INTERVAL SCORES

@@ -86,8 +86,29 @@ Additional columns may be included for other metrics or settings depending on op
 Reproducible code for simulation studies.
 }
 \details{
-Code to conduct a reproducible simulation study to compare emulators. By reporting the parameters to the study, other authors can compare their results directly.
-Only \code{fit_func} needs to be specified, but only the total time will be reported. The simplest (and recommended) approach is that the \code{fit_func} (or \code{pred_func}) should return a matrix of posterior samples, with one column per test point (e.g., per row in \code{X_test}). Any number of rows (predictive samples) is allowed. In this case, the mean of the samples is used as a prediction and the R \code{quantile} function is used to construct confidence intervals. This default behavior can be changed by instead allowing \code{fit_func} (or \code{pred_func}) to return a named list with fields i) \code{samples} (required), ii) \code{preds} (optional; a vector of predictions), and iii) intervals (optional; a 2 by n by k array of interval bounds where n is the number of test points and k is \code{length(conf_level)}).
+Code to conduct a reproducible simulation study for emulator comparison.
+By reporting the study settings, other authors can compare results directly.
+
+Only \code{fit_func} is strictly required, but in that case only total runtime
+will be reported. The simplest (and recommended) interface is for
+\code{fit_func} (or \code{pred_func}) to return a numeric matrix of posterior
+samples, with one column per test point (e.g., per row of \code{X_test}) and
+one row per predictive draw. Any number of predictive samples is allowed. In
+this default case, point predictions are taken to be the column means, and
+prediction intervals are constructed using the R \code{quantile} function.
+
+Alternatively, \code{fit_func} (or \code{pred_func}) may return a named list.
+The field \code{samples} is normally required and should again be a matrix with
+one column per test point. If \code{samples} is omitted, then both
+\code{preds} and \code{sd} must be supplied, and \code{samples} will be
+approximated internally using Normal draws centered at \code{preds} with
+standard deviation \code{sd}. The optional field \code{preds} should be a
+numeric vector of point predictions of length equal to the number of test
+points. The optional field \code{intervals} should be a \code{2 x n x k} array
+of interval bounds, where \code{n} is the number of test points and
+\code{k = length(conf_level)}. When supplied, \code{preds} and
+\code{intervals} are used directly for point- and interval-based metrics;
+otherwise they are constructed from \code{samples}.
 }
 \section{Custom functions and designs}{
 
@@ -95,46 +116,53 @@ Only \code{fit_func} needs to be specified, but only the total time will be repo
 Advanced users can extend \code{run_sim_study()} with their own test
 functions or design types without modifying the package code.
 
-\emph{Custom functions:}
+\strong{Custom functions}
 
-- To supply a custom test function, create a list with fields:
+To supply a custom test function, create a list with fields:
 
-  - \code{$func}: a function with signature \code{f(x, scale01)} that returns
-    a scalar. Here \code{x} is a numeric vector of length \code{p}, and
-    \code{scale01} is a logical flag indicating whether inputs have been
-    scaled to \eqn{[0,1]^p}.
+\itemize{
+  \item \code{func}: a function with signature \code{f(x, scale01)} that
+  returns a scalar. Here \code{x} is a numeric vector of length \code{p},
+  and \code{scale01} is a logical flag indicating whether inputs have been
+  scaled to \eqn{[0,1]^p}.
 
-  - \code{$input_dim}: an integer specifying the input dimension \code{p}.
-
-- Pass this list as an extra argument to \code{run_sim_study()} with an
-arbitrary name, e.g.
-\preformatted{
-  f <- function(x, scale01=TRUE) x[1] - x[2]^2
-  my_list <- list(func = f, input_dim = 5)
-  run_sim_study(fit_func, pred_func, fnames = "custom_foobar", foobar = my_list)
+  \item \code{input_dim}: an integer specifying the input dimension \code{p}.
 }
 
-- Inside \code{fnames}, use the string \code{"custom_<name>"} to refer to
+Pass this list as an extra argument to \code{run_sim_study()} with an
+arbitrary name. For example:
+
+\preformatted{
+f <- function(x, scale01=TRUE) x[1] - x[2]^2
+my_list <- list(func = f, input_dim = 5)
+run_sim_study(fit_func, pred_func,
+              fnames = "custom_foobar",
+              foobar = my_list)
+}
+
+Inside \code{fnames}, use the string \code{"custom_<name>"} to refer to
 your custom function (here, \code{"custom_foobar"}).
 
-\emph{Custom designs:}
-- The \code{design_type} argument may also be set to \code{"custom"}.
+\strong{Custom designs}
 
-- In this case, you must supply an additional argument \code{design_func}
-  (through \code{...}), which should be a function of \code{n} and \code{p}
-  returning an \eqn{n \times p} design matrix.
+The \code{design_type} argument may also be set to \code{"custom"}. In this
+case, you must supply an additional argument \code{design_func} (through
+\code{...}), which should be a function of \code{n} and \code{p} returning
+an \eqn{n \times p} design matrix.
 
-- Example:
+For example:
+
 \preformatted{
-  correlated_design <- function(n, p) {
-    d <- lhs::randomLHS(n, p)
-    d[,1] <- (d[,2] + d[,3]) / 2
-    d
-  }
-  run_sim_study(fit_func, pred_func,
-                fnames = "ishigami",
-                design_type = "custom",
-                design_func = correlated_design)
+correlated_design <- function(n, p) {
+  d <- lhs::randomLHS(n, p)
+  d[,1] <- (d[,2] + d[,3]) / 2
+  d
+}
+
+run_sim_study(fit_func, pred_func,
+              fnames = "ishigami",
+              design_type = "custom",
+              design_func = correlated_design)
 }
 }
 
