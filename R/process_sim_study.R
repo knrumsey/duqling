@@ -449,21 +449,23 @@ join_sim_study <- function(obj1, obj2, keep_extra_metrics = FALSE) {
 #' Filters the rows of a simulation study while preserving class and metadata.
 #'
 #' @param obj A \code{duq_sim_study} object from \code{process_sim_study()}.
-#' @param ids Character vector of IDs to keep (matches \code{id}).
-#' @param methods Character vector of methods to keep (matches \code{method}).
+#' @param id Character vector of IDs to keep (matches \code{id}).
+#' @param method Character vector of methods to keep (matches \code{method}).
 #' @param n_train Numeric vector of training sizes to keep.
 #' @param design_type Character vector of design types to keep.
 #' @param NSR Numeric vector of noise-to-signal ratios to keep.
 #' @param replication Integer vector of replication indices to keep.
 #' @param fold_size Integer vector of fold sizes to keep.
-#' @param source Character vector of sources to keep ("function", "dataset").
+#' @param source Character vector of sources to keep (e.g. \code{"function"},
+#'   \code{"dataset"}).
 #' @param failure_type Character vector of failure types to keep (if present).
 #' @param metrics Character vector of metric columns to retain. If \code{NULL}
-#'   (default) all metric columns are kept.
-#' @param expr Optional expression evaluated inside \code{obj$df} for custom
-#'   filtering, e.g. \code{expr = n_train <= 500}.
-#' @param rerank Logical; if TRUE, recompute ranks (via \code{rank_sim_study()})
-#'   for any rank columns present. Default is FALSE.
+#'   (default), all columns are kept.
+#' @param expr Optional unquoted expression evaluated inside \code{obj$df} for
+#'   custom filtering, e.g. \code{expr = n_train <= 500}.
+#' @param rerank Logical; if \code{TRUE}, recompute ranks (via
+#'   \code{rank_sim_study()}) for any rank columns present. Default is
+#'   \code{FALSE}.
 #'
 #' @return A \code{duq_sim_study} object with filtered rows (and possibly fewer
 #'   columns if \code{metrics} is specified).
@@ -511,9 +513,9 @@ filter_sim_study <- function(obj,
   if (!is.null(failure_type)) keep <- keep & filter_vec("failure_type", failure_type)
 
   # Apply expr if provided
-  if (!is.null(expr)) {
-    #expr_keep <- eval(substitute(expr), envir = df, enclos = parent.frame())
-    expr_keep <- eval(expr, envir = df, enclos = parent.frame())
+  expr_sub <- substitute(expr)
+  if (!identical(expr_sub, NULL)) {
+    expr_keep <- eval(expr_sub, envir = df, enclos = parent.frame())
     if (!is.logical(expr_keep) || length(expr_keep) != nrow(df)) {
       stop("expr must evaluate to a logical vector of length nrow(df).", call. = FALSE)
     }

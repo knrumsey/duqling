@@ -23,6 +23,10 @@ filter_sim_study(
 \arguments{
 \item{obj}{A \code{duq_sim_study} object from \code{process_sim_study()}.}
 
+\item{id}{Character vector of IDs to keep (matches \code{id}).}
+
+\item{method}{Character vector of methods to keep (matches \code{method}).}
+
 \item{n_train}{Numeric vector of training sizes to keep.}
 
 \item{design_type}{Character vector of design types to keep.}
@@ -33,22 +37,20 @@ filter_sim_study(
 
 \item{fold_size}{Integer vector of fold sizes to keep.}
 
-\item{source}{Character vector of sources to keep ("function", "dataset").}
+\item{source}{Character vector of sources to keep (e.g. \code{"function"},
+\code{"dataset"}).}
 
 \item{failure_type}{Character vector of failure types to keep (if present).}
 
 \item{metrics}{Character vector of metric columns to retain. If \code{NULL}
-(default) all metric columns are kept.}
+(default), all columns are kept.}
 
-\item{expr}{Optional expression evaluated inside \code{obj$df} for custom
-filtering, e.g. \code{expr = n_train <= 500}.}
+\item{expr}{Optional unquoted expression evaluated inside \code{obj$df} for
+custom filtering, e.g. \code{expr = n_train <= 500}.}
 
-\item{rerank}{Logical; if TRUE, recompute ranks (via \code{rank_sim_study()})
-for any rank columns present. Default is FALSE.}
-
-\item{ids}{Character vector of IDs to keep (matches \code{id}).}
-
-\item{methods}{Character vector of methods to keep (matches \code{method}).}
+\item{rerank}{Logical; if \code{TRUE}, recompute ranks (via
+\code{rank_sim_study()}) for any rank columns present. Default is
+\code{FALSE}.}
 }
 \value{
 A \code{duq_sim_study} object with filtered rows (and possibly fewer
