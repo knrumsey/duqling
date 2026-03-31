@@ -4,7 +4,7 @@
 #' "All Emulators are Wrong, Many are Useful, Some are More Useful Than Others:
 #' A Reproducible Comparison of Computer Model Surrogates".
 #'
-#' The `results_paper` dataset contains benchmark results for emulator
+#' The `sim_study_testfuncs` dataset contains benchmark results for emulator
 #' comparisons on built-in test functions included in \pkg{duqling}. These
 #' results are intended to support reproducible analyses, examples, and
 #' visualizations accompanying the paper.
@@ -34,19 +34,19 @@
 #' exact columns depend on the simulation study configuration used to generate
 #' the stored results.
 #'
-#' @usage data(results_paper)
+#' @usage data(sim_study_testfuncs)
 #' @source Generated using \pkg{duqling} simulation study workflows.
 #' @references Rumsey, K., Francom, D., Gibson, C., and Morris, R.
 #'   "All Emulators are Wrong, Many are Useful, Some are More Useful Than
 #'   Others: A Reproducible Comparison of Computer Model Surrogates."
 #' @examples
-#' data(results_paper)
-#' head(results_paper)
+#' data(sim_study_testfuncs)
+#' head(sim_study_testfuncs)
 #'
-#' if ("emulator" %in% names(results_paper)) {
-#'   table(results_paper$emulator)
+#' if ("emulator" %in% names(sim_study_testfuncs)) {
+#'   table(sim_study_testfuncs$emulator)
 #' }
-#' @name results_paper
+#' @name sim_study_testfuncs
 NULL
 
 
@@ -55,7 +55,7 @@ NULL
 #' Results from cross-validation studies on real-world uncertainty
 #' quantification datasets used in the emulator comparison paper.
 #'
-#' The `results_data_paper` dataset contains benchmark results for emulator
+#' The `sim_study_realdata` dataset contains benchmark results for emulator
 #' comparisons on curated real datasets distributed with or accessed through
 #' \pkg{duqling}. These results are intended to support reproducible analyses,
 #' examples, and visualizations accompanying the paper.
@@ -81,17 +81,17 @@ NULL
 #' Not all variables listed above are guaranteed to appear in every version; the
 #' exact columns depend on the study design used to generate the stored results.
 #'
-#' @usage data(results_data_paper)
+#' @usage data(sim_study_realdata)
 #' @source Generated using \pkg{duqling} data-based simulation study workflows.
 #' @references Rumsey, K., Francom, D., Gibson, C., and Morris, R.
 #'   "All Emulators are Wrong, Many are Useful, Some are More Useful Than
 #'   Others: A Reproducible Comparison of Computer Model Surrogates."
 #' @examples
-#' data(results_data_paper)
-#' head(results_data_paper)
+#' data(sim_study_realdata)
+#' head(sim_study_realdata)
 #'
-#' if ("dname" %in% names(results_data_paper)) {
-#'   unique(results_data_paper$dname)
+#' if ("dname" %in% names(sim_study_realdata)) {
+#'   unique(sim_study_realdata$dname)
 #' }
-#' @name results_data_paper
+#' @name sim_study_realdata
 NULL
