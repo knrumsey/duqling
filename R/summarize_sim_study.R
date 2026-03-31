@@ -844,3 +844,191 @@ heatmap_sim_study <- function(obj,
 
 
 
+#' Performance Profile Plot for Emulator Comparison
+#'
+#' Create a performance profile plot for a given metric. For each method and
+#' each simulation scenario, the metric is divided by the best value attained in
+#' that scenario. The resulting curve shows the fraction of scenarios for which
+#' a method is within a factor \eqn{\tau} of the best method.
+#'
+#' @param obj A \code{duq_sim_study} object from \code{process_sim_study()}.
+#' @param metric Character; the name of the metric to compare (e.g. "CRPS").
+#'   May refer to a derived metric handled by \code{ensure_metric()}.
+#' @param tau_lim Optional numeric vector of length 2 giving the range of
+#'   \eqn{\tau} values to plot. If \code{NULL} (default), limits are chosen from
+#'   the observed relative values.
+#' @param tau_grid Optional numeric vector of \eqn{\tau} values at which to
+#'   evaluate the profile. If \code{NULL} (default), a grid is constructed
+#'   automatically from \code{tau_lim}.
+#' @param tau_log Logical; should the \eqn{\tau} axis be plotted on the log10
+#'   scale? Default is \code{TRUE}.
+#' @param use_shapes Logical; whether to use different point shapes in addition
+#'   to color. Default is \code{TRUE}.
+#' @param relative_epsilon Optional numeric smoothing constant passed to
+#'   \code{relativize_sim_study()}. If not \code{NULL}, relative values are
+#'   computed as \code{(metric + epsilon) / (best + epsilon)}.
+#' @param color_scale Character; viridis option for line colors. Default is
+#'   \code{"turbo"}.
+#' @param title Optional title for plot. If \code{NULL} (default), generates a
+#'   title from \code{metric}. If \code{FALSE}, suppresses the title.
+#' @param ... Additional arguments passed to \code{ensure_metric()}.
+#'
+#' @return A \code{ggplot} object.
+#' @export
+perfprofile_sim_study <- function(obj,
+                                  metric = "CRPS",
+                                  tau_lim = NULL,
+                                  tau_grid = NULL,
+                                  tau_log = TRUE,
+                                  use_shapes = TRUE,
+                                  relative_epsilon = NULL,
+                                  color_scale = "turbo",
+                                  title = NULL,
+                                  ...) {
+  if (!requireNamespace("ggplot2", quietly = TRUE)) {
+    stop("Please install ggplot2 to use this plotting function.", call. = FALSE)
+  }
+  if (!inherits(obj, "duq_sim_study")) {
+    stop("Please provide a duq_sim_study object (from process_sim_study()).", call. = FALSE)
+  }
+
+  # Ensure metric exists, then compute relative version
+  obj <- ensure_metric(obj, metric, ...)
+  obj <- relativize_sim_study(obj,
+                              metric = metric,
+                              epsilon = relative_epsilon,
+                              log = FALSE)
+
+  df <- obj$df
+  rel_col <- paste0(metric, "_rel")
+
+  if (!rel_col %in% names(df)) {
+    stop("Failed to compute relative values for metric '", metric, "'.", call. = FALSE)
+  }
+
+  rel_vals_all <- df[[rel_col]][is.finite(df[[rel_col]]) & !is.na(df[[rel_col]])]
+  if (length(rel_vals_all) == 0) {
+    stop("No finite relative values found for metric '", metric, "'.", call. = FALSE)
+  }
+
+  # Profile domain
+  if (is.null(tau_lim)) {
+    tau_lim <- c(1, max(rel_vals_all, na.rm = TRUE))
+  }
+  if (length(tau_lim) != 2 || any(!is.finite(tau_lim)) || tau_lim[1] >= tau_lim[2]) {
+    stop("tau_lim must be a numeric vector of length 2 with tau_lim[1] < tau_lim[2].", call. = FALSE)
+  }
+  if (tau_log && any(tau_lim <= 0)) {
+    stop("tau_lim must be strictly positive when tau_log = TRUE.", call. = FALSE)
+  }
+
+  if (is.null(tau_grid)) {
+    if (tau_log) {
+      tau_grid <- 10^seq(log10(tau_lim[1]), log10(tau_lim[2]), length.out = 200)
+    } else {
+      tau_grid <- seq(tau_lim[1], tau_lim[2], length.out = 200)
+    }
+  } else {
+    tau_grid <- sort(unique(as.numeric(tau_grid)))
+    tau_grid <- tau_grid[is.finite(tau_grid)]
+    tau_grid <- tau_grid[tau_grid >= tau_lim[1] & tau_grid <= tau_lim[2]]
+    if (length(tau_grid) == 0) {
+      stop("tau_grid has no values inside tau_lim.", call. = FALSE)
+    }
+    if (tau_log && any(tau_grid <= 0)) {
+      stop("tau_grid must be strictly positive when tau_log = TRUE.", call. = FALSE)
+    }
+  }
+
+  # Check whether all methods appear in the same number of scenarios
+  n_by_method <- tapply(!is.na(df[[rel_col]]), df$method, sum)
+  if (length(unique(n_by_method)) > 1) {
+    warning("Not all methods appear in the same number of scenarios.
+           Performance profiles are computed using available scenarios only.
+           Consider filtering to a consistent subset with filter_sim_study().")
+  }
+
+  # Build performance profile
+  methods <- sort(unique(df$method))
+  prof_list <- vector("list", length(methods))
+  names(prof_list) <- methods
+
+  for (m in methods) {
+    vals <- df[[rel_col]][df$method == m]
+    vals <- vals[is.finite(vals) & !is.na(vals)]
+
+    if (length(vals) == 0) next
+
+    prof_list[[m]] <- data.frame(
+      method = m,
+      tau = tau_grid,
+      pct = vapply(tau_grid, function(tt) mean(vals <= tt), numeric(1)),
+      stringsAsFactors = FALSE
+    )
+  }
+
+  prof_df <- do.call(rbind, prof_list)
+  if (is.null(prof_df) || nrow(prof_df) == 0) {
+    stop("Could not construct performance profile.", call. = FALSE)
+  }
+
+  # Order methods by area under the profile
+  auc <- tapply(prof_df$pct, prof_df$method, sum)
+  method_order <- names(sort(auc, decreasing = TRUE))
+  prof_df$method <- factor(prof_df$method, levels = method_order)
+
+  # Plot
+  shapes_vec <- c(1, 0, 2, 5, 4)
+  p <- ggplot2::ggplot(prof_df,
+                       ggplot2::aes(x = tau, y = pct, color = method)) +
+    ggplot2::geom_line(linewidth = 1)
+
+  if (use_shapes) {
+    point_idx <- unique(as.integer(round(seq(1, length(tau_grid),
+                                             length.out = min(8, length(tau_grid))))))
+    point_tau <- tau_grid[point_idx]
+    prof_pts <- prof_df[prof_df$tau %in% point_tau, , drop = FALSE]
+
+    p <- p +
+      ggplot2::geom_point(data = prof_pts,
+                          ggplot2::aes(shape = method),
+                          size = 2) +
+      ggplot2::scale_shape_manual(values = rep(shapes_vec, length.out = length(unique(prof_df$method))))
+  }
+
+  plot_title <- if (is.null(title)) {
+    paste(metric_label(metric), "Performance Profile")
+  } else if (identical(title, FALSE)) {
+    NULL
+  } else {
+    title
+  }
+
+  if (is.character(color_scale) &&
+      length(color_scale) == 1 &&
+      color_scale %in% c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo")) {
+    p <- p + ggplot2::scale_color_viridis_d(option = color_scale)
+  } else {
+    stop("color_scale must be one of the standard viridis options.", call. = FALSE)
+  }
+
+  p <- p +
+    ggplot2::labs(
+      x = expression(tau),
+      y = "% of scenarios",
+      title = plot_title,
+      color = "Method",
+      shape = if (use_shapes) "Method" else NULL
+    ) +
+    ggplot2::scale_y_continuous(labels = function(x) paste0(100 * x, "%"),
+                                limits = c(0, 1)) +
+    ggplot2::theme_minimal(base_size = 16)
+
+  if (tau_log) {
+    p <- p + ggplot2::scale_x_log10(limits = tau_lim)
+  } else {
+    p <- p + ggplot2::scale_x_continuous(limits = tau_lim)
+  }
+
+  p
+}

@@ -78,8 +78,29 @@ A data frame with one row per dataset × fold × method combination. Columns inc
 Reproducible code for simulation studies with real data sets.
 }
 \details{
-Code to conduct a reproducible simulation study to compare emulators. By reporting the parameters to the study, other authors can compare their results directly.
-Only \code{fit_func} needs to be specified, but only the total time will be reported. The simplest (and recommended) approach is that the \code{fit_func} (or \code{pred_func}) should return a matrix of posterior samples, with one column per test point (e.g., per row in \code{X_test}). Any number of rows (predictive samples) is allowed. In this case, the mean of the samples is used as a prediction and the R \code{stats::quantile} function is used to construct confidence intervals. This default behavior can be changed by instead allowing \code{fit_func} (or \code{pred_func}) to return a named list with fields i) \code{samples} (required), ii) \code{preds} (optional; a vector of predictions), and iii) intervals (optional; a 2 by n by k array of interval bounds where n is the number of test points and k is \code{length(conf_level)}).
+Code to conduct a reproducible simulation study for emulator comparison.
+By reporting the study settings, other authors can compare results directly.
+
+Only \code{fit_func} is strictly required, but in that case only total runtime
+will be reported. The simplest (and recommended) interface is for
+\code{fit_func} (or \code{pred_func}) to return a numeric matrix of posterior
+samples, with one column per test point (e.g., per row of \code{X_test}) and
+one row per predictive draw. Any number of predictive samples is allowed. In
+this default case, point predictions are taken to be the column means, and
+prediction intervals are constructed using the R \code{quantile} function.
+
+Alternatively, \code{fit_func} (or \code{pred_func}) may return a named list.
+The field \code{samples} is normally required and should again be a matrix with
+one column per test point. If \code{samples} is omitted, then both
+\code{preds} and \code{sd} must be supplied, and \code{samples} will be
+approximated internally using Normal draws centered at \code{preds} with
+standard deviation \code{sd}. The optional field \code{preds} should be a
+numeric vector of point predictions of length equal to the number of test
+points. The optional field \code{intervals} should be a \code{2 x n x k} array
+of interval bounds, where \code{n} is the number of test points and
+\code{k = length(conf_level)}. When supplied, \code{preds} and
+\code{intervals} are used directly for point- and interval-based metrics;
+otherwise they are constructed from \code{samples}.
 }
 \examples{
 \dontrun{

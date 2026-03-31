@@ -123,8 +123,8 @@ To supply a custom test function, create a list with fields:
 \itemize{
   \item \code{func}: a function with signature \code{f(x, scale01)} that
   returns a scalar. Here \code{x} is a numeric vector of length \code{p},
-  and \code{scale01} is a logical flag indicating whether inputs have been
-  scaled to \eqn{[0,1]^p}.
+  and \code{scale01} is a logical flag indicating whether inputs are expected
+  to be in \eqn{[0,1]^p}.
 
   \item \code{input_dim}: an integer specifying the input dimension \code{p}.
 }

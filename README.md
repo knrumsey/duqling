@@ -7,15 +7,7 @@
 v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![](https://img.shields.io/badge/release%20version-2.1.0-blue.svg)](https://github.com/knrumsey/duqling)
 
-<div class="figure">
-
-<img src="inst/logos/DUQLING.png" alt="This logo was designed by Imagine AI Art Studio" width="50%" />
-<p class="caption">
-
-This logo was designed by Imagine AI Art Studio
-</p>
-
-</div>
+<img src="inst/logos/DUQLING.png" width="50%" />
 
 ### Description
 
@@ -58,72 +50,75 @@ duqling::quack()
 #> 3  forrester1_low_fidelity         1   univariate           FALSE      FALSE
 #> 4                   grlee1         1   univariate           FALSE      FALSE
 #> 5                   banana         2   univariate           FALSE      FALSE
-#> 6             dms_additive         2   univariate           FALSE      FALSE
-#> 7          dms_complicated         2   univariate           FALSE      FALSE
-#> 8             dms_harmonic         2   univariate           FALSE      FALSE
-#> 9               dms_radial         2   univariate           FALSE      FALSE
-#> 10              dms_simple         2   univariate           FALSE      FALSE
-#> 11              foursquare         2   univariate           FALSE      FALSE
-#> 12                  grlee2         2   univariate           FALSE      FALSE
-#> 13      lim_non_polynomial         2   univariate           FALSE      FALSE
-#> 14          lim_polynomial         2   univariate           FALSE      FALSE
-#> 15             multivalley         2   univariate           FALSE      FALSE
-#> 16                 ripples         2   univariate           FALSE      FALSE
-#> 17             simple_poly         2   univariate           FALSE      FALSE
-#> 18                squiggle         2   univariate           FALSE      FALSE
-#> 19                   star2         2   univariate           FALSE      FALSE
-#> 20           twin_galaxies         2   univariate           FALSE      FALSE
-#> 21               const_fn3         3   univariate           FALSE      FALSE
-#> 22                   cube3         3   univariate           FALSE      FALSE
-#> 23            cube3_rotate         3   univariate           FALSE      FALSE
-#> 24            detpep_curve         3   univariate           FALSE      FALSE
-#> 25               Gfunction         3   univariate           FALSE      FALSE
-#> 26                ishigami         3   univariate           FALSE      FALSE
-#> 27                 rabbits         3   univariate           FALSE      FALSE
-#> 28                sharkfin         3   univariate           FALSE      FALSE
-#> 29          simple_machine         3   functional           FALSE      FALSE
-#> 30                   vinet         3   functional           FALSE      FALSE
-#> 31              ocean_circ         4   univariate           FALSE       TRUE
-#> 32                   park4         4   univariate           FALSE      FALSE
-#> 33      park4_low_fidelity         4   univariate           FALSE      FALSE
-#> 34               pollutant         4   functional           FALSE      FALSE
-#> 35           pollutant_uni         4   univariate           FALSE      FALSE
-#> 36         beam_deflection         5   functional           FALSE      FALSE
-#> 37                   cube5         5   univariate           FALSE      FALSE
-#> 38                friedman         5   univariate           FALSE      FALSE
-#> 39            short_column         5   univariate           FALSE      FALSE
-#> 40       simple_machine_cm         5   functional           FALSE      FALSE
-#> 41       stochastic_piston         5   univariate           FALSE       TRUE
-#> 42                 bs_call         6   functional           FALSE       TRUE
-#> 43                  bs_put         6   functional           FALSE       TRUE
-#> 44            cantilever_D         6   univariate           FALSE      FALSE
-#> 45            cantilever_S         6   univariate           FALSE      FALSE
-#> 46                 circuit         6   univariate           FALSE      FALSE
-#> 47              Gfunction6         6   univariate           FALSE      FALSE
-#> 48                  grlee6         6   univariate           FALSE      FALSE
-#> 49                  crater         7   univariate           FALSE      FALSE
-#> 50               gamma_mix         7   univariate           FALSE      FALSE
-#> 51                  piston         7   univariate           FALSE      FALSE
-#> 52                borehole         8   univariate           FALSE      FALSE
-#> 53   borehole_low_fidelity         8   univariate           FALSE      FALSE
-#> 54                 detpep8         8   univariate           FALSE      FALSE
-#> 55                   ebola         8   univariate           FALSE      FALSE
-#> 56                   robot         8   univariate           FALSE      FALSE
-#> 57                dts_sirs         9   functional           FALSE       TRUE
-#> 58            steel_column         9   univariate           FALSE      FALSE
-#> 59                  sulfur         9   univariate           FALSE      FALSE
-#> 60              friedman10        10   univariate           FALSE      FALSE
-#> 61                ignition        10   univariate           FALSE      FALSE
-#> 62              wingweight        10   univariate           FALSE      FALSE
-#> 63             Gfunction12        12   univariate           FALSE      FALSE
-#> 64              const_fn15        15   univariate           FALSE      FALSE
-#> 65                    oo15        15   univariate           FALSE      FALSE
-#> 66                  permdb        16   univariate           FALSE      FALSE
-#> 67             Gfunction18        18   univariate           FALSE      FALSE
-#> 68              friedman20        20   univariate           FALSE      FALSE
-#> 69                 welch20        20   univariate           FALSE      FALSE
-#> 70            d_onehundred       100 multivariate           FALSE      FALSE
-#> 71              onehundred       100   univariate           FALSE      FALSE
+#> 6             borehole_cat         2   univariate            TRUE      FALSE
+#> 7           borehole_cat80         2   univariate            TRUE      FALSE
+#> 8             dms_additive         2   univariate           FALSE      FALSE
+#> 9          dms_complicated         2   univariate           FALSE      FALSE
+#> 10            dms_harmonic         2   univariate           FALSE      FALSE
+#> 11              dms_radial         2   univariate           FALSE      FALSE
+#> 12              dms_simple         2   univariate           FALSE      FALSE
+#> 13              foursquare         2   univariate           FALSE      FALSE
+#> 14                  grlee2         2   univariate           FALSE      FALSE
+#> 15      lim_non_polynomial         2   univariate           FALSE      FALSE
+#> 16          lim_polynomial         2   univariate           FALSE      FALSE
+#> 17               moon3_cat         2   univariate            TRUE      FALSE
+#> 18             multivalley         2   univariate           FALSE      FALSE
+#> 19                 ripples         2   univariate           FALSE      FALSE
+#> 20             simple_poly         2   univariate           FALSE      FALSE
+#> 21                squiggle         2   univariate           FALSE      FALSE
+#> 22                   star2         2   univariate           FALSE      FALSE
+#> 23           twin_galaxies         2   univariate           FALSE      FALSE
+#> 24               const_fn3         3   univariate           FALSE      FALSE
+#> 25                   cube3         3   univariate           FALSE      FALSE
+#> 26            cube3_rotate         3   univariate           FALSE      FALSE
+#> 27            detpep_curve         3   univariate           FALSE      FALSE
+#> 28               Gfunction         3   univariate           FALSE      FALSE
+#> 29                ishigami         3   univariate           FALSE      FALSE
+#> 30                 rabbits         3   univariate           FALSE      FALSE
+#> 31                sharkfin         3   univariate           FALSE      FALSE
+#> 32          simple_machine         3   functional           FALSE      FALSE
+#> 33                   vinet         3   functional           FALSE      FALSE
+#> 34              ocean_circ         4   univariate           FALSE       TRUE
+#> 35                   park4         4   univariate           FALSE      FALSE
+#> 36      park4_low_fidelity         4   univariate           FALSE      FALSE
+#> 37               pollutant         4   functional           FALSE      FALSE
+#> 38           pollutant_uni         4   univariate           FALSE      FALSE
+#> 39         beam_deflection         5   functional           FALSE      FALSE
+#> 40                   cube5         5   univariate           FALSE      FALSE
+#> 41                friedman         5   univariate           FALSE      FALSE
+#> 42            short_column         5   univariate           FALSE      FALSE
+#> 43       simple_machine_cm         5   functional           FALSE      FALSE
+#> 44       stochastic_piston         5   univariate           FALSE       TRUE
+#> 45                 bs_call         6   functional           FALSE       TRUE
+#> 46                  bs_put         6   functional           FALSE       TRUE
+#> 47            cantilever_D         6   univariate           FALSE      FALSE
+#> 48            cantilever_S         6   univariate           FALSE      FALSE
+#> 49                 circuit         6   univariate           FALSE      FALSE
+#> 50              Gfunction6         6   univariate           FALSE      FALSE
+#> 51                  grlee6         6   univariate           FALSE      FALSE
+#> 52                  crater         7   univariate           FALSE      FALSE
+#> 53               gamma_mix         7   univariate           FALSE      FALSE
+#> 54                  piston         7   univariate           FALSE      FALSE
+#> 55                borehole         8   univariate           FALSE      FALSE
+#> 56   borehole_low_fidelity         8   univariate           FALSE      FALSE
+#> 57                 detpep8         8   univariate           FALSE      FALSE
+#> 58                   ebola         8   univariate           FALSE      FALSE
+#> 59                   robot         8   univariate           FALSE      FALSE
+#> 60                dts_sirs         9   functional           FALSE       TRUE
+#> 61            steel_column         9   univariate           FALSE      FALSE
+#> 62                  sulfur         9   univariate           FALSE      FALSE
+#> 63              friedman10        10   univariate           FALSE      FALSE
+#> 64                ignition        10   univariate           FALSE      FALSE
+#> 65              wingweight        10   univariate           FALSE      FALSE
+#> 66             Gfunction12        12   univariate           FALSE      FALSE
+#> 67              const_fn15        15   univariate           FALSE      FALSE
+#> 68                    oo15        15   univariate           FALSE      FALSE
+#> 69                  permdb        16   univariate           FALSE      FALSE
+#> 70             Gfunction18        18   univariate           FALSE      FALSE
+#> 71              friedman20        20   univariate           FALSE      FALSE
+#> 72                 welch20        20   univariate           FALSE      FALSE
+#> 73            d_onehundred       100 multivariate           FALSE      FALSE
+#> 74              onehundred       100   univariate           FALSE      FALSE
 ```
 
 A list of all functions meeting certain criterion can be found with the
@@ -229,7 +224,7 @@ return only the first column (or a numeric vector).
 #' and return a matrix of predictions (see above for details)
 my_pred <- function(obj, X_test, conf_level=0.95){
   alpha <- 1 - conf_level
-  preds <- predict(obj, Xt)
+  preds <- predict(obj, X_test)
   
   # Get point prediction
   yhat <- apply(preds, 2, mean)
