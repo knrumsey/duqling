@@ -29,15 +29,17 @@ simulation studies. The main functionality of `duqling` includes.
 
 ## Installation
 
-To install the `duqling` package, type
+To install the `duqling` package, you will need the `remotes` package
+(or the `devtools` package) which can be installed from CRAN by typing
+`install.packages("remotes")`. Once you have the package, `duqling` can
+be installed from github and loaded by typing
 
 ``` r
-# install.packages("devtools")
-devtools::install_github("knrumsey/duqling")
+remotes::install_github("knrumsey/duqling")
 library(duqling)
 ```
 
-## Functions Included in Test Library
+## Test Function Library
 
 A master list of all functions found in the `duqling` package can be
 found with the command
@@ -169,12 +171,13 @@ duqling::quack("borehole")
 #> Kw  9855.00  12045.00
 ```
 
-## Using The Package
+#### Calling Test Functions
 
 Every function in the `duqling` package will (optionally) perform
 internal scaling so that inputs can be passed on a $(0, 1)$ scale for
-simplicity. This internal scaling is turned on by setting the argument
-`scale01=TRUE`. See help files for each individual function for details.
+simplicity. This internal scaling is performed when `scale01=TRUE`,
+which is the default for all functions in the package. See help files
+for each individual function for details, e.g. `?borehole`.
 
 ``` r
 n <- 100
@@ -182,130 +185,50 @@ p <- 8
 X <- matrix(runif(n*p), nrow=n, ncol=p)
 
 # This is how duqling functions are generally called
-y <- duqling::duq(X, "borehole")
+y <- apply(X, 1, borehole)
 
-# Or equivalently
-y <- apply(X, 1, duqling::borehole, scale01=TRUE) 
+# This is equivalent but safer 
+y <- apply(X, 1, duqling::borehole)
+
+# Or you can use the wrapper
+y <- eval_duq(borehole, X)
+y <- eval_duq("borehole", X)
 ```
 
-## Reproducible Simulation Studies
-
-To execute a reproducible simulation study, simply write two functions
-`my_fit()` and `my_pred()` (or lump them both into one function) and
-call the `run_sim_study()` function with your desired settings. Here’s
-an example using the `BASS` package.
-
-If both `my_fit()` and `my_pred()` are given, the package will time
-these steps separately.
+When setting `scale01=FALSE`, the inputs are expected to be on the
+“native scale”. For example, the Ishigami function usually expects
+inputs $x_1, x_2, x_3 \in [-\pi, \pi]$.
 
 ``` r
-library(BASS)
-#' This function should take arguments
-#'    X_train
-#'    y_train 
-#' and return a fitted model
-my_fit <- function(X, y){
-  bass(X, y, h1=4, h2=40/nrow(X), verbose=FALSE)
-}
+n <- 100
+
+# On native scale
+pi <- base::pi
+X_native <- cbind(runif(n, -pi, pi),
+                  runif(n, -pi, pi),
+                  runif(n, -pi, pi))
+y_native <- apply(X_native, 1, ishigami, scale01=FALSE)
+
+# On zero-one scale
+X_01 <- (X_native + pi) / (2 * pi) # These inputs are between 0 and 1
+y_01 <- apply(X_01, 1, ishigami, scale01=TRUE)
+
+# Same result
+all(y_native == y_01)
+#> [1] TRUE
 ```
 
-The value returned by the `my_pred()` function depends on whether
-interval estimation is desired. If so, `interval = TRUE`, then the
-function should return a matrix with three columns representing (1)
-point predictions (2) lower bound of interval estimate and (3) upper
-bound of interval estimate. If `interval = FALSE`, then the function can
-return only the first column (or a numeric vector).
+Note that you can get the native bounds for any function using `quack`,
+e.g., `quack("ishigami", verbose=FALSE)$input_range`.
+
+## A Repository for UQ Datasets
+
+The package also works as an interface for some uncertainty
+quantification datasets which are hosted in the UQDataverse, at . Get
+info on the datasets with the command.
 
 ``` r
-#' This function should take arguments
-#'    fitted_obj
-#'    X_test
-#'    conf_level (only if interval = TRUE) 
-#' and return a matrix of predictions (see above for details)
-my_pred <- function(obj, X_test, conf_level=0.95){
-  alpha <- 1 - conf_level
-  preds <- predict(obj, X_test)
-  
-  # Get point prediction
-  yhat <- apply(preds, 2, mean)
-  
-  # Get uncertainty
-  sd <- sqrt(apply(preds, 2, var) + mean(obj$s2)) 
-  
-  # Make matrix to be returned
-  res <- cbind(yhat,          # Point estimate
-               yhat - 2*sd,   # Lower bound
-               yhat + 2*sd)   # Upper bound
-  
-  return(res)
-}
-```
-
-Alternatively, everything can be lumped into the `my_fit()` function,
-but only the total time (for fitting and prediction) will be computed.
-Here’s an example with the `BART` package.
-
-``` r
-library(BART)
-my_fit <- function(X_train, y_train, X_test, conf_level=0.95){
-  mod <- wbart(X_train, y_train, X_test)
-  yhat <- mod$yhat.test
-  sd_post_mean <- apply(mod$yhat.test, 2, sd)
-  sd_post_eps  <- mean(mod$sigma)
-  sd <- sqrt(sd_post_mean^2 + sd_post_eps^2)
-  cbind(yhat,
-        yhat - 2*sd,
-        yhat + 2*sd)
-}
-
-my_pred <- NULL
-```
-
-## Simulation Study Settings
-
-When `run_sim_study` is called, each combination of the following
-arguments will be run for `replications` replications.
-
-- `fnames`: a vector of functions to test on. Should be a subset of
-  `quack(input_cat=FALSE, stochastic="n", response_type="uni")$fname`.
-- `n_train`: a vector of sample sizes.
-- `NSR`: Noise to Signal ratio. The inverse of the more-standard SNR.
-- `design_type`: What type of designs should be generated. Options are
-  “LHS” (maximin when $n\leq 2000$, random otherwise), “grid” and
-  “uniform”.
-
-An example call would be
-
-``` r
-results <- run_sim_study(my_fit, my_pred,
-                         fnames = c("dms_additive", "borehole", "welch20"),
-                         interval = TRUE,
-                         n_train = c(100, 500),
-                         NSR = c(0, 1/5),
-                         design_type = "LHS",
-                         method_names <- c("my_method"),
-                         replications = 5)
-```
-
-Some suggested function vectors for simulation studies are included in
-the functions
-
-``` r
-get_sim_functions_full()     #51 functions
-get_sim_functions_medium()   #20 functions
-get_sim_functions_short()    #10 functions
-get_sim_functions_tiny()     #4  functions
-get_sim_functions_2d()       #12 functions
-```
-
-## Datasets and duqling
-
-All data sets are hosted at our affiliated
-[UQDataverse](https://dataverse.harvard.edu/dataverse/UQdataverse/). For
-a full list of the unprocessed datasets, type
-
-``` r
-duqling::data_quack(raw=TRUE)
+data_quack(raw=TRUE)
 #>             dname input_dim output_dim       n input_cat_dim
 #> 1   Z_machine_exp         1          1   23224             3
 #> 2            e3sm         2          1   48602             1
@@ -317,92 +240,237 @@ duqling::data_quack(raw=TRUE)
 #> 8    fair_climate        46          1  168168             1
 ```
 
-Some datasets have been processed for univariate emulation. These can be
-found with the command
+Many emulation datasets have been prepped and can be viewed and accessed
+with the commands
 
 ``` r
-duqling::data_quack()
-#>                             dname input_dim input_cat_dim     n response_type
-#> 1                            e3sm         2             0 48602           uni
-#> 2                       e3sm_mcar         2             0 10000           uni
-#> 3                       e3sm_mnar         2             0  9122           uni
-#> 4                  stochastic_sir         4             0  2000           uni
-#> 5                       SLOSH_low         5             0  4000           uni
-#> 6                       SLOSH_mid         5             0  4000           uni
-#> 7                      SLOSH_high         5             0  4000           uni
-#> 8                    pbx9501_gold         6             0   500           uni
-#> 9                   pbx9501_ss304         6             0   500           uni
-#> 10                 pbx9501_nickel         6             0   500           uni
-#> 11                pbx9501_uranium         6             0   500           uni
-#> 12             Z_machine_max_vel1         6             0  5000           uni
-#> 13             Z_machine_max_vel2         6             0  5000           uni
-#> 14                 flyer_plate104        11             0  1000           uni
-#> 15            strontium_plume_p4b        20             0   300           uni
-#> 16           strontium_plume_p104        20             0   300           uni
-#> 17          Z_machine_max_vel_all        30             0  5000           uni
-#> 18 fair_climate_ssp1-2.6_year2200        45             0  1001           uni
-#> 19 fair_climate_ssp2-4.5_year2200        45             0  1001           uni
-#> 20 fair_climate_ssp3-7.0_year2200        45             0  1001           uni
-#> 21          fair_climate_ssp1-2.6        46             0 56056           uni
-#> 22          fair_climate_ssp2-4.5        46             0 56056           uni
-#> 23          fair_climate_ssp3-7.0        46             0 56056           uni
+# Chunk not evaluated
+data_quack(raw=FALSE, response_type="uni")
+
+dname <- "e3sm_mcar"
+dat <- get_emulation_data(dname)
+X <- dat$X
+y <- dat$y
 ```
 
-Raw datasets can be read (via the internet) with the function
-`get_UQ_data()` and the processed data with the function
-`get_emulation_data()`. For example,
+## Reproducible Simulation Studies
+
+Define fit and prediction functions and pass them to `run_sim_study()`
+or `run_sim_study_data()`. See `?run_sim_study()` for details. There are
+a few ways to set these functions up, but the standard approach is
+
+- `fit_func` takes two arguments `X` and `y` and returns an object that
+  will get passed to `pred_func`.
+- `pred_func` takes two arguments `obj` (from `fit_func`) and `Xt` (a
+  test set) and returns an $M\times n_\text{test}$ matrix of predictions
+  (M can be any number, but we recommend $M\approx 1000$.).
 
 ``` r
-data <- duqling::get_UQ_data("strontium_plume")
+# Method 1: Linear regression
+fit_lm <- function(X, y){
+  X <- as.data.frame(X)
+  X$y <- y
+  fit <- lm(y~., data=X)
+}
 
-data <- duqling::get_emulation_data("strontium_plume_p4b")
-X <- data$X
-y <- data$y
+pred_lm <- function(obj, Xt){
+  M <- 1000 # Number of predictive samples
+  Xt <- as.data.frame(Xt)
+  
+  # Make predictions
+  pred <- predict(obj, newdata=Xt, se.fit = TRUE)
+  mu <- pred$fit
+  se <- pred$se.fit
+  
+  sigma2 <- summary(obj)$sigma^2
+  
+  # predictive variance = model uncertainty + noise
+  sd_pred <- sqrt(se^2 + sigma2)
+  
+  n <- length(mu)
+  
+  # Generate M samples per test point
+  samples <- matrix(
+    rnorm(n * M, mean = rep(mu, each = M), sd = rep(sd_pred, each = M)),
+    nrow = M,
+    ncol = n
+  )
+}
 ```
 
-Akin to the `run_sim_study()` function, automated simulation studies can
-be run with cross-validation using the datasets in duqling. See the
-previous section on simulation studies for details.
+Now you choose simulation settings and run the simulation study:
+
+- **`fnames`**: A vector of test function names to evaluate. These
+  should come from `quack()`. A convenient default is
+  `get_paper_funcs()`, which returns the 60 test functions used in the
+  main study (see reference).
+
+- **`n_train`**: A vector of training sample sizes. Larger values
+  correspond to more data available for fitting the emulator.
+
+- **`NSR`**: Noise-to-signal ratio. Controls the level of noise added to
+  the simulator output. Smaller values correspond to cleaner (less
+  noisy) observations.
+
+- **`design_type`**: The experimental design used to generate training
+  inputs. Common options include `"LHS"` (maximin Latin hypercube for
+  moderate sizes), `"grid"`, and `"uniform"` (random sampling).
+
+- **`replications`**: The number of replications to run.
 
 ``` r
-results <- run_sim_study_data(my_fit, my_pred,
-                dnames=c("pbx9501_gold", "strontium_plume_p104"),
-                folds=c(5, 10))
+fnames <- c("borehole", "ishigami", "ebola")
+n_train <- 100
+NSR <- c(0, 0.1, 0.25)
+design_type <- "LHS"
+
+# Run simulation study
+res_lm <- run_sim_study(fit_lm, pred_lm,
+                        fnames=fnames,
+                        n_train=n_train,
+                        NSR=NSR,
+                        design_type=design_type,
+                        method_names="Lin. Reg.",
+                        replications=3,
+                        mc_cores=1, # For parallel computation
+                        n_test=100,  # Make it go faster
+                        verbose=FALSE)
 ```
 
-## Analysis and visualization
-
-The `duqling` package provides many tools for analyzing emulator results
-and generating publication-ready figures. An example analysis proceeds
-as follows:
+We can compare to another method, say projection pursuit regression (see
+`?ppr`), easily.
 
 ``` r
-# Process your sim study results from before
-duq_obj <- process_sim_study(results)
+fit_ppr <- function(X, y) {
+  X <- as.matrix(X)
+  stats::ppr(x = X, y = y, nterms=10)
+}
 
-# Load in data from the big simulation study (Rumsey et al 2025; coming soon)
-load("data/existing_results.Rda") # --> results_paper
+pred_ppr <- function(obj, Xt) {
+  M <- 1000
+  Xt <- as.matrix(Xt)
 
-# Now you can join your results together!
-duq_obj <- join_sim_study(duq_obj,
-                          process_sim_study(results_paper))
+  # Point predictions
+  mu <- as.numeric(stats::predict(obj, Xt))
 
-# Filter down to just the results you want
-duq_obj_sub <- filter_sim_study(duq_obj, 
-                                id = c("dms_additive", "borehole", "welch20"),
-                                n_train = 500,
-                                NSR = 0,
-                                method = c("my_method", "gp", "bnn", "confrf"))
+  # Residual sd from training fit
+  sigma <- sqrt(mean(obj$residuals^2))
+  n_test <- length(mu)
 
-# Now you can make plots and summaries!
-summarize_sim_study(duq_obj_sub, summarize = c("time", "CRPS"))
-rankplot_sim_study(duq_obj_sub, "RMSE")
-heatmap_sim_study(duq_obj_sub, "CRPS")
-paretoplot_sim_study(duq_obj_sub, c("CRPS_rel", "time_rel_log"))
+  # Return M x n_test predictive samples
+  preds <- vapply(
+    seq_len(n_test),
+    function(i) stats::rnorm(M, mean = mu[i], sd = sigma),
+    numeric(M)
+  )
 
-# View boxplots
-boxplots_sim_study(filter_sim_study(duq_obj_sub, id="borehole"), "CRPS_norm")
+  preds
+}
+
+res_ppr <- run_sim_study(fit_ppr, pred_ppr,
+                        fnames=fnames,
+                        n_train=n_train,
+                        NSR=NSR,
+                        design_type=design_type,
+                        method_names="PPR",
+                        replications=3,
+                        mc_cores=1, # For parallel computation
+                        n_test=100,  # Make it go faster
+                        verbose=FALSE)
 ```
+
+Now we can use `duqling` to do various comparisons, analysis, and
+visualization. s
+
+``` r
+# Process the studies in duqling
+duq_lm  <- process_sim_study(res_lm)
+duq_ppr <- process_sim_study(res_ppr)
+
+# Join them together
+duq <- join_sim_study(duq_lm, duq_ppr)
+
+# Analyze
+summarize_sim_study(duq, 
+                    summarize=c("time", "CRPS", "RMSE"),
+                    win_rate=NULL,
+                    soft_rel=NULL,
+                    group_by = "id", split_tables=FALSE)
+#>      method   time_mean CRPS_mean  RMSE_mean       id
+#> 1 Lin. Reg. 0.005555556 0.1561515 11.5985642 borehole
+#> 2       PPR 0.007333333 0.2408591 14.9772711 borehole
+#> 3 Lin. Reg. 0.004222222 0.2197608  0.1918249    ebola
+#> 4       PPR 0.006777778 0.3239365  0.2151097    ebola
+#> 5 Lin. Reg. 0.004222222 0.5020445  3.2933865 ishigami
+#> 6       PPR 0.005555556 0.4228206  2.4266673 ishigami
+
+# Make visuals
+heatmap_sim_study(duq, metric="CRPS")
+```
+
+<img src="man/figures/README-unnamed-chunk-14-1.png" width="100%" />
+
+Similar studies can be run for real data sets using
+`run_sim_study_data()`.
+
+## Large Scale Reproducible Benchmark Example
+
+The `duqling` package also includes results from a large-scale benchmark
+study of computer model emulators. These data were used in the paper
+
+Rumsey, K.N., Gibson, G.C., Francom, D. and Morris, R. *All Emulators
+are Wrong, Many are Useful, and Some are More Useful Than Others: A
+Reproducible Comparison of Computer Model Surrogates.* \[add link here\]
+
+These benchmark results can be loaded directly from the package and
+processed using the same workflow as any other `duqling` simulation
+study.
+
+``` r
+data("sim_study_testfuncs")
+duq_tf <- process_sim_study(sim_study_testfuncs)
+
+data("sim_study_realdata")
+duq_tf <- process_sim_study(sim_study_realdata)
+```
+
+The plotting and analysis functions provided by the package include
+
+- `summarize_sim_study()`: Computes summary statistics across simulation
+  scenarios (e.g., mean or median performance), producing a compact view
+  of emulator performance.
+
+- `heatmap_sim_study()`: Visualizes performance metrics (e.g., CRPS,
+  FVU) across scenarios using heatmaps, helping identify patterns across
+  settings.
+
+- `rankplot_sim_study()`: Displays cumulative rank distributions,
+  showing how often each emulator achieves a given rank or better.
+
+- `paretoplot_sim_study()`: Plots trade-offs between metrics (typically
+  accuracy vs. compute time), highlighting Pareto-efficient methods.
+
+- `perfprofile_sim_study()`: Generates performance profile plots,
+  showing the proportion of scenarios for which each method is within a
+  factor of the best.
+
+- `boxplots_sim_study()`: Produces boxplots of performance metrics
+  across scenarios, useful for assessing variability and the Rashomon
+  effect.
+
+- `rank_sim_study()`: Computes rank-based summaries for a specified
+  metric and appends corresponding rank columns.
+
+- `normalize_sim_study()`: Normalizes metrics (e.g., scaling relative to
+  variance or baseline values) to improve comparability across
+  scenarios.
+
+- `relativize_sim_study()`: Computes relative performance metrics by
+  comparing each method to the best-performing method within each
+  scenario.
+
+- `collapse_sim_study()`: Aggregates results across replications or
+  folds, producing a reduced data frame suitable for summary analyses.
 
 ### Release Information
 
