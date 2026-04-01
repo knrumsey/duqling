@@ -18,6 +18,7 @@
 #'   \code{failure_type != "none"}.
 #' @param soft_rel Metrics for which to compute average soft-relative scores.
 #' @param epsilon Numeric vector of epsilons (same length as soft_rel).
+#' @param upper_bound Numeric vector of upper bounds (same length as soft_rel)
 #' @param group_by Character vector of columns to split summaries by
 #'   (e.g. \code{c("n_train","NSR")}). Default = NULL (collapse across all scenarios).
 #' @param split_tables Logical; if TRUE (default), return a list of tables
@@ -42,6 +43,7 @@ summarize_sim_study <- function(obj,
                                 failure_rate = FALSE,
                                 soft_rel = "CRPS",
                                 epsilon = 0.001,
+                                upper_bound = Inf,
                                 group_by = NULL,
                                 split_tables = TRUE,
                                 ties_method="min",
@@ -84,6 +86,7 @@ summarize_sim_study <- function(obj,
         rank_col <- paste0(m, "_rank")
         rates <- tapply(obj_sub$df[[rank_col]] == 1,
                         obj_sub$df$method, mean, na.rm = TRUE)
+        rates <- as.numeric(rates)
         out[[paste0(m, "_winrate")]] <- rates[out$method]
       }
     }
@@ -98,6 +101,7 @@ summarize_sim_study <- function(obj,
         for (k in K) {
           rates <- tapply(obj_sub$df[[rank_col]] <= k,
                           obj_sub$df$method, mean, na.rm = TRUE)
+          rates <- as.numeric(rates)
           out[[paste0(m, "_top", k, "rate")]] <- rates[out$method]
         }
       }
@@ -113,6 +117,7 @@ summarize_sim_study <- function(obj,
         mins <- vapply(vals, min, numeric(1), na.rm = TRUE)
         ok <- dsub[[m]] <= mins[dsub$sim_scenario] * (1 + tol)
         rates <- tapply(ok, dsub$method, mean, na.rm = TRUE)
+        rates <- as.numeric(rates)
         out[[paste0(m, "_effective", tol)]] <- rates[out$method]
       }
     }
@@ -121,6 +126,7 @@ summarize_sim_study <- function(obj,
     if (failure_rate && "failure_type" %in% names(dsub)) {
       rates <- tapply(dsub$failure_type != "none",
                       dsub$method, mean, na.rm = TRUE)
+      rates <- as.numeric(rates)
       out[["failure_rate"]] <- rates[out$method]
     }
 
@@ -133,7 +139,9 @@ summarize_sim_study <- function(obj,
         vals <- split(dsub[[m]], dsub$sim_scenario)
         mins <- vapply(vals, min, numeric(1), na.rm = TRUE)
         score <- (dsub[[m]] + eps) / (mins[dsub$sim_scenario] + eps)
+        score <- pmin(score, upper_bound)
         rates <- tapply(score, dsub$method, mean, na.rm = TRUE)
+        rates <- as.numeric(rates)
         out[[paste0(m, "_softrel")]] <- rates[out$method]
       }
     }

@@ -16,6 +16,7 @@ summarize_sim_study(
   failure_rate = FALSE,
   soft_rel = "CRPS",
   epsilon = 0.001,
+  upper_bound = Inf,
   group_by = NULL,
   split_tables = TRUE,
   ties_method = "min",
@@ -48,6 +49,8 @@ in the resulting columns.}
 \item{soft_rel}{Metrics for which to compute average soft-relative scores.}
 
 \item{epsilon}{Numeric vector of epsilons (same length as soft_rel).}
+
+\item{upper_bound}{Numeric vector of upper bounds (same length as soft_rel)}
 
 \item{group_by}{Character vector of columns to split summaries by
 (e.g. \code{c("n_train","NSR")}). Default = NULL (collapse across all scenarios).}
