@@ -115,10 +115,42 @@ get_emulator_functions <- function(methods) {
   }
 
   if ("ngboost" %in% methods) {
-    if (!reticulate::py_module_available("ngboost")) {
-      stop("Method ngboost requires a working Python environment with ngboost installed.
-         See https://github.com/Akai01/ngboost for installation instructions.")
-    }
+    stop(
+      "Method 'ngboost' is not provided directly by the duqling package.\n",
+      "It requires a working Python environment with the ngboost library installed.\n\n",
+      "See:\n",
+      "  https://github.com/knrumsey/duqling_results\n",
+      "for implementation details.\n\n",
+      "Please refer to:\n",
+      "  https://github.com/Akai01/ngboost\n",
+      "for installation instructions."
+    )
+  }
+
+  if ("gbc" %in% methods) {
+    stop(
+      "Method 'gbc' is not provided directly by the duqling package.\n",
+      "It requires a working Python environment with the ngboost library installed.\n\n",
+      "See:\n",
+      "  https://github.com/knrumsey/duqling_results\n",
+      "for implementation details.\n\n",
+      "Please refer to:\n",
+      "  https://github.com/VadimSokolov/gbc-surrogate/\n",
+      "for installation instructions."
+    )
+  }
+
+  if (any(c("gpytorch", "svigp") %in% methods)) {
+    stop(
+      "Methods 'gpytorch' and 'svigp' rely on external Python libraries and are not fully provided by duqling.\n\n",
+      "See:\n",
+      "  https://github.com/knrumsey/duqling_results\n",
+      "for implementation details.\n\n",
+      "Please install the required Python dependencies (e.g., gpytorch) and ensure they are available via reticulate.\n\n",
+      "See:\n",
+      "  https://gpytorch.ai/",
+      call. = FALSE
+    )
   }
 
   # check that requested methods are known

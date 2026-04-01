@@ -12,8 +12,14 @@
 #' }
 #' @export
 #' @examples
+#' \donttest{
 #' data <- get_UQ_data("strontium_plume")
+#' }
 get_UQ_data <- function(dname, control=list()){
+  if (!requireNamespace("readr", quietly = TRUE)) {
+    stop("Please install readr to use get_UQ_data().", call. = FALSE)
+  }
+
   if(dname == "strontium_plume"){
     url <- "https://dataverse.harvard.edu/api/access/datafile/10210723"
     data <- readr::read_delim(url, delim="\t")
@@ -242,7 +248,7 @@ get_emulation_data <- function(dname){
     res$y <- res$y + stats::aggregate(velocity7~id, max, data=tmp$data)[,2]
     res$y <- res$y + stats::aggregate(velocity8~id, max, data=tmp$data)[,2]
     res$y <- res$y + stats::aggregate(velocity9~id, max, data=tmp$data)[,2]
-    res$X <- as.matrix(tmp$param[,-1])
+    res$X <- as.matrix(tmp$params[,-1])
     return(res)
   }
   # SLOSH DATA IS GIVEN AT 3 LOCATIONS

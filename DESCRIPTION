@@ -1,27 +1,49 @@
 Package: duqling
 Type: Package
-Title: Library of UQ Test Functions 
+Title: Library of UQ Test Functions
 Version: 2.1.0
 Authors@R: c(
-    person(given = "Kellin", 
-           family = "Rumsey", 
-           role = c("aut", "cre"), 
+    person(given = "Kellin",
+           family = "Rumsey",
+           role = c("aut", "cre"),
            email = "knrumsey@lanl.gov"),
-    person(given = "J. Derek", 
-           family = "Tucker", 
-           role = "ctb", 
-           email = "jdtuck@sandia.gov", 
+    person(given = "J. Derek",
+           family = "Tucker",
+           role = "ctb",
+           email = "jdtuck@sandia.gov",
            comment = c(ORCID = "0000-0001-8844-2169")))
-Description: An R package for reproducible UQ research. A virtual library of UQ test functions and standardized simulation studies for comparing emulators (even across papers). 
+Description: An R package for reproducible UQ research. It provides a virtual
+    library of uncertainty quantification test functions and standardized
+    simulation studies for comparing emulators, including comparisons across papers.
 License: BSD_3_clause + file LICENSE
-Imports: 
-    lhs,
-    stats,
-    tictoc,
-    readr
 Depends:
-    R (>= 3.5.0),
-Suggests: BASS, parallel
+    R (>= 3.5.0)
+Imports:
+    lhs,
+    tictoc
+Suggests:
+    BASS,
+    BART,
+    BayesianLasso,
+    GPfit,
+    GPvecchia,
+    GpGp,
+    RobustGaSP,
+    bnns,
+    cluster,
+    deepgp,
+    ggplot2,
+    glmnet,
+    gplite,
+    hetGP,
+    laGP,
+    ngboost,
+    parallel,
+    randomForest,
+    readr,
+    reticulate,
+    stargazer,
+    tgp
 Encoding: UTF-8
-RoxygenNote: 7.3.2
 LazyData: true
+RoxygenNote: 7.3.2

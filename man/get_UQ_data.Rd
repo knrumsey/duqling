@@ -25,5 +25,7 @@ Wrapper to read in various UQ datasets (from harvard dataverse)
 }
 }
 \examples{
+\donttest{
 data <- get_UQ_data("strontium_plume")
+}
 }

@@ -38,11 +38,10 @@ The `duqling` R package contains a wide variety of test functions for UQ. The go
 
 ## Installation
 
-To install the `duqling` package, type
+To install the `duqling` package, you will need the `remotes` package (or the `devtools` package) which can be installed from CRAN by typing `install.packages("remotes")`. Once you have the package, `duqling` can be installed from github and loaded by typing
 
 ```{R, eval=FALSE}
-# install.packages("devtools")
-devtools::install_github("knrumsey/duqling")
+remotes::install_github("knrumsey/duqling")
 library(duqling)
 ```
 
