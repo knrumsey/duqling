@@ -133,11 +133,14 @@ print.duq_sim_study <- function(x, ...) {
 rank_sim_study <- function(obj,
                            metric = "CRPS",
                            ties_method = "min",
-                           auc = FALSE) {
+                           auc = FALSE,
+                           ...) {
   if (!inherits(obj, "duq_sim_study")) {
     stop("Please provide a duq_sim_study object (from process_sim_study()).", call. = FALSE)
   }
 
+  # Ensure base metric(s) exist before trying to rank them
+  obj <- ensure_metric(obj, metric, ties_method = ties_method, ...)
   df <- obj$df
 
   if (!all(metric %in% names(df))) {
@@ -147,9 +150,9 @@ rank_sim_study <- function(obj,
 
   # For each metric, create a rank column
   for (m in metric) {
-    if(auc){
+    if (auc) {
       rank_col <- paste0(m, "_auc")
-    }else{
+    } else {
       rank_col <- paste0(m, "_rank")
     }
 
@@ -160,9 +163,10 @@ rank_sim_study <- function(obj,
     for (idx in split_idx) {
       vals <- df[[m]][idx]
       if (all(is.na(vals))) next
+
       # Lower values are better
       ranked_vals <- rank(vals, ties.method = ties_method)
-      if(auc){
+      if (auc) {
         ranked_vals <- 1 - (ranked_vals - 1) / (length(ranked_vals) - 1)
       }
       df[[rank_col]][idx] <- ranked_vals
@@ -638,5 +642,101 @@ collapse_sim_study <- function(obj,
   structure(list(df = df_new, meta = meta), class = "duq_sim_study")
 }
 
+#' Add or modify columns in a duq_sim_study object
+#'
+#' Evaluates one or more expressions inside \code{obj$df} and returns the
+#' modified \code{duq_sim_study} object. This is useful for creating custom
+#' metrics or transformed columns without modifying \code{obj$df} directly.
+#'
+#' Expressions are evaluated sequentially, so later expressions may refer to
+#' columns created earlier in the same call.
+#'
+#' @param obj A \code{duq_sim_study} object from \code{process_sim_study()}.
+#' @param ... Named expressions to evaluate inside \code{obj$df}. Each name
+#'   becomes a new or modified column in the returned object. For example,
+#'   \code{log_FVU = log10(FVU)} or \code{speed = 1 / t_tot}.
+#' @param overwrite Logical; if \code{FALSE} (default), an error is thrown when
+#'   attempting to overwrite an existing column. If \code{TRUE}, existing
+#'   columns may be replaced.
+#'
+#' @return A \code{duq_sim_study} object with updated columns in \code{obj$df}.
+#'
+#' @examples
+#' \dontrun{
+#' duq2 <- mutate_sim_study(
+#'   duq,
+#'   log_FVU = log10(FVU),
+#'   speed = 1 / t_tot
+#' )
+#'
+#' duq3 <- mutate_sim_study(
+#'   duq,
+#'   RMSE_over_time = RMSE / t_tot,
+#'   log_ratio = log10(RMSE_over_time)
+#' )
+#' }
+#'
+#' @export
+mutate_sim_study <- function(obj, ..., overwrite = FALSE) {
+  if (!inherits(obj, "duq_sim_study")) {
+    stop(
+      "Please provide a duq_sim_study object (from process_sim_study()).",
+      call. = FALSE
+    )
+  }
 
+  exprs <- as.list(substitute(list(...)))[-1]
+
+  if (length(exprs) == 0) {
+    warning("No expressions supplied; returning object unchanged.", call. = FALSE)
+    return(obj)
+  }
+
+  expr_names <- names(exprs)
+  if (is.null(expr_names) || any(expr_names == "")) {
+    stop(
+      "All expressions passed to mutate_sim_study() must be named.",
+      call. = FALSE
+    )
+  }
+
+  df <- obj$df
+
+  for (nm in expr_names) {
+    if (!overwrite && nm %in% names(df)) {
+      stop(
+        "Column '", nm, "' already exists. Set overwrite = TRUE to replace it.",
+        call. = FALSE
+      )
+    }
+
+    value <- tryCatch(
+      eval(exprs[[nm]], envir = df, enclos = parent.frame()),
+      error = function(e) {
+        stop(
+          "Failed to compute column '", nm, "': ", conditionMessage(e),
+          call. = FALSE
+        )
+      }
+    )
+
+    # Allow scalar values and recycle them to nrow(df)
+    if (length(value) == 1L) {
+      value <- rep(value, nrow(df))
+    }
+
+    if (length(value) != nrow(df)) {
+      stop(
+        "Expression for column '", nm, "' must evaluate to length 1 or nrow(obj$df).",
+        call. = FALSE
+      )
+    }
+
+    df[[nm]] <- value
+  }
+
+  obj$df <- df
+  obj$meta$n_rows <- nrow(df)
+  obj
+}
 

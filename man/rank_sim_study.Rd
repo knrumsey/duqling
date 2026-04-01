@@ -4,7 +4,7 @@
 \alias{rank_sim_study}
 \title{Rank methods within each simulation scenario}
 \usage{
-rank_sim_study(obj, metric = "CRPS", ties_method = "min", auc = FALSE)
+rank_sim_study(obj, metric = "CRPS", ties_method = "min", auc = FALSE, ...)
 }
 \arguments{
 \item{obj}{A \code{duq_sim_study} object from \code{process_sim_study()}.}

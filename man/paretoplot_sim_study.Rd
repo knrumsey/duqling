@@ -33,7 +33,7 @@ when metric direction is known (e.g. "← Worse   Better →").}
 
 \item{title}{Plot title. If NULL, auto-generate; if FALSE, suppress.}
 
-\item{...}{Additional arguments passed to \code{ensure_method()}.}
+\item{...}{Additional arguments passed to \code{ensure_metric()}.}
 }
 \value{
 A \code{ggplot} object.

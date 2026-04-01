@@ -130,23 +130,24 @@ metric_label <- function(metric) {
 
   if (grepl("_rank$", metric)) {
     base <- sub("_rank$", "", metric)
-    return(paste(base, "Rank"))
+    return(paste(metric_label(base), "Rank"))
   }
   if (grepl("_auc$", metric)) {
     base <- sub("_auc$", "", metric)
-    return(paste("AUC of", base, "Rank"))
+    return(paste("AUC of", metric_label(base)))
   }
   if (grepl("_rel_log$", metric)) {
     base <- sub("_rel_log$", "", metric)
-    return(paste("log Relative", base))
+    return(paste("log Relative", metric_label(base)))
   }
   if (grepl("_rel$", metric)) {
     base <- sub("_rel$", "", metric)
-    return(paste("Relative", base))
+    return(paste("Relative", metric_label(base)))
   }
   if (grepl("_norm$", metric)) {
     base <- sub("_norm$", "", metric)
-    return(paste(base, "(z-score)"))
+    return(paste(metric_label(base), "(z-score)"))
   }
+
   return(metric)
 }

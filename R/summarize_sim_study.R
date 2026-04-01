@@ -467,7 +467,7 @@ rankplot_sim_study <- function(obj,
 #' @param show_direction Logical; if TRUE (default), append arrows to axis labels
 #'   when metric direction is known (e.g. "← Worse   Better →").
 #' @param title Plot title. If NULL, auto-generate; if FALSE, suppress.
-#' @param ... Additional arguments passed to \code{ensure_method()}.
+#' @param ... Additional arguments passed to \code{ensure_metric()}.
 #'
 #' @return A \code{ggplot} object.
 #' @export
