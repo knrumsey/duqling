@@ -482,7 +482,7 @@ run_one_sim_case_data <- function(k, seed_t, XX, yy, groups, cv_type,
       # CALCULATE COVERAGES
       n_conf <- length(conf_level)
       if(n_conf > 0){
-        if(!identical(dim(preds$intervals), c(2L, n_test, n_conf))){
+        if(any(dim(preds$intervals) != c(2, n_test, n_conf))){
           warning("preds$intervals has the wrong dimensions; see documentation")
           preds$intervals <- array(preds$intervals, dim=c(2,n_test,n_conf))
         }
