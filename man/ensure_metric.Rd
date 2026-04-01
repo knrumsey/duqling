@@ -11,7 +11,8 @@ ensure_metric(
   epsilon = 0,
   upper_bound = Inf,
   log = TRUE,
-  trim = 0
+  trim = 0,
+  verbose = FALSE
 )
 }
 \arguments{

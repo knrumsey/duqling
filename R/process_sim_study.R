@@ -318,7 +318,8 @@ ensure_metric <- function(obj,
                           epsilon = 0,
                           upper_bound = Inf,
                           log = TRUE,
-                          trim = 0) {
+                          trim = 0,
+                          verbose=FALSE) {
   if (!inherits(obj, "duq_sim_study")) {
     stop("Please provide a duq_sim_study object (from process_sim_study()).", call. = FALSE)
   }
@@ -344,27 +345,32 @@ ensure_metric <- function(obj,
 
     if (grepl("_rank$", m)) {
       base <- sub("_rank$", "", m)
-      warning("Column '", m, "' not found. Computing via rank_sim_study().")
+      if(verbose)
+        message("Column '", m, "' not found. Computing via rank_sim_study().")
       obj <- rank_sim_study(obj, metric = base, ties_method = tm, auc = FALSE)
 
     } else if (grepl("_auc$", m)) {
       base <- sub("_auc$", "", m)
-      warning("Column '", m, "' not found. Computing via rank_sim_study(auc=TRUE).")
+      if(verbose)
+        message("Column '", m, "' not found. Computing via rank_sim_study(auc=TRUE).")
       obj <- rank_sim_study(obj, metric = base, ties_method = tm, auc = TRUE)
 
     } else if (grepl("_rel_log$", m)) {
       base <- sub("_rel_log$", "", m)
-      warning("Column '", m, "' not found. Computing via relative_sim_study(log=TRUE).")
+      if(verbose)
+        message("Column '", m, "' not found. Computing via relative_sim_study(log=TRUE).")
       obj <- relativize_sim_study(obj, metric = base, epsilon = eps, upper_bound = ub, log = TRUE)
 
     } else if (grepl("_rel$", m)) {
       base <- sub("_rel$", "", m)
-      warning("Column '", m, "' not found. Computing via relative_sim_study(log=FALSE).")
+      if(verbose)
+        message("Column '", m, "' not found. Computing via relative_sim_study(log=FALSE).")
       obj <- relativize_sim_study(obj, metric = base, epsilon = eps, upper_bound = ub, log = FALSE)
 
     } else if (grepl("_norm$", m)) {
       base <- sub("_norm$", "", m)
-      warning("Column '", m, "' not found. Computing via normalize_sim_study().")
+      if(verbose)
+        message("Column '", m, "' not found. Computing via normalize_sim_study().")
       obj <- normalize_sim_study(obj, metric = base, trim = tr)
 
     } else {
@@ -486,7 +492,7 @@ filter_sim_study <- function(obj,
   if (!inherits(obj, "duq_sim_study")) {
     stop("Please provide a duq_sim_study object (from process_sim_study()).", call. = FALSE)
   }
-  # Backwards compatability preserved
+  # Backwards compatibility preserved
   ids <- id
   methods <- method
 
