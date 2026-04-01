@@ -104,7 +104,13 @@ lookup_sigma <- function(fname){
     okc_plume=6.473348e-01
   )
 
-  return(sigma_lookup[[fname]])
+  val <- sigma_lookup[[fname]]
+
+  if (is.null(val)) {
+    return(1)
+  }
+
+  return(val)
 }
 
 

@@ -370,8 +370,6 @@ get_case_seed <- function(seed, n_train, design_type, NSR, fname, rep){
 
 run_one_sim_case <- function(rr, seed, fn, fnum, p, n, nsr, dsgn, n_test, conf_level, score, method_names, fit_func, pred_func, fallback, print_error, verbose, dots){
     # Generate training data
-    #seed_t <- transform_seed(seed, n, dsgn, nsr, fnum, rr)
-    dont_need_this_anymore <- fnum
     seed_t <- get_case_seed(seed, n, dsgn, nsr, fn, rr)
     set.seed(seed_t)
     if(is_custom(fn)){
