@@ -86,8 +86,7 @@ summarize_sim_study <- function(obj,
         rank_col <- paste0(m, "_rank")
         rates <- tapply(obj_sub$df[[rank_col]] == 1,
                         obj_sub$df$method, mean, na.rm = TRUE)
-        rates <- as.numeric(rates)
-        out[[paste0(m, "_winrate")]] <- rates[out$method]
+        out[[paste0(m, "_winrate")]] <- as.numeric(rates[out$method])
       }
     }
 
@@ -101,8 +100,7 @@ summarize_sim_study <- function(obj,
         for (k in K) {
           rates <- tapply(obj_sub$df[[rank_col]] <= k,
                           obj_sub$df$method, mean, na.rm = TRUE)
-          rates <- as.numeric(rates)
-          out[[paste0(m, "_top", k, "rate")]] <- rates[out$method]
+          out[[paste0(m, "_top", k, "rate")]] <- as.numeric(rates[out$method])
         }
       }
     }
@@ -117,8 +115,7 @@ summarize_sim_study <- function(obj,
         mins <- vapply(vals, min, numeric(1), na.rm = TRUE)
         ok <- dsub[[m]] <= mins[dsub$sim_scenario] * (1 + tol)
         rates <- tapply(ok, dsub$method, mean, na.rm = TRUE)
-        rates <- as.numeric(rates)
-        out[[paste0(m, "_effective", tol)]] <- rates[out$method]
+        out[[paste0(m, "_effective", tol)]] <- as.numeric(rates[out$method])
       }
     }
 
@@ -126,8 +123,7 @@ summarize_sim_study <- function(obj,
     if (failure_rate && "failure_type" %in% names(dsub)) {
       rates <- tapply(dsub$failure_type != "none",
                       dsub$method, mean, na.rm = TRUE)
-      rates <- as.numeric(rates)
-      out[["failure_rate"]] <- rates[out$method]
+      out[["failure_rate"]] <- as.numeric(rates[out$method])
     }
 
     # Soft relative
@@ -141,8 +137,7 @@ summarize_sim_study <- function(obj,
         score <- (dsub[[m]] + eps) / (mins[dsub$sim_scenario] + eps)
         score <- pmin(score, upper_bound)
         rates <- tapply(score, dsub$method, mean, na.rm = TRUE)
-        rates <- as.numeric(rates)
-        out[[paste0(m, "_softrel")]] <- rates[out$method]
+        out[[paste0(m, "_softrel")]] <- as.numeric(rates[out$method])
       }
     }
 
