@@ -241,12 +241,38 @@ data_quack(raw=TRUE)
 ```
 
 Many emulation datasets have been prepped and can be viewed and accessed
-with the commands
+as follows.
+
+``` r
+data_quack(raw=FALSE, response_type="uni")
+#>                             dname input_dim input_cat_dim     n response_type
+#> 1                            e3sm         2             0 48602           uni
+#> 2                       e3sm_mcar         2             0 10000           uni
+#> 3                       e3sm_mnar         2             0  9122           uni
+#> 4                  stochastic_sir         4             0  2000           uni
+#> 5                       SLOSH_low         5             0  4000           uni
+#> 6                       SLOSH_mid         5             0  4000           uni
+#> 7                      SLOSH_high         5             0  4000           uni
+#> 8                    pbx9501_gold         6             0   500           uni
+#> 9                   pbx9501_ss304         6             0   500           uni
+#> 10                 pbx9501_nickel         6             0   500           uni
+#> 11                pbx9501_uranium         6             0   500           uni
+#> 12             Z_machine_max_vel1         6             0  5000           uni
+#> 13             Z_machine_max_vel2         6             0  5000           uni
+#> 14                 flyer_plate104        11             0  1000           uni
+#> 15            strontium_plume_p4b        20             0   300           uni
+#> 16           strontium_plume_p104        20             0   300           uni
+#> 17          Z_machine_max_vel_all        30             0  5000           uni
+#> 18 fair_climate_ssp1-2.6_year2200        45             0  1001           uni
+#> 19 fair_climate_ssp2-4.5_year2200        45             0  1001           uni
+#> 20 fair_climate_ssp3-7.0_year2200        45             0  1001           uni
+#> 21          fair_climate_ssp1-2.6        46             0 56056           uni
+#> 22          fair_climate_ssp2-4.5        46             0 56056           uni
+#> 23          fair_climate_ssp3-7.0        46             0 56056           uni
+```
 
 ``` r
 # Chunk not evaluated
-data_quack(raw=FALSE, response_type="uni")
-
 dname <- "e3sm_mcar"
 dat <- get_emulation_data(dname)
 X <- dat$X
@@ -397,18 +423,18 @@ summarize_sim_study(duq,
                     soft_rel=NULL,
                     group_by = "id", split_tables=FALSE)
 #>      method   time_mean CRPS_mean  RMSE_mean       id
-#> 1 Lin. Reg. 0.005555556 0.1561515 11.5985642 borehole
+#> 1 Lin. Reg. 0.004888889 0.1561515 11.5985642 borehole
 #> 2       PPR 0.007333333 0.2408591 14.9772711 borehole
-#> 3 Lin. Reg. 0.004222222 0.2197608  0.1918249    ebola
-#> 4       PPR 0.006777778 0.3239365  0.2151097    ebola
-#> 5 Lin. Reg. 0.004222222 0.5020445  3.2933865 ishigami
-#> 6       PPR 0.005555556 0.4228206  2.4266673 ishigami
+#> 3 Lin. Reg. 0.004000000 0.2197608  0.1918249    ebola
+#> 4       PPR 0.006666667 0.3239365  0.2151097    ebola
+#> 5 Lin. Reg. 0.004666667 0.5020445  3.2933865 ishigami
+#> 6       PPR 0.005333333 0.4228206  2.4266673 ishigami
 
 # Make visuals
 heatmap_sim_study(duq, metric="CRPS")
 ```
 
-<img src="man/figures/README-unnamed-chunk-14-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-15-1.png" width="100%" />
 
 Similar studies can be run for real data sets using
 `run_sim_study_data()`.

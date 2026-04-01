@@ -110,11 +110,14 @@ The package also works as an interface for some uncertainty quantification datas
 data_quack(raw=TRUE)
 ```
 
-Many emulation datasets have been prepped and can be viewed and accessed with the commands
+Many emulation datasets have been prepped and can be viewed and accessed as follows. 
+```{R, eval=TRUE}
+data_quack(raw=FALSE, response_type="uni")
+```
+
+
 ```{R, eval=FALSE}
 # Chunk not evaluated
-data_quack(raw=FALSE, response_type="uni")
-
 dname <- "e3sm_mcar"
 dat <- get_emulation_data(dname)
 X <- dat$X
