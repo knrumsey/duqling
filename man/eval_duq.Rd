@@ -2,37 +2,52 @@
 % Please edit documentation in R/duq.R
 \name{eval_duq}
 \alias{eval_duq}
+\alias{duq}
 \title{Evaluate a UQ Test Function}
 \usage{
 eval_duq(f, x, z = NULL, scale01 = TRUE, ...)
+
+duq(f, x, z = NULL, scale01 = TRUE, ...)
 }
 \arguments{
-\item{f}{A string (of a function name) or a function, usually from the duqling package}
+\item{f}{A function or a character string giving the name of a function,
+usually from the `duqling` package.}
 
-\item{x}{A matrix of categorical inputs with \code{n} rows and \code{quack()$input_dim} columns.}
+\item{x}{A numeric matrix with `n` rows and `quack()$input_dim` columns.
+If a vector is supplied, it is treated as a single input.}
 
-\item{z}{A matrix of categorical inputs with \code{n} rows and \code{quack()$input_cat_dim} columns. Categories should be coercible to an integer between 1 and number of levels.}
+\item{z}{An optional matrix of categorical inputs with `n` rows and
+`quack()$input_cat_dim` columns. Categories should be coercible to integers
+between 1 and the number of levels. If a vector is supplied, it is treated
+as a single input.}
 
-\item{scale01}{When \code{TRUE}, inputs are expected to be given on unit interval and are internally adjusted to their native range. Default is FALSE}
+\item{scale01}{When `TRUE`, inputs are assumed to lie on the unit interval
+and are internally mapped to their native range. Default is `TRUE`.}
 
-\item{...}{additional functions to be passed to f}
+\item{...}{Additional arguments passed to `f`.}
 }
 \value{
-See details
+The result of evaluating `f` row-wise over `x` (and `z`, if applicable).
+For univariate test functions this is typically a numeric vector. For
+multivariate or functional outputs, the return type matches the output of `f`.
 }
 \description{
-Call functions from duqling namespace
+Evaluate a `duqling` test function row-wise on a matrix of inputs.
+The argument `f` may be either a function or a character string giving the
+name of a function, typically from the `duqling` package.
 }
 \details{
-A shortcut for calling funtions in the duqling package
+This is a convenience wrapper for calling test functions in `duqling`.
 }
 \examples{
 n <- 100
 p <- 2
 X <- lhs::randomLHS(n, p)
-f_list <- quack(input_dim=2)$fname
+f_list <- quack(input_dim = 2)$fname
 eval_duq(f_list[1], X)
 }
 \references{
-Surjanovic, Sonja, and Derek Bingham. "Virtual library of simulation experiments: test functions and datasets." Simon Fraser University, Burnaby, BC, Canada, accessed May 13 (2013): 2015.
+Surjanovic, Sonja, and Derek Bingham. "Virtual library of simulation
+experiments: test functions and datasets." Simon Fraser University,
+Burnaby, BC, Canada, accessed May 13 (2013): 2015.
 }
