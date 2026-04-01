@@ -94,6 +94,26 @@ run_sim_study_data <- function(fit_func, pred_func=NULL,
                           print_error=FALSE,
                           verbose=TRUE){
 
+  # Check if parallelization is possible
+  if (!is.null(mc_cores) && mc_cores > 1) {
+    if (!requireNamespace("parallel", quietly = TRUE)) {
+      stop(
+        "mc_cores > 1 requires the 'parallel' package.\n",
+        "Install it with install.packages('parallel').",
+        call. = FALSE
+      )
+    }
+
+    if (.Platform$OS.type == "windows") {
+      warning(
+        "mc_cores > 1 is not supported on Windows with mclapply(). ",
+        "Falling back to mc_cores = 1.",
+        call. = FALSE
+      )
+      mc_cores <- 1
+    }
+  }
+
   # error handling here
   k <- NULL
   if(is.null(method_names)){

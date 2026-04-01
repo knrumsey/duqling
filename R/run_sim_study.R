@@ -177,6 +177,26 @@ run_sim_study <- function(fit_func, pred_func=NULL,
   # Capture ... for advanced custom usage
   dots <- list(...)
 
+  # Check if parallelization is possible
+  if (!is.null(mc_cores) && mc_cores > 1) {
+    if (!requireNamespace("parallel", quietly = TRUE)) {
+      stop(
+        "mc_cores > 1 requires the 'parallel' package.\n",
+        "Install it with install.packages('parallel').",
+        call. = FALSE
+      )
+    }
+
+    if (.Platform$OS.type == "windows") {
+      warning(
+        "mc_cores > 1 is not supported on Windows with mclapply(). ",
+        "Falling back to mc_cores = 1.",
+        call. = FALSE
+      )
+      mc_cores <- 1
+    }
+  }
+
   if(length(replications) == 1){
     if(replications < 0){
       rep_vec <- -replications
@@ -305,27 +325,6 @@ crpsf <- function(y, x, w = 0) {
   term2 <- 2 * sum(coef*x)
   res <- term1 - (1 - w/M) * term2 / (2*M*(M - 1))
   return(res)
-}
-
-
-# Replaced by get_case_seed()
-# but keeping around for backwards compatability?
-# probably safe to delete.
-transform_seed <- function(seed, n, dt, NSR, fnum, rr){
- s1 <- seed
- s2 <- round(log(n))
- s3 <- round(100*(log(n) %% 1))
- s4 <- switch(dt, LHS = 1, grid = 2, random = 3)
- s5 <- fnum
- s6 <- round(100*NSR)
- s7 <- round(100*((100*NSR) %% 1))
- s8 <- floor(rr/100)
- s8 <- rr %% 100
- B <- 101
- ss <- 0
- for(i in 1:8) ss <- ss + B^(i-1)*get(paste0("s", i))
- ss <- ss %% 100030001
- return(ss)
 }
 
 
