@@ -21,23 +21,25 @@
 #' @param ... Additional arguments for advance (custom) usage. See vignette for details.
 #' @return A data frame where each row corresponds to the results of a single simulation scenario, replication index, and method. The columns include:
 #'   \itemize{
-#'     \item \code{method}: Name of the fitted method, if provided. Unique names (\code{method<indx>}) names are assigned otherwise.
+#'     \item \code{method}: Name of the fitted method, if provided. Unique names (\code{method<i>}) are assigned otherwise.
 #'     \item \code{fname}: The test function name from \code{duqling::quack()$fname}. See details for custom functions.
 #'     \item \code{input_dim}: Input dimension of the test function.
-#'     \item \code{n}: Number of training points.
+#'     \item \code{n_train}: Number of training points.
 #'     \item \code{NSR}: Noise-to-signal ratio used in data generation.
-#'     \item \code{design_type}: Type of experimental design used for data generation ("LHS", "grid", or "random").
-#'     \item \code{rep}: Replication index.
+#'     \item \code{design_type}: Type of experimental design used for data generation ("LHS", "grid", "random", or "custom").
+#'     \item \code{replication}: Replication index.
 #'     \item \code{t_fit}: Elapsed time (seconds) for model fitting (if applicable).
 #'     \item \code{t_pred}: Elapsed time (seconds) for model prediction (if applicable).
 #'     \item \code{t_tot}: Total elapsed time for fitting and prediction.
-#'     \item \code{failure_type}: Indicates if the method failed at "fit", "pred", or "none" (if no failure).
+#'     \item \code{failure_type}: Indicates if the method failed at "fit", "pred", or "none".
 #'     \item \code{RMSE}: Root mean squared error on the test set.
 #'     \item \code{FVU}: Fraction of variance unexplained (RMSE\(^2\) divided by total variance).
-#'     \item \code{COVER<level>}: Coverage rates for each specified confidence level (e.g., \code{COVER0.8}, \code{COVER0.9}, etc.).
-#'     \item \code{MIS<level>}: Mean interval scores for each specified confidence level.
+#'     \item \code{COVER<level>}: Empirical coverage rates for each specified confidence level.
+#'     \item \code{LENGTH<level>}: Mean predictive interval length for each confidence level.
+#'     \item \code{MIS<level>}: Mean interval score for each confidence level.
+#'     \item \code{IAE_alpha}: Average absolute deviation between empirical coverage and nominal levels.
 #'     \item \code{CRPS}: Mean continuous ranked probability score (CRPS) on the test set.
-#'     \item \code{CRPS_min}, \code{CRPS_Q1}, \code{CRPS_med}, \code{CRPS_Q3}, \code{CRPS_max}: Summary statistics (minimum, first quartile, median, third quartile, maximum) for the CRPS distribution over the test set.
+#'     \item \code{CRPS_min}, \code{CRPS_Q1}, \code{CRPS_med}, \code{CRPS_Q3}, \code{CRPS_max}: Summary statistics of the CRPS distribution over the test set.
 #'   }
 #' Additional columns may be included for other metrics or settings depending on options provided.
 #'
@@ -122,6 +124,7 @@
 #' @references Surjanovic, Sonja, and Derek Bingham. "Virtual library of simulation experiments: test functions and datasets." Simon Fraser University, Burnaby, BC, Canada, accessed May 13 (2013): 2015.
 #' @export
 #' @examples
+#' \donttest{
 #'
 #' # METHOD 1: Linear Regression
 #' lm_fit <- function(X, y){
@@ -151,13 +154,13 @@
 #'
 #' my_fit  <- list(lm_fit, ppr_fit)
 #' my_pred <- list(lm_pred, ppr_pred)
-#' run_sim_study(my_fit, my_pred,
-#'              fnames=c("dms_additive", "borehole"),
-#'              n_train=50,
-#'              replications=2,
-#'              method_names=c("lm", "ppr") # Optional
-#'              )
 #'
+#' run_sim_study(my_fit, my_pred,
+#'               fnames=c("dms_additive", "borehole"),
+#'               n_train=50,
+#'               replications=2,
+#'               method_names=c("lm", "ppr"))
+#' }
 run_sim_study <- function(fit_func, pred_func=NULL,
                           fnames=NULL,
                           conf_level = c(0.8, 0.9, 0.95, 0.99),
@@ -560,6 +563,8 @@ run_one_sim_case <- function(rr, seed, fn, fnum, p, n, nsr, dsgn, n_test, conf_l
         if(n_conf > 0){
           nms <- names(DF_curr)
           empirical_coverages <- rep(NA, n_conf) # Adding IAE
+          interval_lengths <- rep(NA, n_conf)    # Adding interval lengths
+          interval_scores  <- rep(NA, n_conf)    # Negatively oriented mean interval scores
           for(iii in seq_along(conf_level)){
             alpha_curr <- 1 - conf_level[iii]
             bounds <- apply(preds, 2, stats::quantile, probs=c(alpha_curr/2, 1-alpha_curr/2))
@@ -567,20 +572,27 @@ run_one_sim_case <- function(rr, seed, fn, fnum, p, n, nsr, dsgn, n_test, conf_l
             # Coverage
             empirical_coverages[iii] <- mean((y_test >= bounds[1,]) & (y_test <= bounds[2,]))
             DF_curr[,ncol(DF_curr)+1] <- empirical_coverages[iii]
-          }
-
-          # INTERVAL SCORES
-          for(iii in seq_along(conf_level)){
-            alpha_curr <- 1 - conf_level[iii]
-            bounds <- apply(preds, 2, stats::quantile, probs=c(alpha_curr/2, 1-alpha_curr/2))
 
             # Negatively oriented mean interval score (Raftery & Gneiting)
             term1 <- apply(bounds, 2, diff)
             term2 <- 2*(bounds[1,] - y_test)*as.numeric(y_test < bounds[1,])/alpha_curr
             term3 <- 2*(y_test - bounds[2,])*as.numeric(y_test > bounds[2,])/alpha_curr
-            DF_curr[,ncol(DF_curr)+1] <- mean(term1 + term2 + term3)
+            interval_scores[iii] <- mean(term1 + term2 + term3)
+
+            # Interval length
+            interval_lengths[iii] <- mean(term1)
           }
-          nms <- c(nms, paste0("COVER", round(conf_level, 7)), paste0("MIS", round(conf_level, 7)))
+
+          # INTERVAL LENGTHS
+          for(iii in seq_along(conf_level)){
+            DF_curr[,ncol(DF_curr)+1] <- interval_lengths[iii]
+          }
+
+          # INTERVAL SCORES
+          for(iii in seq_along(conf_level)){
+            DF_curr[,ncol(DF_curr)+1] <- interval_scores[iii]
+          }
+          nms <- c(nms, paste0("COVER", round(conf_level, 7)), paste0("LENGTH", round(conf_level, 7)), paste0("MIS", round(conf_level, 7)))
           colnames(DF_curr) <- nms
 
           # Add IAE-alpha (from Marrel and Iooss 2024; reviewer request)
@@ -642,7 +654,7 @@ run_one_sim_case <- function(rr, seed, fn, fnum, p, n, nsr, dsgn, n_test, conf_l
         y_hat <- as.numeric(preds$preds)
         rmse_curr <- rmsef(y_test, y_hat)
         DF_curr$RMSE <- rmse_curr
-        DF_curr$FVU  <- rmse_curr^2/stats::var(y_test)
+        DF_curr$FVU  <- rmse_curr^2 / stats::var(y_test)
 
         # CALCULATE COVERAGES
         n_conf <- length(conf_level)
@@ -654,6 +666,8 @@ run_one_sim_case <- function(rr, seed, fn, fnum, p, n, nsr, dsgn, n_test, conf_l
 
           nms <- names(DF_curr)
           empirical_coverages <- rep(NA, n_conf)
+          interval_lengths <- rep(NA, n_conf)    # Adding interval lengths
+          interval_scores  <- rep(NA, n_conf)    # Negatively oriented mean interval scores
           #COVERAGES
           for(iii in seq_along(conf_level)){
             alpha_curr <- 1 - conf_level[iii]
@@ -661,19 +675,27 @@ run_one_sim_case <- function(rr, seed, fn, fnum, p, n, nsr, dsgn, n_test, conf_l
 
             empirical_coverages[iii] <- mean((y_test >= bounds[1,]) & (y_test <= bounds[2,]))
             DF_curr[,ncol(DF_curr)+1] <- empirical_coverages[iii]
+
+            # Negatively oriented mean interval score (Raftery & Gneiting)
+            term1 <- apply(bounds, 2, diff)
+            term2 <- 2*(bounds[1,] - y_test)*as.numeric(y_test < bounds[1,])/alpha_curr
+            term3 <- 2*(y_test - bounds[2,])*as.numeric(y_test > bounds[2,])/alpha_curr
+            interval_scores[iii] <- mean(term1 + term2 + term3)
+
+            # Interval length
+            interval_lengths[iii] <- mean(term1)
+          }
+
+          # INTERVAL LENGTHS
+          for(iii in seq_along(conf_level)){
+            DF_curr[,ncol(DF_curr)+1] <- interval_lengths[iii]
           }
 
           # INTERVAL SCORES
           for(iii in seq_along(conf_level)){
-            alpha_curr <- 1 - conf_level[iii]
-            bounds <- preds$intervals[,,iii]
-
-            term1 <- apply(bounds, 2, diff)
-            term2 <- 2*(bounds[1,] - y_test)*as.numeric(y_test < bounds[1,])/alpha_curr
-            term3 <- 2*(y_test - bounds[2,])*as.numeric(y_test > bounds[2,])/alpha_curr
-            DF_curr[,ncol(DF_curr)+1] <- mean(term1 + term2 + term3)
+            DF_curr[,ncol(DF_curr)+1] <- interval_scores[iii]
           }
-          nms <- c(nms, paste0("COVER", round(conf_level, 7)), paste0("MIS", round(conf_level, 7)))
+          nms <- c(nms, paste0("COVER", round(conf_level, 7)), paste0("LENGTH", round(conf_level, 7)), paste0("MIS", round(conf_level, 7)))
           colnames(DF_curr) <- nms
 
           # Add IAE-alpha (from Marrel and Iooss 2024; reviewer request)
@@ -703,13 +725,5 @@ run_one_sim_case <- function(rr, seed, fn, fnum, p, n, nsr, dsgn, n_test, conf_l
   return(DF_res)
 }
 
-#' Details:
-#'
-#' fit_func can return any of the following
-#'   A) an n x M matrix of predictive samples (recommended)
-#'   B) a n-vector of predictions (will be converted to an n by 1 matrix)
-#'   C) a named list with fields
-#'      - preds: An n-vector of predictions. If NULL, then colMeans(samples) will be used.
-#'      - intervals: A 2 by n by K array (or a matrix, if K = 1) where K = length(conf_level). If NULL, then quantiles of the samples field will be used.
-#'      - samples: An n by M matrix of samples from the predictive distribution
+
 

@@ -62,23 +62,25 @@ run_sim_study(
 \value{
 A data frame where each row corresponds to the results of a single simulation scenario, replication index, and method. The columns include:
   \itemize{
-    \item \code{method}: Name of the fitted method, if provided. Unique names (\code{method<indx>}) names are assigned otherwise.
+    \item \code{method}: Name of the fitted method, if provided. Unique names (\code{method<i>}) are assigned otherwise.
     \item \code{fname}: The test function name from \code{duqling::quack()$fname}. See details for custom functions.
     \item \code{input_dim}: Input dimension of the test function.
-    \item \code{n}: Number of training points.
+    \item \code{n_train}: Number of training points.
     \item \code{NSR}: Noise-to-signal ratio used in data generation.
-    \item \code{design_type}: Type of experimental design used for data generation ("LHS", "grid", or "random").
-    \item \code{rep}: Replication index.
+    \item \code{design_type}: Type of experimental design used for data generation ("LHS", "grid", "random", or "custom").
+    \item \code{replication}: Replication index.
     \item \code{t_fit}: Elapsed time (seconds) for model fitting (if applicable).
     \item \code{t_pred}: Elapsed time (seconds) for model prediction (if applicable).
     \item \code{t_tot}: Total elapsed time for fitting and prediction.
-    \item \code{failure_type}: Indicates if the method failed at "fit", "pred", or "none" (if no failure).
+    \item \code{failure_type}: Indicates if the method failed at "fit", "pred", or "none".
     \item \code{RMSE}: Root mean squared error on the test set.
     \item \code{FVU}: Fraction of variance unexplained (RMSE\(^2\) divided by total variance).
-    \item \code{COVER<level>}: Coverage rates for each specified confidence level (e.g., \code{COVER0.8}, \code{COVER0.9}, etc.).
-    \item \code{MIS<level>}: Mean interval scores for each specified confidence level.
+    \item \code{COVER<level>}: Empirical coverage rates for each specified confidence level.
+    \item \code{LENGTH<level>}: Mean predictive interval length for each confidence level.
+    \item \code{MIS<level>}: Mean interval score for each confidence level.
+    \item \code{IAE_alpha}: Average absolute deviation between empirical coverage and nominal levels.
     \item \code{CRPS}: Mean continuous ranked probability score (CRPS) on the test set.
-    \item \code{CRPS_min}, \code{CRPS_Q1}, \code{CRPS_med}, \code{CRPS_Q3}, \code{CRPS_max}: Summary statistics (minimum, first quartile, median, third quartile, maximum) for the CRPS distribution over the test set.
+    \item \code{CRPS_min}, \code{CRPS_Q1}, \code{CRPS_med}, \code{CRPS_Q3}, \code{CRPS_max}: Summary statistics of the CRPS distribution over the test set.
   }
 Additional columns may be included for other metrics or settings depending on options provided.
 }
@@ -167,6 +169,7 @@ run_sim_study(fit_func, pred_func,
 }
 
 \examples{
+\donttest{
 
 # METHOD 1: Linear Regression
 lm_fit <- function(X, y){
@@ -196,13 +199,13 @@ ppr_pred <- function(obj, Xt){
 
 my_fit  <- list(lm_fit, ppr_fit)
 my_pred <- list(lm_pred, ppr_pred)
-run_sim_study(my_fit, my_pred,
-             fnames=c("dms_additive", "borehole"),
-             n_train=50,
-             replications=2,
-             method_names=c("lm", "ppr") # Optional
-             )
 
+run_sim_study(my_fit, my_pred,
+              fnames=c("dms_additive", "borehole"),
+              n_train=50,
+              replications=2,
+              method_names=c("lm", "ppr"))
+}
 }
 \references{
 Surjanovic, Sonja, and Derek Bingham. "Virtual library of simulation experiments: test functions and datasets." Simon Fraser University, Burnaby, BC, Canada, accessed May 13 (2013): 2015.

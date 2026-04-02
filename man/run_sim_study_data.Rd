@@ -23,100 +23,136 @@ run_sim_study_data(
 )
 }
 \arguments{
-\item{fit_func}{If \code{pred_func} is specified, the \code{fit_func} should take two arguments called \code{X_train} and \code{y_train}, and should return an object which will be passed to \code{pred_func}. If \code{pred_func} is NOT specified, then \code{fit_func} should take a third argument called \code{X_test}, and should return predictive samples (see pred_func documentation).}
+\item{fit_func}{If \code{pred_func} is specified, \code{fit_func} should take
+two arguments called \code{X_train} and \code{y_train}, and should return
+an object which will be passed to \code{pred_func}. If \code{pred_func} is
+\code{NULL}, then \code{fit_func} should take a third argument called
+\code{X_test}, and should return predictive samples (see Details).}
 
-\item{pred_func}{A function taking two arguments: (i) the object returned by \code{fit_func} and a matrix \code{X_test}. The function should return an matrix of samples from the predictive distribution, with one column per test point. For additional flexibility, see the details below.}
+\item{pred_func}{A function taking two arguments: (i) the object returned by
+\code{fit_func} and (ii) a matrix \code{X_test}. The function should return
+predictive samples or a named list as described in the Details section.}
 
-\item{dnames}{A vector of dataset names from the \code{duqling} package. See \code{data_quack()} for details.}
+\item{dnames}{A vector of dataset names from the \code{duqling} package. See
+\code{data_quack()} for details.}
 
-\item{dsets}{A list of datasets. Each list component is a list with elements \code{X} (a matrix) and \code{y} (a vector).}
+\item{dsets}{A list of custom datasets. Each list component should itself be
+a list with elements \code{X} (a matrix of inputs) and \code{y} (a response
+vector).}
 
-\item{folds}{Number of folds in cross validation. Can be a scalar or a vector (with \code{length(folds) == length(dnames)}). If \code{folds} is negative, then a Bootstrap Cross-Validation procedure is run \code{-folds} times.}
+\item{folds}{Number of folds in cross validation. Can be a scalar or a vector
+with \code{length(folds) == length(dnames) + length(dsets)}. If a value of
+\code{folds} is negative, then a bootstrap cross-validation procedure is
+run \code{-folds} times.}
 
-\item{seed}{Seed for random number generators. For reproducibility, we discourage the use of this argument.}
+\item{seed}{Seed for random number generators. For reproducibility, use of
+the default seed is recommended.}
 
-\item{conf_level}{Confidence level for interval estimates. If \code{length(conf_level) > 1}, then \code{pred_func} should return a matrix with \code{1 + 2*length(conf_level)} columns, with 2 columns of lower and upper bounds for each value in \code{conf_}}
+\item{conf_level}{A vector of confidence levels used for empirical coverage,
+interval length, and mean interval score calculations.}
 
 \item{score}{Logical. Should CRPS be computed?}
 
-\item{x_scale01}{Logical. Should the inputs be internally scaled to be between 0 and 1? (Default TRUE).}
+\item{x_scale01}{Logical. Should the inputs be internally scaled to the unit
+interval? Default is \code{TRUE}.}
 
-\item{method_names}{A vector of method names, length equal to \code{length(fit_func)}. If NULL, the indexed names \code{my_method<i>} will be used.}
+\item{method_names}{A vector of method names, length equal to
+\code{length(fit_func)}. If \code{NULL}, indexed names
+\code{method<i>} will be used.}
 
-\item{custom_data_names}{An optional vector of dataset names corresponding to the argument \code{dsets}.}
+\item{custom_data_names}{An optional vector of dataset names corresponding to
+the argument \code{dsets}.}
 
-\item{mc_cores}{How many cores to use for parallelization over replications.}
+\item{mc_cores}{How many cores to use for parallelization over folds.}
 
-\item{fallback_on_error}{When \code{TRUE} (default), we use a null model (\code{N(mean(y_train), sd(y_train))}) for robustness if a failure is detected in either \code{fit_func} or \code{pred_func}.}
+\item{fallback_on_error}{When \code{TRUE} (default), a null model
+(\code{N(mean(y_train), sd(y_train))}) is used for robustness if a failure
+is detected in either \code{fit_func} or \code{pred_func}.}
 
-\item{print_error}{Logical (default FALSE). Should error messages (from \code{fit_func} or \code{pred_func})be printed?}
+\item{print_error}{Logical (default \code{FALSE}). Should error messages
+from \code{fit_func} or \code{pred_func} be printed?}
 
-\item{verbose}{should progress be reported?}
+\item{verbose}{Should progress be reported?}
 }
 \value{
-A data frame with one row per dataset × fold × method combination. Columns include:
+A data frame with one row per dataset, fold, and method combination.
+  Columns include:
   \itemize{
     \item \code{dname}: Dataset name.
     \item \code{method}: Method name.
-    \item \code{n}: Number of test points in the fold.
+    \item \code{n}: Number of training points used in the fold.
     \item \code{input_dim}: Input dimension.
     \item \code{fold}: Fold index.
-    \item \code{fold_size}: Number of points in the fold.
+    \item \code{fold_size}: Number of held-out points in the fold.
     \item \code{t_fit}: Elapsed time (seconds) for model fitting (if applicable).
     \item \code{t_pred}: Elapsed time (seconds) for model prediction (if applicable).
     \item \code{t_tot}: Total elapsed time for fitting and prediction.
-    \item \code{failure_type}: Indicates if the method failed at "fit", "pred", or "none" (if no failure).
+    \item \code{failure_type}: Indicates if the method failed at \code{"fit"},
+      \code{"pred"}, or \code{"none"}.
     \item \code{RMSE}: Root mean squared error on the test set.
-    \item \code{FVU}: Fraction of variance unexplained (RMSE^2 divided by total variance).
-    \item \code{COVER<level>}: Coverage rates for each specified confidence level (e.g., \code{COVER0.8}, \code{COVER0.9}, etc.).
-    \item \code{MIS<level>}: Mean interval scores for each specified confidence level.
+    \item \code{FVU}: Fraction of variance unexplained (RMSE\eqn{^2} divided
+      by the variance of the test responses).
+    \item \code{COVER<level>}: Empirical coverage for each specified confidence level.
+    \item \code{LENGTH<level>}: Mean predictive interval length for each specified confidence level.
+    \item \code{MIS<level>}: Mean interval score for each specified confidence level.
+    \item \code{IAE_alpha}: Average absolute deviation between empirical coverage
+      and the nominal confidence levels.
     \item \code{CRPS}: Mean continuous ranked probability score (CRPS) on the test set.
-    \item \code{CRPS_min}, \code{CRPS_Q1}, \code{CRPS_med}, \code{CRPS_Q3}, \code{CRPS_max}: Summary statistics (minimum, first quartile, median, third quartile, maximum) for the CRPS distribution over the test set.
+    \item \code{CRPS_min}, \code{CRPS_Q1}, \code{CRPS_med}, \code{CRPS_Q3},
+      \code{CRPS_max}: Summary statistics of the CRPS distribution over the test set.
   }
 }
 \description{
-Reproducible code for simulation studies with real data sets.
+Reproducible code for emulator simulation studies using real datasets.
 }
 \details{
-Code to conduct a reproducible simulation study for emulator comparison.
-By reporting the study settings, other authors can compare results directly.
+Code to conduct a reproducible simulation study for emulator
+  comparison using real datasets. By reporting the study settings, other
+  authors can compare results directly.
 
-Only \code{fit_func} is strictly required, but in that case only total runtime
-will be reported. The simplest (and recommended) interface is for
-\code{fit_func} (or \code{pred_func}) to return a numeric matrix of posterior
-samples, with one column per test point (e.g., per row of \code{X_test}) and
-one row per predictive draw. Any number of predictive samples is allowed. In
-this default case, point predictions are taken to be the column means, and
-prediction intervals are constructed using the R \code{quantile} function.
+  Only \code{fit_func} is strictly required, but in that case only total
+  runtime will be reported. The simplest (and recommended) interface is for
+  \code{fit_func} (or \code{pred_func}) to return a numeric matrix of
+  predictive samples, with one column per test point and one row per
+  predictive draw. Any number of predictive samples is allowed. In this
+  default case, point predictions are taken to be the column means, and
+  prediction intervals are constructed using the R \code{quantile} function.
 
-Alternatively, \code{fit_func} (or \code{pred_func}) may return a named list.
-The field \code{samples} is normally required and should again be a matrix with
-one column per test point. If \code{samples} is omitted, then both
-\code{preds} and \code{sd} must be supplied, and \code{samples} will be
-approximated internally using Normal draws centered at \code{preds} with
-standard deviation \code{sd}. The optional field \code{preds} should be a
-numeric vector of point predictions of length equal to the number of test
-points. The optional field \code{intervals} should be a \code{2 x n x k} array
-of interval bounds, where \code{n} is the number of test points and
-\code{k = length(conf_level)}. When supplied, \code{preds} and
-\code{intervals} are used directly for point- and interval-based metrics;
-otherwise they are constructed from \code{samples}.
+  Alternatively, \code{fit_func} (or \code{pred_func}) may return a named
+  list. The field \code{samples} is typically required and should again be an
+  \code{M x n} matrix with one column per test point. If \code{samples} is
+  omitted, then both \code{preds} and \code{sd} must be supplied, and
+  \code{samples} will be approximated internally using Normal draws centered
+  at \code{preds} with standard deviation \code{sd}. The optional field
+  \code{preds} should be a numeric vector of point predictions of length
+  equal to the number of test points. The optional field \code{intervals}
+  should be a \code{2 x n x k} array of interval bounds, where \code{n} is
+  the number of test points and \code{k = length(conf_level)}. When supplied,
+  \code{preds} and \code{intervals} are used directly for point- and
+  interval-based metrics; otherwise they are constructed from \code{samples}.
 }
 \examples{
-\dontrun{
-my_fit <- function(X, y) lm(y ~ ., data = as.data.frame(X))
+\donttest{
+my_fit <- function(X, y) {
+  lm(y ~ ., data = as.data.frame(X))
+}
+
 my_pred <- function(mod, Xt) {
   mu <- predict(mod, as.data.frame(Xt))
   s  <- sd(residuals(mod))
-  replicate(1000, mu + rnorm(length(mu), 0, s))
+  t(replicate(1000, mu + rnorm(length(mu), 0, s)))
 }
 
-run_sim_study_data(fit_func = my_fit,
-                   pred_func = my_pred,
-                   dnames = c("pbx9501_gold"),
-                   folds = 5)
+run_sim_study_data(
+  fit_func = my_fit,
+  pred_func = my_pred,
+  dnames = "pbx9501_gold",
+  folds = 5
+)
 }
 }
 \references{
-Surjanovic, Sonja, and Derek Bingham. "Virtual library of simulation experiments: test functions and datasets." Simon Fraser University, Burnaby, BC, Canada, accessed May 13 (2013): 2015.
+Surjanovic, Sonja, and Derek Bingham. "Virtual library of simulation
+experiments: test functions and datasets." Simon Fraser University,
+Burnaby, BC, Canada, accessed May 13 (2013): 2015.
 }
