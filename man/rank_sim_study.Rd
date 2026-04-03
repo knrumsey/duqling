@@ -13,7 +13,9 @@ rank_sim_study(obj, metric = "CRPS", ties_method = "min", auc = FALSE, ...)
 
 \item{ties_method}{Passed to \code{base::rank()} (default "min").}
 
-\item{auc}{Logical (default \code{FALSE}). Should the rankings be converted to
+\item{auc}{Logical (default \code{FALSE}). Should the rankings be converted to}
+
+\item{...}{additional arguments passed onto ensure_metric
 area under curve scale? See \code{rankplot_sim_study()} for details.}
 }
 \value{

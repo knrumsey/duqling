@@ -125,6 +125,7 @@ print.duq_sim_study <- function(x, ...) {
 #' @param metric Character vector of metric column names (default "CRPS").
 #' @param ties_method Passed to \code{base::rank()} (default "min").
 #' @param auc Logical (default \code{FALSE}). Should the rankings be converted to
+#' @param ... additional arguments passed onto ensure_metric
 #' area under curve scale? See \code{rankplot_sim_study()} for details.
 #'
 #' @return The same \code{duq_sim_study} object, with new ranking column(s)
@@ -351,13 +352,33 @@ ensure_metric <- function(obj,
       base <- sub("_rank$", "", m)
       if(verbose)
         message("Column '", m, "' not found. Computing via rank_sim_study().")
-      obj <- rank_sim_study(obj, metric = base, ties_method = tm, auc = FALSE)
+      obj <- rank_sim_study(
+        obj,
+        metric = base,
+        ties_method = tm,
+        auc = FALSE,
+        epsilon = eps,
+        upper_bound = ub,
+        log = lg,
+        trim = tr,
+        verbose = verbose
+      )
 
     } else if (grepl("_auc$", m)) {
       base <- sub("_auc$", "", m)
       if(verbose)
         message("Column '", m, "' not found. Computing via rank_sim_study(auc=TRUE).")
-      obj <- rank_sim_study(obj, metric = base, ties_method = tm, auc = TRUE)
+      obj <- rank_sim_study(
+        obj,
+        metric = base,
+        ties_method = tm,
+        auc = TRUE,
+        epsilon = eps,
+        upper_bound = ub,
+        log = lg,
+        trim = tr,
+        verbose = verbose
+      )
 
     } else if (grepl("_rel_log$", m)) {
       base <- sub("_rel_log$", "", m)
