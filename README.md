@@ -7,7 +7,7 @@
 v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![](https://img.shields.io/badge/release%20version-2.1.0-blue.svg)](https://github.com/knrumsey/duqling)
 
-<img src="inst/logos/DUQLING.png" width="50%" />
+<img src="inst/logos/duqling2.jpg" width="50%" />
 
 ### Description
 
@@ -245,30 +245,30 @@ as follows.
 
 ``` r
 data_quack(raw=FALSE, response_type="uni")
-#>                             dname input_dim input_cat_dim     n response_type
-#> 1                            e3sm         2             0 48602           uni
-#> 2                       e3sm_mcar         2             0 10000           uni
-#> 3                       e3sm_mnar         2             0  9122           uni
-#> 4                  stochastic_sir         4             0  2000           uni
-#> 5                       SLOSH_low         5             0  4000           uni
-#> 6                       SLOSH_mid         5             0  4000           uni
-#> 7                      SLOSH_high         5             0  4000           uni
-#> 8                    pbx9501_gold         6             0   500           uni
-#> 9                   pbx9501_ss304         6             0   500           uni
-#> 10                 pbx9501_nickel         6             0   500           uni
-#> 11                pbx9501_uranium         6             0   500           uni
-#> 12             Z_machine_max_vel1         6             0  5000           uni
-#> 13             Z_machine_max_vel2         6             0  5000           uni
-#> 14                 flyer_plate104        11             0  1000           uni
-#> 15            strontium_plume_p4b        20             0   300           uni
-#> 16           strontium_plume_p104        20             0   300           uni
-#> 17          Z_machine_max_vel_all        30             0  5000           uni
-#> 18 fair_climate_ssp1-2.6_year2200        45             0  1001           uni
-#> 19 fair_climate_ssp2-4.5_year2200        45             0  1001           uni
-#> 20 fair_climate_ssp3-7.0_year2200        45             0  1001           uni
-#> 21          fair_climate_ssp1-2.6        46             0 56056           uni
-#> 22          fair_climate_ssp2-4.5        46             0 56056           uni
-#> 23          fair_climate_ssp3-7.0        46             0 56056           uni
+#>                             dname input_dim input_cat_dim     n   response
+#> 1                            e3sm         2             0 48602 univariate
+#> 2                       e3sm_mcar         2             0 10000 univariate
+#> 3                       e3sm_mnar         2             0  9122 univariate
+#> 4                  stochastic_sir         4             0  2000 univariate
+#> 5                      SLOSH_high         5             0  4000 univariate
+#> 6                       SLOSH_low         5             0  4000 univariate
+#> 7                       SLOSH_mid         5             0  4000 univariate
+#> 8                    pbx9501_gold         6             0   500 univariate
+#> 9                  pbx9501_nickel         6             0   500 univariate
+#> 10                  pbx9501_ss304         6             0   500 univariate
+#> 11                pbx9501_uranium         6             0   500 univariate
+#> 12             Z_machine_max_vel1         6             0  5000 univariate
+#> 13             Z_machine_max_vel2         6             0  5000 univariate
+#> 14                 flyer_plate104        11             0  1000 univariate
+#> 15           strontium_plume_p104        20             0   300 univariate
+#> 16            strontium_plume_p4b        20             0   300 univariate
+#> 17          Z_machine_max_vel_all        30             0  5000 univariate
+#> 18 fair_climate_ssp1-2.6_year2200        45             0  1001 univariate
+#> 19 fair_climate_ssp2-4.5_year2200        45             0  1001 univariate
+#> 20 fair_climate_ssp3-7.0_year2200        45             0  1001 univariate
+#> 21          fair_climate_ssp1-2.6        46             0 56056 univariate
+#> 22          fair_climate_ssp2-4.5        46             0 56056 univariate
+#> 23          fair_climate_ssp3-7.0        46             0 56056 univariate
 ```
 
 ``` r
@@ -423,12 +423,12 @@ summarize_sim_study(duq,
                     soft_rel=NULL,
                     group_by = "id", split_tables=FALSE)
 #>      method   time_mean CRPS_mean  RMSE_mean       id
-#> 1 Lin. Reg. 0.004888889 0.1561515 11.5985642 borehole
-#> 2       PPR 0.007333333 0.2408591 14.9772711 borehole
+#> 1 Lin. Reg. 0.004777778 0.1561515 11.5985642 borehole
+#> 2       PPR 0.007777778 0.2408591 14.9772711 borehole
 #> 3 Lin. Reg. 0.004000000 0.2197608  0.1918249    ebola
 #> 4       PPR 0.006666667 0.3239365  0.2151097    ebola
-#> 5 Lin. Reg. 0.004666667 0.5020445  3.2933865 ishigami
-#> 6       PPR 0.005333333 0.4228206  2.4266673 ishigami
+#> 5 Lin. Reg. 0.003888889 0.5020445  3.2933865 ishigami
+#> 6       PPR 0.005666667 0.4228206  2.4266673 ishigami
 
 # Make visuals
 heatmap_sim_study(duq, metric="CRPS")
