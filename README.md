@@ -7,7 +7,7 @@
 v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![](https://img.shields.io/badge/release%20version-2.1.0-blue.svg)](https://github.com/knrumsey/duqling)
 
-<img src="inst/logos/duqling2.jpg" width="50%" />
+<img src="inst/logos/duqling1.png" width="50%" />
 
 ### Description
 
@@ -424,9 +424,9 @@ summarize_sim_study(duq,
                     group_by = "id", split_tables=FALSE)
 #>      method   time_mean CRPS_mean  RMSE_mean       id
 #> 1 Lin. Reg. 0.004777778 0.1561515 11.5985642 borehole
-#> 2       PPR 0.007777778 0.2408591 14.9772711 borehole
-#> 3 Lin. Reg. 0.004000000 0.2197608  0.1918249    ebola
-#> 4       PPR 0.006666667 0.3239365  0.2151097    ebola
+#> 2       PPR 0.007666667 0.2408591 14.9772711 borehole
+#> 3 Lin. Reg. 0.004111111 0.2197608  0.1918249    ebola
+#> 4       PPR 0.006555556 0.3239365  0.2151097    ebola
 #> 5 Lin. Reg. 0.003888889 0.5020445  3.2933865 ishigami
 #> 6       PPR 0.005666667 0.4228206  2.4266673 ishigami
 
