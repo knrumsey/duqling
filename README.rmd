@@ -267,11 +267,14 @@ Rumsey, K.N., Gibson, G.C., Francom, D. and Morris, R. *All Emulators are Wrong,
 These benchmark results can be loaded directly from the package and processed using the same workflow as any other `duqling` simulation study.
 
 ```{r, eval=FALSE}
+# 1. load data.frame object into global environment
 data("sim_study_testfuncs")
-duq_tf <- process_sim_study(sim_study_testfuncs)
+# 2. create a duq_sim_study object
+duq_tf <- process_sim_study(sim_study_testfuncs) 
 
-data("sim_study_realdata")
-duq_tf <- process_sim_study(sim_study_realdata)
+# same process for real data
+data("sim_study_realdata") 
+duq_rd <- process_sim_study(sim_study_realdata) 
 ```
 
 
