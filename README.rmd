@@ -24,7 +24,7 @@ v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/li
 
 ```{r, eval=TRUE, echo=FALSE, fig.cap="", out.width='50%'}
 library(duqling)
-knitr::include_graphics("inst/logos/duqling1.png")
+knitr::include_graphics("inst/logos/duqling_hex2.png")
 ```
 
 
