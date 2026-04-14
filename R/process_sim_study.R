@@ -433,8 +433,26 @@ join_sim_study <- function(obj1, obj2, keep_extra_metrics = FALSE) {
   df1 <- obj1$df
   df2 <- obj2$df
 
+  # Detect method column name
+  method_col <- if ("method_name" %in% names(df1) || "method_name" %in% names(df2)) {
+    "method_name"
+  } else if ("method" %in% names(df1) || "method" %in% names(df2)) {
+    "method"
+  } else {
+    NULL
+  }
+
+  # Suffix overlapping obj2 method names
+  if (!is.null(method_col) &&
+      method_col %in% names(df1) &&
+      method_col %in% names(df2)) {
+    overlap <- intersect(unique(df1[[method_col]]), unique(df2[[method_col]]))
+    hit <- df2[[method_col]] %in% overlap
+    df2[[method_col]][hit] <- paste0(df2[[method_col]][hit], "_obj2")
+  }
+
   # Identify common "identity" columns
-  id_cols <- c("id", "method", "sim_scenario", "replication")
+  id_cols <- c("id", method_col, "sim_scenario", "replication")
 
   # Scenario + metric candidates
   non_metric <- union(id_cols, union(obj1$meta$scenario_keys, obj2$meta$scenario_keys))
