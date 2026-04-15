@@ -23,9 +23,11 @@ Dimensions 5. Measures the deflection of a length-L beam with a uniform load at 
 A modified version of the beam deflection problem from the intro of Joseph (2024)
 }
 \examples{
+fname <- "beam_deflection"
 n <- 10
-x <- matrix(runif(3*n), nrow=n)
-y <- apply(x, 1, beam_deflection)
+p <- quack(fname, verbose=FALSE)$input_dim
+x <- matrix(runif(n*p), nrow=n)
+y <- eval_duq(fname, x)
 }
 \references{
 Joseph, Roshan. "Rational Kriging". JASA, (2024)

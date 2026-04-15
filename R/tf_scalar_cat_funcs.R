@@ -44,7 +44,7 @@ moon3_cat <- function(x, z, scale01=TRUE){
     if(!(vals[i] %in% 1:num_classes[i])) stop("Categorical inputs must be non-negative integers")
   }
 
-  res <- (x[1] + x[2]) * (w[1] == 1) + 3 * x[1] * (w[1] == 2)
+  res <- (x[1] + x[2]) * (z[1] == 1) + 3 * x[1] * (z[1] == 2)
   return(res)
 }
 

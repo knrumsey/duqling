@@ -8,8 +8,11 @@
 #' Ishigami, T., & Homma, T. (1990 December). An importance quantification technique in uncertainty analysis for computer models. In Uncertainty Modeling and Analysis, 1990.
 #' @rdname ishigami
 #' @examples
-#' X <- lhs::randomLHS(50, 3)
-#' y <- apply(X, 1, ishigami, scale01=TRUE)
+#' fname <- "ishigami"
+#' n <- 10
+#' p <- quack(fname, verbose=FALSE)$input_dim
+#' x <- matrix(runif(n*p), nrow=n)
+#' y <- eval_duq(fname, x)
 #' @export
 ishigami <- function(x, scale01=TRUE, ab=c(7, 0.1)){
   if(scale01){

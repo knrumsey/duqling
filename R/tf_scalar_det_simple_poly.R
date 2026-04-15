@@ -11,15 +11,17 @@
 #' @return A scalar response
 #' @details a simple polynomial function.
 #' @references
-#' Rumsey, Kellin N., et al. "Co-Active Subspace Methods for the Joint Analysis of Adjacent Computer Models." arXiv preprint arXiv:2311.18146 (2023).
+#' Rumsey, K.N., Hardy, Z.K., Ahrens, C. and Vander Wiel, S., 2025. Co-active subspace methods for the joint analysis of adjacent computer models. Technometrics, 67(1), pp.133-146
 NULL
 
 #' @rdname simple_poly
 #' @export
 #' @examples
+#' fname <- "simple_poly"
 #' n <- 10
-#' x <- matrix(runif(8*n), nrow=n)
-#' y <- apply(x, 1, simple_poly, scale01=TRUE)
+#' p <- quack(fname, verbose=FALSE)$input_dim
+#' x <- matrix(runif(n*p), nrow=n)
+#' y <- eval_duq(fname, x)
 simple_poly <- function(x, beta=1/9, scale01=TRUE){
   x[1]^2 + x[1]*x[2] + beta*x[2]^3
 }

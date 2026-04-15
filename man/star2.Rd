@@ -27,9 +27,14 @@ Dimensions: 2. A simple star jump process
 Uses a fixed mask in the shape of a star to determine which of two smooth processes will be returned at each location. See reference for details, but note that this implementation uses a determinstic error structure based on a linear combination of 5 RBF kernels for each process.
 }
 \examples{
-n <- 2
-x <- matrix(runif(50), nrow=n)
-y <- apply(x, 1, star2)
+fname <- "star2"
+n <- 10
+p <- quack(fname, verbose=FALSE)$input_dim
+x <- matrix(runif(n*p), nrow=n)
+y <- eval_duq(fname, x)
+
+## not run
+#show_function_2d("star2")
 }
 \references{
 Flowers, A. R., Franck, C. T., Binois, M., Park, C., & Gramacy, R. B. (2025). Modular Jump Gaussian Processes. arXiv preprint arXiv:2505.15557.

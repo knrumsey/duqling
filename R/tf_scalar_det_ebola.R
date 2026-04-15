@@ -10,9 +10,11 @@
 #' @references Duan, Hui, and Giray Okten. "Derivative-based Shapley value for global sensitivity analysis and machine learning explainability." International Journal for Uncertainty Quantification 15.1 (2025).
 #' @export
 #' @examples
+#' fname <- "ebola"
 #' n <- 10
-#' x <- matrix(runif(8*n), nrow=n)
-#' y <- apply(x, 1, ebola)
+#' p <- quack(fname, verbose=FALSE)$input_dim
+#' x <- matrix(runif(n*p), nrow=n)
+#' y <- eval_duq(fname, x)
 ebola <- function(x, scale01=TRUE, location="liberia"){
   if(scale01){
     RR <- cbind(c(0.1, 0.1, 0.05, 0.41, 0.0276, 0.081, 0.25, 0.0833),

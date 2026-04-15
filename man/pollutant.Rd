@@ -38,9 +38,11 @@ Parameter ranges:
 For a univariate version of this function, see \code{\link[duqling]{pollutant_uni}}
 }
 \examples{
+fname <- "pollutant"
 n <- 10
-x <- matrix(runif(8*n), nrow=n)
-y <- apply(x, 1, pollutant, scale01=TRUE)
+p <- quack(fname, verbose=FALSE)$input_dim
+x <- matrix(runif(n*p), nrow=n)
+y <- eval_duq(fname, x)
 }
 \references{
 Surjanovic, Sonja, and Derek Bingham. "Virtual library of simulation experiments: test functions and datasets." Simon Fraser University, Burnaby, BC, Canada, accessed May 13 (2013): 2015.

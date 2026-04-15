@@ -23,9 +23,11 @@ NULL
 #' @rdname cantilever
 #' @export
 #' @examples
+#' fname <- "cantilever_D"
 #' n <- 10
-#' x <- matrix(runif(8*n), nrow=n)
-#' y <- apply(x, 1, friedman, scale01=TRUE)
+#' p <- quack(fname, verbose=FALSE)$input_dim
+#' x <- matrix(runif(n*p), nrow=n)
+#' y <- eval_duq(fname, x)
 cantilever_D <- function(x, scale01=TRUE, L=100, D0=2.2535){
   if(scale01){
     RR <- rbind(40000 + 2000*c(-4, 4),

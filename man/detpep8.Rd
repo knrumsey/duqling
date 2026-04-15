@@ -21,9 +21,11 @@ Dimensions 8.
 Function is highly curved in first 3 dimensions, less so for inputs 4-8.
 }
 \examples{
+fname <- "detpep8"
 n <- 10
-x <- matrix(runif(3*n), nrow=n)
-y <- apply(x, 1, detpep_curve, scale01=TRUE)
+p <- quack(fname, verbose=FALSE)$input_dim
+x <- matrix(runif(n*p), nrow=n)
+y <- eval_duq(fname, x)
 }
 \references{
 Surjanovic, Sonja, and Derek Bingham. "Virtual library of simulation experiments: test functions and datasets." Simon Fraser University, Burnaby, BC, Canada, accessed May 13 (2013): 2015.

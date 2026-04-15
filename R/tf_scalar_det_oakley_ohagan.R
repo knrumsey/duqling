@@ -12,10 +12,11 @@
 #' Oakley, J. E., & O'Hagan, A. (2004). Probabilistic sensitivity analysis of complex models: a Bayesian approach. Journal of the Royal Statistical Society: Series B (Statistical Methodology), 66(3), 751-769.
 #'
 #' @examples
-#' n <- 50
-#' p <- 15
-#' X <- lhs::randomLHS(n, p)
-#' y <- apply(X, 1, oo15, scale01=TRUE)
+#' fname <- "oo15"
+#' n <- 10
+#' p <- quack(fname, verbose=FALSE)$input_dim
+#' x <- matrix(runif(n*p), nrow=n)
+#' y <- eval_duq(fname, x)
 #' @export
 oo15 <- function(x, scale01=TRUE){
   if(scale01){

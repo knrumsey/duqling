@@ -14,9 +14,14 @@
 #'
 #' @export
 #' @examples
-#' n <- 2
-#' x <- matrix(runif(50), nrow=n)
-#' y <- apply(x, 1, star2)
+#' fname <- "star2"
+#' n <- 10
+#' p <- quack(fname, verbose=FALSE)$input_dim
+#' x <- matrix(runif(n*p), nrow=n)
+#' y <- eval_duq(fname, x)
+#'
+#' ## not run
+#' #show_function_2d("star2")
 star2 <- function(x, scale01=TRUE, mu=c(1, -1), sigma=c(3, 3), ell=c(0.1, 0.2)){
   star101 <- get_star_matrix_private()
   mask_ind <- 1 + (round(x[1:2] * 100) %% 101)

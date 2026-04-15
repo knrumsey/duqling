@@ -24,8 +24,11 @@ Input variables include length of projectile (in), diameter of projectile (in), 
 The \code{const} and \code{power} inputs default to 0.0195 and 0.45 per the "original R&C formula" but can be varied; Stellingwerf et al set these to 0.67 and 0.0086.
 }
 \examples{
-X <- lhs::randomLHS(50, 7)
-y <- apply(X, 1, crater, scale01=TRUE)
+fname <- "crater"
+n <- 10
+p <- quack(fname, verbose=FALSE)$input_dim
+x <- matrix(runif(n*p), nrow=n)
+y <- eval_duq(fname, x)
 }
 \references{
 Stellingwerf, R., Robinson, J., Richardson, S., Evans, S., Stallworth, R., & Hovater, M. (2004). Foam-on-tile impact modeling for the STS-107 investigation. In 45th AIAA/ASME/ASCE/AHS/ASC Structures, Structural Dynamics & Materials Conference (p. 1881).

@@ -15,9 +15,11 @@
 #' Molga, M., & Smutnicki, C. Test functions for optimization needs (2005). Retrieved June 2013, from http://www.zsd.ict.pwr.wroc.pl/files/docs/functions.pdf.
 #' @export
 #' @examples
+#' fname <- "multivalley"
 #' n <- 10
-#' x <- matrix(runif(8*n), nrow=n)
-#' y <- apply(x, 1, multivalley, scale01=TRUE)
+#' p <- quack(fname, verbose=FALSE)$input_dim
+#' x <- matrix(runif(n*p), nrow=n)
+#' y <- eval_duq(fname, x)
 multivalley <- function(x, scale01=TRUE, m=10, active_dim=length(x)){
   p <- min(active_dim, length(x))
   if(scale01){

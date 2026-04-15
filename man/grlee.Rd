@@ -25,10 +25,11 @@ Gramacy and Lee Test Functions
 Functions from three Gramacy and Lee papers. For details, see \href{https://www.sfu.ca/~ssurjano/emulat.html}{the VLSE} (\href{https://www.sfu.ca/~ssurjano/grlee12.html}{grlee1()}, \href{https://www.sfu.ca/~ssurjano/grlee08.html}{grlee2()}, \href{https://www.sfu.ca/~ssurjano/grlee09.html}{grlee6()}) .
 }
 \examples{
-n <- 100 #Number of observations
-p <- 6   #Number of variables
-X <- matrix(runif(n*p), nrow=n)
-y <- apply(X, 1, grlee6)
+fname <- "grlee6"
+n <- 10
+p <- quack(fname, verbose=FALSE)$input_dim
+x <- matrix(runif(n*p), nrow=n)
+y <- eval_duq(fname, x)
 }
 \references{
 Surjanovic, Sonja, and Derek Bingham. "Virtual library of simulation experiments: test functions and datasets." Simon Fraser University, Burnaby, BC, Canada, accessed May 13 (2013): 2015.

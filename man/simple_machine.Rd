@@ -37,9 +37,11 @@ The simple machine is given by
 Usual parameter ranges are given by efficiency in (0, 3), friction in (0, 50) and base efficiency in (-1, 1). See also \code{\link[duqling]{simple_machine_cm}}.
 }
 \examples{
+fname <- "simple_machine"
 n <- 10
-x <- matrix(runif(3*n), nrow=n)
-y <- apply(x, 1, simple_machine)
+p <- quack(fname, verbose=FALSE)$input_dim
+x <- matrix(runif(n*p), nrow=n)
+y <- eval_duq(fname, x)
 }
 \references{
 Brynjarsdóttir, Jenný, and Anthony OʼHagan. "Learning about physical parameters: The importance of model discrepancy." Inverse problems 30.11 (2014): 114007.

@@ -23,9 +23,11 @@
 #' Ben-Ari, E. N., & Steinberg, D. M. (2007). Modeling data from computer experiments: an empirical comparison of kriging with MARS and projection pursuit regression. Quality Engineering, 19(4), 327-338.
 #' @export
 #' @examples
+#' fname <- "robot"
 #' n <- 10
-#' x <- matrix(runif(8*n), nrow=n)
-#' y <- apply(x, 1, robot, scale01=TRUE)
+#' p <- quack(fname, verbose=FALSE)$input_dim
+#' x <- matrix(runif(n*p), nrow=n)
+#' y <- eval_duq(fname, x)
 robot <- function(x, scale01=TRUE){
   if(scale01){
     RR <- cbind(rep(0, 8),

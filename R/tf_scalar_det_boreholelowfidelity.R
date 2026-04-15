@@ -11,6 +11,13 @@
 #'
 #' Xiong, S., Qian, P. Z., & Wu, C. J. (2013). Sequential design and analysis of high-accuracy and low-accuracy computer codes. Technometrics, 55(1), 37-46.
 #' @export
+#' @examples
+#' fname <- "borehole_low_fidelity"
+#' n <- 10
+#' p <- quack(fname, verbose=FALSE)$input_dim
+#' x <- matrix(runif(n*p), nrow=n)
+#' y <- eval_duq(fname, x)
+#'
 borehole_low_fidelity <- function(x, scale01=TRUE){
   borehole(x, scale01, adjust_fidelity=1)
 }

@@ -30,8 +30,9 @@ The function response is $y = f1 + f2 + f3 + f4$ where
 }
 }
 \examples{
+fname <- "foursquare"
 n <- 10
-p <- 2
-x <- matrix(runif(p*n), nrow=n)
-y <- apply(x, 1, foursquare, scale01=TRUE)
+p <- quack(fname, verbose=FALSE)$input_dim
+x <- matrix(runif(n*p), nrow=n)
+y <- eval_duq(fname, x)
 }

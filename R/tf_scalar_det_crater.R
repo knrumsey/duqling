@@ -11,8 +11,11 @@
 #' Stellingwerf, R., Robinson, J., Richardson, S., Evans, S., Stallworth, R., & Hovater, M. (2004). Foam-on-tile impact modeling for the STS-107 investigation. In 45th AIAA/ASME/ASCE/AHS/ASC Structures, Structural Dynamics & Materials Conference (p. 1881).
 #' @rdname crater
 #' @examples
-#' X <- lhs::randomLHS(50, 7)
-#' y <- apply(X, 1, crater, scale01=TRUE)
+#' fname <- "crater"
+#' n <- 10
+#' p <- quack(fname, verbose=FALSE)$input_dim
+#' x <- matrix(runif(n*p), nrow=n)
+#' y <- eval_duq(fname, x)
 #' @export
 crater <- function(x, scale01=TRUE, const=0.0195, power=0.45){
   if(scale01){

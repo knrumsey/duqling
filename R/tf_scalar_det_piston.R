@@ -22,9 +22,11 @@
 #' Kenett, R., & Zacks, S. (1998). Modern industrial statistics: design and control of quality and reliability. Pacific Grove, CA: Duxbury press.
 #' @export
 #' @examples
+#' fname <- "piston"
 #' n <- 10
-#' x <- matrix(runif(8*n), nrow=n)
-#' y <- apply(x, 1, piston, scale01=TRUE)
+#' p <- quack(fname, verbose=FALSE)$input_dim
+#' x <- matrix(runif(n*p), nrow=n)
+#' y <- eval_duq(fname, x)
 piston <- function(x, scale01=TRUE){
   if(scale01){
     RR <- cbind(c(30, 0.005, 0.002, 1000, 90000, 290, 340),

@@ -15,10 +15,11 @@ NULL
 
 #' @rdname lim
 #' @examples
-#' n <- 100 #Number of observations
-#' p <- 6   #Number of variables
-#' X <- matrix(runif(n*p), nrow=n)
-#' y <- apply(X, 1, lim_polynomial)
+#' fname <- "lim_polynomial"
+#' n <- 10
+#' p <- quack(fname, verbose=FALSE)$input_dim
+#' x <- matrix(runif(n*p), nrow=n)
+#' y <- eval_duq(fname, x)
 #' @export
 lim_polynomial <- function(x, scale01=TRUE){
   x1 <- x[1]

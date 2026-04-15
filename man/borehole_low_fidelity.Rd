@@ -17,6 +17,14 @@ Flow through a borehole.
 \description{
 Dimensions 8. Low fidelity version of the borehole function (Xiong 2013). See \code{\link[duqling]{borehole}} for more details.
 }
+\examples{
+fname <- "borehole_low_fidelity"
+n <- 10
+p <- quack(fname, verbose=FALSE)$input_dim
+x <- matrix(runif(n*p), nrow=n)
+y <- eval_duq(fname, x)
+
+}
 \references{
 Surjanovic, Sonja, and Derek Bingham. "Virtual library of simulation experiments: test functions and datasets." Simon Fraser University, Burnaby, BC, Canada, accessed May 13 (2013): 2015.
 

@@ -19,8 +19,11 @@ The Short Column function models a short column with uncertain material properti
 For more details on the Cantilever Beam, see \href{https://www.sfu.ca/~ssurjano/shortcol.html}{the VLSE}.
 }
 \examples{
-X <- lhs::randomLHS(50, 7)
-y <- apply(X, 1, short_column, scale01=TRUE)
+fname <- "short_column"
+n <- 10
+p <- quack(fname, verbose=FALSE)$input_dim
+x <- matrix(runif(n*p), nrow=n)
+y <- eval_duq(fname, x)
 }
 \references{
 Eldred, M. S., et al. "Investigation of reliability method formulations in DAKOTA/UQ." Structure and Infrastructure Engineering 3.3 (2007): 199-213.

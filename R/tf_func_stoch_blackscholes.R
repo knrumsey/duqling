@@ -22,10 +22,12 @@
 #' @aliases bs_put
 #' @export
 #' @examples
+#' fname <- "black_scholes_call"
 #' n <- 10
-#' x <- matrix(runif(8*n), nrow=n)
-#' y <- apply(x, 1, bs_, scale01=TRUE)
-bs_call <- function(x, scale01=TRUE,
+#' p <- quack(fname, verbose=FALSE)$input_dim
+#' x <- matrix(runif(n*p), nrow=n)
+#' y <- eval_duq(fname, x)
+black_scholes_call <- function(x, scale01=TRUE,
                       time=seq(from=0, to=1, length.out=30)){
   if (scale01) {
     RR <- cbind(
@@ -68,7 +70,7 @@ bs_call <- function(x, scale01=TRUE,
 
 #' @rdname bs_call
 #' @export
-bs_put <- function(x, scale01=TRUE,
+black_scholes_put <- function(x, scale01=TRUE,
                     time=seq(from=0, to=1, length.out=30)){
   if (scale01) {
     RR <- cbind(
@@ -110,7 +112,7 @@ bs_put <- function(x, scale01=TRUE,
   return(put_price)
 }
 
-quackquack_bs_call <- function(){
+quackquack_black_scholes_call <- function(){
   out <- list(input_dim=6)
   out$input_cat <- FALSE
   out$response_type <- "func"
@@ -124,7 +126,7 @@ quackquack_bs_call <- function(){
   return(out)
 }
 
-quackquack_bs_put <- function(){
+quackquack_black_scholes_put <- function(){
   out <- list(input_dim=6)
   out$input_cat <- FALSE
   out$response_type <- "func"

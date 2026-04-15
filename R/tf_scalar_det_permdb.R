@@ -15,9 +15,11 @@
 #' Dixon, L. C. W., & Price, R. (1981). The perm function. In Towards Global Optimization 2 (pp. 169–204).
 #' @export
 #' @examples
-#' n <- 3
-#' x <- matrix(runif(n*16), nrow=n)
-#' y <- apply(x, 1, permdb, scale01=TRUE)
+#' fname <- "permbdb"
+#' n <- 10
+#' p <- quack(fname, verbose=FALSE)$input_dim
+#' x <- matrix(runif(n*p), nrow=n)
+#' y <- eval_duq(fname, x)
 permdb <- function(x, scale01=TRUE, d=16, beta=0.5){
   if(scale01){
     RR <- cbind(rep(-d, d), rep(d, d))

@@ -25,9 +25,13 @@ Dimensions 2. A synthetic computer model from Rumsey et al (2022) which was desi
 Function with long range and small scale structures and prominent continent-esque features (the twin galaxies). See Rumsey et al (2022) for details along with the \code{duqling::lim_polyonmial}, \code{duqling::grlee2} and \code{duqling::ripples} functions. Inputs are called lon and lat with ranges (0, 360) and (-90, 90) respectively, due to the originiation of this function with climate models.
 }
 \examples{
+fname <- "twin_galaxies"
 n <- 10
-x <- matrix(runif(2*n), nrow=n)
-y <- apply(x, 1, twin_galaxies)
+p <- quack(fname, verbose=FALSE)$input_dim
+x <- matrix(runif(n*p), nrow=n)
+y <- eval_duq(fname, x)
+
+show_function_2d("twin_galaxies")
 }
 \references{
 Rumsey, Kellin, et al. "A hierarchical sparse Gaussian process for in situ inference in expensive physics simulations." Applications of machine learning 2022. Vol. 12227. SPIE, 2022.

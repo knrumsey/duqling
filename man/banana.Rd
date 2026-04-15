@@ -20,13 +20,11 @@ Rosenbrock's Banana Function
 A non-convec function introduced by Howard H. Rosenbrock in 1960. It is a difficult optimization test-problem, with a unique minimum at (1,1).
 }
 \examples{
-n1 <- 100 #Number of observations in x1
-n2 <- 70  #Number of observations in x2
-x1grid <- seq(0, 1, length.out=100)
-x2grid <- seq(0, 1, length.out=70)
-X <- expand.grid(x1grid, x2grid)
-y <- apply(X, 1, banana, scale01=TRUE)
-image(matrix(y, nrow=length(X)), zlim=c(-1,3.5))
+fname <- "banana"
+n <- 10
+p <- quack(fname, verbose=FALSE)$input_dim
+x <- matrix(runif(n*p), nrow=n)
+y <- eval_duq(fname, x)
 }
 \references{
 Rosenbrock, HoHo. "An automatic method for finding the greatest or least value of a function." The computer journal 3.3 (1960): 175-184.

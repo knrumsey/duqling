@@ -29,9 +29,11 @@ Dimensions: 6. The Cantilever Beam has two outputs: stress (S) and displacement 
 For details on the Cantilever Beam, see \href{https://www.sfu.ca/~ssurjano/canti.html}{the VLSE}.
 }
 \examples{
+fname <- "cantilever_D"
 n <- 10
-x <- matrix(runif(8*n), nrow=n)
-y <- apply(x, 1, friedman, scale01=TRUE)
+p <- quack(fname, verbose=FALSE)$input_dim
+x <- matrix(runif(n*p), nrow=n)
+y <- eval_duq(fname, x)
 }
 \references{
 Surjanovic, Sonja, and Derek Bingham. "Virtual library of simulation experiments: test functions and datasets." Simon Fraser University, Burnaby, BC, Canada, accessed May 13 (2013): 2015.

@@ -24,3 +24,11 @@ Constant Functions
 \details{
 Always returns 0
 }
+\examples{
+fname <- "const_fn3"
+n <- 10
+p <- quack(fname, verbose=FALSE)$input_dim
+x <- matrix(runif(n*p), nrow=n)
+y <- eval_duq(fname, x)
+
+}

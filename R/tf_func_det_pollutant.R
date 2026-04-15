@@ -22,9 +22,11 @@
 #' Bliznyuk, N., Ruppert, D., Shoemaker, C., Regis, R., Wild, S., & Mugunthan, P. (2008). Bayesian calibration and uncertainty analysis for computationally expensive models using optimization and radial basis function approximation. Journal of Computational and Graphical Statistics, 17(2).
 #' @export
 #' @examples
+#' fname <- "pollutant"
 #' n <- 10
-#' x <- matrix(runif(8*n), nrow=n)
-#' y <- apply(x, 1, pollutant, scale01=TRUE)
+#' p <- quack(fname, verbose=FALSE)$input_dim
+#' x <- matrix(runif(n*p), nrow=n)
+#' y <- eval_duq(fname, x)
 pollutant <- function(x, scale01=TRUE,
                             space=c(0.5, 1, 1.5, 2, 2.5),
                             time=seq(from=0.3, to=60, by=0.3)){

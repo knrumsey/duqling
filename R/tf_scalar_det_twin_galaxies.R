@@ -12,9 +12,13 @@
 #' Rumsey, Kellin, et al. "A hierarchical sparse Gaussian process for in situ inference in expensive physics simulations." Applications of machine learning 2022. Vol. 12227. SPIE, 2022.
 #' @export
 #' @examples
+#' fname <- "twin_galaxies"
 #' n <- 10
-#' x <- matrix(runif(2*n), nrow=n)
-#' y <- apply(x, 1, twin_galaxies)
+#' p <- quack(fname, verbose=FALSE)$input_dim
+#' x <- matrix(runif(n*p), nrow=n)
+#' y <- eval_duq(fname, x)
+#'
+#' show_function_2d("twin_galaxies")
 twin_galaxies <- function(x, scale01=TRUE, fixed_coeff=TRUE, seed=NULL){
   if(!scale01){
     x[1] <- x[1]/360

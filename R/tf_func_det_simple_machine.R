@@ -19,9 +19,11 @@
 #' Rumsey, Kellin N. Methods of uncertainty quantification for physical parameters. Diss. The University of New Mexico, 2020.
 #' @export
 #' @examples
+#' fname <- "simple_machine"
 #' n <- 10
-#' x <- matrix(runif(3*n), nrow=n)
-#' y <- apply(x, 1, simple_machine)
+#' p <- quack(fname, verbose=FALSE)$input_dim
+#' x <- matrix(runif(n*p), nrow=n)
+#' y <- eval_duq(fname, x)
 simple_machine <- function(x, scale01=TRUE, effort=seq(1, 10, by=1), friction=1/10, base_eff=0){
   if(length(x) < 2){
     x[2] <- friction
@@ -55,9 +57,11 @@ simple_machine <- function(x, scale01=TRUE, effort=seq(1, 10, by=1), friction=1/
 #' Rumsey, Kellin N. Methods of uncertainty quantification for physical parameters. Diss. The University of New Mexico, 2020.
 #' @export
 #' @examples
+#' fname <- "simple_machine_cm"
 #' n <- 10
-#' x <- matrix(runif(3*n), nrow=n)
-#' y <- apply(x, 1, simple_machine)
+#' p <- quack(fname, verbose=FALSE)$input_dim
+#' x <- matrix(runif(n*p), nrow=n)
+#' y <- eval_duq(fname, x)
 simple_machine_cm <- function(x, scale01=TRUE, effort=seq(1, 10, by=1), order = 3){
   if(order == 1){
     x[2:5] <- c(10^9, 0, 10^9, 0)

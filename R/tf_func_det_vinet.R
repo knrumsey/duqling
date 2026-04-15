@@ -22,9 +22,11 @@
 #' Rumsey, Kellin, et al. "Dealing with measurement uncertainties as nuisance parameters in Bayesian model calibration." SIAM/ASA Journal on Uncertainty Quantification 8.4 (2020): 1287-1309.
 #' @export
 #' @examples
+#' fname <- "vinet"
 #' n <- 10
-#' x <- matrix(runif(3*n), nrow=n)
-#' y <- apply(x, 1, vinet, scale01=TRUE)
+#' p <- quack(fname, verbose=FALSE)$input_dim
+#' x <- matrix(runif(n*p), nrow=n)
+#' y <- eval_duq(fname, x)
 vinet <- function(x, scale01=TRUE,
                       density = seq(15.5, 17.5, by=0.1)){
   if(scale01){

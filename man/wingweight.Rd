@@ -22,9 +22,11 @@ For details on this function, see \href{https://www.sfu.ca/~ssurjano/robot.html}
 For parameter ranges, see the \href{https://www.sfu.ca/~ssurjano/robot.html}{the VLSE}.
 }
 \examples{
+fname <- "wingweight"
 n <- 10
-x <- matrix(runif(10*n), nrow=n)
-y <- apply(x, 1, wingweight, scale01=TRUE)
+p <- quack(fname, verbose=FALSE)$input_dim
+x <- matrix(runif(n*p), nrow=n)
+y <- eval_duq(fname, x)
 }
 \references{
 Surjanovic, Sonja, and Derek Bingham. "Virtual library of simulation experiments: test functions and datasets." Simon Fraser University, Burnaby, BC, Canada, accessed May 13 (2013): 2015.

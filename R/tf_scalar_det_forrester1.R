@@ -16,14 +16,17 @@
 #'
 #' @export
 #' @examples
-#' n <- 1
-#' x <- matrix(runif(20), nrow=n)
-#' y <- apply(x, 1, forrester1)
+#' fname <- "forrester1"
+#' n <- 10
+#' p <- quack(fname, verbose=FALSE)$input_dim
+#' x <- matrix(runif(n*p), nrow=n)
+#' y <- eval_duq(fname, x)
 forrester1 <- function(x, scale01=TRUE, A=1, B=0, C=0){
   fx <- (6*x[1] - 0.5)^2 * sin(12*x[1] - 4)
   res <- A*fx + B*(x - 0.5) - C
 }
 
+#' @rdname forrester1
 #' @export
 forrester1_low_fidelity <- function(x, scale01=TRUE){
   forrester1(x, A=0.5, B=10, C=-5)

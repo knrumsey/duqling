@@ -9,12 +9,14 @@
 #' @return Univariate response representing small scale structure
 #' @details A non-smooth test function designed with trees in mind. As steps -> Inf, this function is nowhere-differentiable.
 #' @references
-#' Collins, Gavin, Devin Francom, and Kellin Rumsey. "Bayesian projection pursuit regression." arXiv preprint arXiv:2210.09181 (2022).
+#' Collins, G., Francom, D. and Rumsey, K., 2024. Bayesian projection pursuit regression. Statistics and Computing, 34(1), p.29.
 #' @export
 #' @examples
+#' fname <- "sharkfin"
 #' n <- 10
-#' x <- matrix(runif(3*n), nrow=n)
-#' y <- apply(x, 1, sharkfin)
+#' p <- quack(fname, verbose=FALSE)$input_dim
+#' x <- matrix(runif(n*p), nrow=n)
+#' y <- eval_duq(fname, x)
 sharkfin <- function(x, scale01=TRUE, steps=3, active_dim=length(x)){
   k <- steps
   p <- min(active_dim, length(x))

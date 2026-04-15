@@ -23,8 +23,11 @@ This function models the radiative forcing of sulfur by sulfate aerosols, in W/m
 For details, see \href{https://www.sfu.ca/~ssurjano/sulf.html}{the VLSE}. NOTE: There is a problem with dimensional analysis of the Tatang paper. There is a hidden (or missing) W in the denominator. As such, the results do not match the paper perfectly. Use this function at your own risk.
 }
 \examples{
-X <- lhs::randomLHS(50, 7)
-y <- apply(X, 1, sulfur, scale01=TRUE)
+fname <- "sulfur"
+n <- 10
+p <- quack(fname, verbose=FALSE)$input_dim
+x <- matrix(runif(n*p), nrow=n)
+y <- eval_duq(fname, x)
 }
 \references{
 Tatang, Menner A., et al. "An efficient method for parametric uncertainty analysis of numerical geophysical models." Journal of Geophysical Research: Atmospheres 102.D18 (1997): 21925-21932

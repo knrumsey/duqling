@@ -16,10 +16,11 @@
 #' }
 #' @export
 #' @examples
+#' fname <- "foursquare"
 #' n <- 10
-#' p <- 2
-#' x <- matrix(runif(p*n), nrow=n)
-#' y <- apply(x, 1, foursquare, scale01=TRUE)
+#' p <- quack(fname, verbose=FALSE)$input_dim
+#' x <- matrix(runif(n*p), nrow=n)
+#' y <- eval_duq(fname, x)
 foursquare <- function(x, scale01=TRUE, ftype="all"){
   ind1 <- x[1] > 0.5
   ind2 <- x[2] > 0.5

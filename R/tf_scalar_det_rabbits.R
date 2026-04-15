@@ -11,9 +11,11 @@
 #' with P0 in [0,1], t in [0,1], r in [0.5,3].
 #' @export
 #' @examples
+#' fname <- "rabbits"
 #' n <- 10
-#' x <- matrix(runif(3*n), nrow=n)
-#' y <- apply(x, 1, rabbits)
+#' p <- quack(fname, verbose=FALSE)$input_dim
+#' x <- matrix(runif(n*p), nrow=n)
+#' y <- eval_duq(fname, x)
 rabbits <- function(x, scale01=TRUE){
   RR <- cbind(c(0, 0, 0.5),
               c(1, 1, 3))

@@ -15,9 +15,11 @@
 #' Moon, H. (2010). Design and Analysis of Computer Experiments for Screening Input Variables (Doctoral dissertation, Ohio State University).
 #' @export
 #' @examples
+#' fname <- "wingweight"
 #' n <- 10
-#' x <- matrix(runif(10*n), nrow=n)
-#' y <- apply(x, 1, wingweight, scale01=TRUE)
+#' p <- quack(fname, verbose=FALSE)$input_dim
+#' x <- matrix(runif(n*p), nrow=n)
+#' y <- eval_duq(fname, x)
 wingweight <- function(x, scale01=TRUE){
   if(scale01){
     RR <- cbind(c(150, 220, 6, -10, 16, 0.5, 0.08, 2.5, 1700, 0.025),

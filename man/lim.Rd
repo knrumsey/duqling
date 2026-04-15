@@ -22,10 +22,11 @@ Lim et al Test Functions
 Two similar functions from Lim et al (2002). One is a polynomial the other is a non-polynomial but both functions have similar shape and behavior. For details, see \href{https://www.sfu.ca/~ssurjano/limetalpol.html}{the VLSE}.
 }
 \examples{
-n <- 100 #Number of observations
-p <- 6   #Number of variables
-X <- matrix(runif(n*p), nrow=n)
-y <- apply(X, 1, lim_polynomial)
+fname <- "lim_polynomial"
+n <- 10
+p <- quack(fname, verbose=FALSE)$input_dim
+x <- matrix(runif(n*p), nrow=n)
+y <- eval_duq(fname, x)
 }
 \references{
 Surjanovic, Sonja, and Derek Bingham. "Virtual library of simulation experiments: test functions and datasets." Simon Fraser University, Burnaby, BC, Canada, accessed May 13 (2013): 2015.

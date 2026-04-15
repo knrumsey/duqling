@@ -11,9 +11,11 @@
 #' Dette, Holger, and Andrey Pepelyshev. "Generalized Latin hypercube design for computer experiments." Technometrics 52.4 (2010): 421-429.
 #' @export
 #' @examples
+#' fname <- "detpep_curve"
 #' n <- 10
-#' x <- matrix(runif(3*n), nrow=n)
-#' y <- apply(x, 1, detpep_curve, scale01=TRUE)
+#' p <- quack(fname, verbose=FALSE)$input_dim
+#' x <- matrix(runif(n*p), nrow=n)
+#' y <- eval_duq(fname, x)
 detpep_curve <- function(x, scale01=TRUE){
   ya <- 4*(x[1] - 2 + 8*x[2] - x[2]^2)^2
   yb <- (3 - 4*x[2])^2 + 16*sqrt(x[3] + 1)*(2*x[3] - 1)^2
@@ -47,9 +49,11 @@ quackquack_detpep_curve <- function(){
 #' Dette, Holger, and Andrey Pepelyshev. "Generalized Latin hypercube design for computer experiments." Technometrics 52.4 (2010): 421-429.
 #' @export
 #' @examples
+#' fname <- "detpep8"
 #' n <- 10
-#' x <- matrix(runif(3*n), nrow=n)
-#' y <- apply(x, 1, detpep_curve, scale01=TRUE)
+#' p <- quack(fname, verbose=FALSE)$input_dim
+#' x <- matrix(runif(n*p), nrow=n)
+#' y <- eval_duq(fname, x)
 detpep8 <- function(x, scale01=TRUE){
   ya <- 4*(x[1] - 2 + 8*x[2] - x[2]^2)^2
   yb <- (3 - 4*x[2])^2 + 16*sqrt(x[3] + 1)*(2*x[3] - 1)^2
@@ -88,9 +92,11 @@ quackquack_detpep8 <- function(){
 #' Welch, W. J., Buck, R. J., Sacks, J., Wynn, H. P., Mitchell, T. J., & Morris, M. D. (1992). Screening, predicting, and computer experiments. Technometrics, 34(1), 15-25.
 #' @export
 #' @examples
+#' fname <- "welch20"
 #' n <- 10
-#' x <- matrix(runif(20*n), nrow=n)
-#' y <- apply(x, 1, welch20, scale01=TRUE)
+#' p <- quack(fname, verbose=FALSE)$input_dim
+#' x <- matrix(runif(n*p), nrow=n)
+#' y <- eval_duq(fname, x)
 welch20 <- function(x, scale01=TRUE){
   if(scale01){
     x <- x - 0.5

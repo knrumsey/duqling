@@ -22,9 +22,11 @@ Dimensions: 4.
 Intended to be a simple four-dim test function. Xiong et al. (2013) use \code{park4_low_fidelity} as a low fidelity version. For details on the Friedman function, see \href{https://www.sfu.ca/~ssurjano/park91a.html}{the VLSE}.
 }
 \examples{
+fname <- "park4"
 n <- 10
-x <- matrix(runif(8*n), nrow=n)
-y <- apply(x, 1, friedman, scale01=TRUE)
+p <- quack(fname, verbose=FALSE)$input_dim
+x <- matrix(runif(n*p), nrow=n)
+y <- eval_duq(fname, x)
 }
 \references{
 Surjanovic, Sonja, and Derek Bingham. "Virtual library of simulation experiments: test functions and datasets." Simon Fraser University, Burnaby, BC, Canada, accessed May 13 (2013): 2015.

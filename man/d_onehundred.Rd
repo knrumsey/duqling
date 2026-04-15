@@ -20,12 +20,11 @@ Input Dimension: 100, Response Dimension: 100
 The 100-dimensional function is a high-dimensional function derived from a more generic example detailed below. This function was designed for sensitivity analysis: the first-order sensitivity indices of the input variables generally nonlinearly increase with their index, with certain variables having especially high sensitivity (Lüthen et al, 2021).
 }
 \examples{
-n <- 1000
-p <- 100
-X <- matrix(runif(n*p), nrow=n, ncol=p)
-y <- apply(X, 1, d_onehundred, scale01=TRUE)
-# not run
-# fit <- basssPCA(X, t(y))
+fname <- "d_onehundred"
+n <- 10
+p <- quack(fname, verbose=FALSE)$input_dim
+x <- matrix(runif(n*p), nrow=n)
+y <- eval_duq(fname, x)
 }
 \references{
 Lüthen, Nora, Stefano Marelli, and Bruno Sudret. "Sparse polynomial chaos expansions: Literature survey and benchmark." SIAM/ASA Journal on Uncertainty Quantification 9.2 (2021): 593-649.

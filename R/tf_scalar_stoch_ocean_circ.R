@@ -20,9 +20,11 @@
 #' Herbei, Radu, and L. Mark Berliner. "Estimating ocean circulation: an MCMC approach with approximated likelihoods via the Bernoulli factory." Journal of the American Statistical Association 109.507 (2014): 944-954.
 #' @export
 #' @examples
+#' fname <- "ocean_circ"
 #' n <- 10
-#' x <- matrix(runif(4*n), nrow=n)
-#' y <- apply(x, 1, ocean_circ)
+#' p <- quack(fname, verbose=FALSE)$input_dim
+#' x <- matrix(runif(n*p), nrow=n)
+#' y <- eval_duq(fname, x)
 ocean_circ = function(x, scale01=TRUE, NPATHS=1)
 {
   v <- x

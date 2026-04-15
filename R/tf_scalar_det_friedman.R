@@ -19,9 +19,11 @@ NULL
 #' @rdname friedman
 #' @export
 #' @examples
+#' fname <- "friedman"
 #' n <- 10
-#' x <- matrix(runif(8*n), nrow=n)
-#' y <- apply(x, 1, friedman, scale01=TRUE)
+#' p <- quack(fname, verbose=FALSE)$input_dim
+#' x <- matrix(runif(n*p), nrow=n)
+#' y <- eval_duq(fname, x)
 friedman <- function(x, scale01=TRUE){
   10*sin(pi*x[1]*x[2]) + 20*(x[3]-0.5)^2 + 10*x[4] + 5*x[5]
 }

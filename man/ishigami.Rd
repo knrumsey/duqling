@@ -20,8 +20,11 @@ Ishigami Function
 Often used as an example, because it exhibits strong nonlinearity and nonmonotonicity. It has a peculiar dependence on x3. By default, the distribution of the inputs are x_i ~ Uniform(-pi, pi)
 }
 \examples{
-X <- lhs::randomLHS(50, 3)
-y <- apply(X, 1, ishigami, scale01=TRUE)
+fname <- "ishigami"
+n <- 10
+p <- quack(fname, verbose=FALSE)$input_dim
+x <- matrix(runif(n*p), nrow=n)
+y <- eval_duq(fname, x)
 }
 \references{
 Ishigami, T., & Homma, T. (1990 December). An importance quantification technique in uncertainty analysis for computer models. In Uncertainty Modeling and Analysis, 1990.

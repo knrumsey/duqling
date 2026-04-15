@@ -23,9 +23,11 @@ Dimensions 8. Calculates the estimated basic reproduction number, R0, for an Ebo
 See section 5.1 of reference for details and further references.
 }
 \examples{
+fname <- "ebola"
 n <- 10
-x <- matrix(runif(8*n), nrow=n)
-y <- apply(x, 1, ebola)
+p <- quack(fname, verbose=FALSE)$input_dim
+x <- matrix(runif(n*p), nrow=n)
+y <- eval_duq(fname, x)
 }
 \references{
 Duan, Hui, and Giray Okten. "Derivative-based Shapley value for global sensitivity analysis and machine learning explainability." International Journal for Uncertainty Quantification 15.1 (2025).

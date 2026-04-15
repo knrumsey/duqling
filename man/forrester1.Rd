@@ -2,9 +2,12 @@
 % Please edit documentation in R/tf_scalar_det_forrester1.R
 \name{forrester1}
 \alias{forrester1}
+\alias{forrester1_low_fidelity}
 \title{1D Multifidelity Function}
 \usage{
 forrester1(x, scale01 = TRUE, A = 1, B = 0, C = 0)
+
+forrester1_low_fidelity(x, scale01 = TRUE)
 }
 \arguments{
 \item{x}{Inputs of dimension (at least) 1.}
@@ -27,9 +30,11 @@ Dimensions: 1. This function is a simple one-dimensional test function. It is mu
 A simple 1D test function. Low fidelity version is simulated as Af(x) + B(x-1/2) - C. See reference for details.
 }
 \examples{
-n <- 1
-x <- matrix(runif(20), nrow=n)
-y <- apply(x, 1, forrester1)
+fname <- "forrester1"
+n <- 10
+p <- quack(fname, verbose=FALSE)$input_dim
+x <- matrix(runif(n*p), nrow=n)
+y <- eval_duq(fname, x)
 }
 \references{
 Surjanovic, Sonja, and Derek Bingham. "Virtual library of simulation experiments: test functions and datasets." Simon Fraser University, Burnaby, BC, Canada, accessed May 13 (2013): 2015.

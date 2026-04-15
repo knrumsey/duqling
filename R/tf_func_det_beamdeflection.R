@@ -10,9 +10,11 @@
 #' @references Joseph, Roshan. "Rational Kriging". JASA, (2024)
 #' @export
 #' @examples
+#' fname <- "beam_deflection"
 #' n <- 10
-#' x <- matrix(runif(3*n), nrow=n)
-#' y <- apply(x, 1, beam_deflection)
+#' p <- quack(fname, verbose=FALSE)$input_dim
+#' x <- matrix(runif(n*p), nrow=n)
+#' y <- eval_duq(fname, x)
 beam_deflection <- function(x, scale01=TRUE, p=seq(0, 1, length.out=20)){
   if(scale01){
     RR <- cbind(c(1.9e-4, 7000, 0.5, 0.076, 0.013),

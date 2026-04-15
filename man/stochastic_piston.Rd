@@ -39,9 +39,11 @@ Parameter ranges:
 This is a stochastic version of the piston function. Note that the range of the piston surface area is different from the canonical piston function. The distribution of the response is heavily influenced by the stochastic process governing ambient temperature. The response distribution is less homoskedastic for larger ranges of atmospheric pressure.
 }
 \examples{
+fname <- "stochastic_piston"
 n <- 10
-x <- matrix(runif(8*n), nrow=n)
-y <- apply(x, 1, piston, scale01=TRUE)
+p <- quack(fname, verbose=FALSE)$input_dim
+x <- matrix(runif(n*p), nrow=n)
+y <- eval_duq(fname, x)
 }
 \references{
 Surjanovic, Sonja, and Derek Bingham. "Virtual library of simulation experiments: test functions and datasets." Simon Fraser University, Burnaby, BC, Canada, accessed May 13 (2013): 2015.

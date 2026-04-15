@@ -18,10 +18,11 @@ Dimensions 15
 This function's a-coefficients are chosen so that 5 of the input variables contribute significantly to the output variance, 5 have a much smaller effect, and the remaining 5 have almost no effect on the output variance. Values of the coefficient vectors a1, a2 and a3, and the matrix M, can be found at:
 }
 \examples{
-n <- 50
-p <- 15
-X <- lhs::randomLHS(n, p)
-y <- apply(X, 1, oo15, scale01=TRUE)
+fname <- "oo15"
+n <- 10
+p <- quack(fname, verbose=FALSE)$input_dim
+x <- matrix(runif(n*p), nrow=n)
+y <- eval_duq(fname, x)
 }
 \references{
 Surjanovic, Sonja, and Derek Bingham. "Virtual library of simulation experiments: test functions and datasets." Simon Fraser University, Burnaby, BC, Canada, accessed May 13 (2013): 2015.

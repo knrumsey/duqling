@@ -14,36 +14,47 @@ Authors@R: c(
            comment = c(ORCID = "0000-0001-8844-2169")))
 Description: An R package for reproducible UQ research. It provides a virtual
     library of uncertainty quantification test functions and standardized
-    simulation studies for comparing emulators, including comparisons across papers.
+    simulation studies for comparing emulators, including comparisons across
+    papers.
 License: BSD_3_clause + file LICENSE
+Encoding: UTF-8
 Depends:
     R (>= 3.5.0)
 Imports:
     lhs,
-    tictoc
+    stats,
+    tictoc,
+    utils
 Suggests:
-    BASS,
     BART,
+    BASS,
+    BayesPPR,
     BayesianLasso,
+    GBASS,
     GPfit,
-    GPvecchia,
     GpGp,
+    GPvecchia,
     RobustGaSP,
     bnns,
     cluster,
+    conforest,
     deepgp,
     ggplot2,
+    ggrepel,
     glmnet,
     gplite,
     hetGP,
+    khaos,
     laGP,
     ngboost,
     parallel,
     randomForest,
     readr,
     reticulate,
+    scales,
+    spareGParts,
     stargazer,
     tgp
-Encoding: UTF-8
 LazyData: true
+LazyDataCompression: xz
 RoxygenNote: 7.3.2

@@ -15,8 +15,11 @@
 #' Charlson, Robert J., et al. "Climate forcing by anthropogenic aerosols." Science 255.5043 (1992): 423-430.
 #' @rdname sulfur
 #' @examples
-#' X <- lhs::randomLHS(50, 7)
-#' y <- apply(X, 1, sulfur, scale01=TRUE)
+#' fname <- "sulfur"
+#' n <- 10
+#' p <- quack(fname, verbose=FALSE)$input_dim
+#' x <- matrix(runif(n*p), nrow=n)
+#' y <- eval_duq(fname, x)
 #' @export
 sulfur <- function(x, scale01=TRUE, S0=1366, A=5.1e14){
   if(scale01){

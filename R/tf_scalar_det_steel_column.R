@@ -14,8 +14,11 @@
 #' Kuschel, Norbert, and Rüdiger Rackwitz. "Two basic problems in reliability-based structural optimization." Mathematical Methods of Operations Research 46 (1997): 309-333.
 #' @rdname steel_column
 #' @examples
-#' X <- lhs::randomLHS(50, 7)
-#' y <- apply(X, 1, steel_column, scale01=TRUE)
+#' fname <- "steel_column"
+#' n <- 10
+#' p <- quack(fname, verbose=FALSE)$input_dim
+#' x <- matrix(runif(n*p), nrow=n)
+#' y <- eval_duq(fname, x)
 #' @export
 steel_column <- function(x, scale01=TRUE, b=300, d=20, h=300){
   if(scale01){
@@ -49,8 +52,6 @@ steel_column <- function(x, scale01=TRUE, b=300, d=20, h=300){
   res <- Fs - P*(term1 + term2)
   return(res)
 }
-
-
 
 quackquack_steel_column <- function(){
   out <- list(input_dim=9)

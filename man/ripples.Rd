@@ -27,9 +27,11 @@ Dimensions 2. The ripples function was used by Rumsey et al (2022) to construct 
 The number of inputs can be made arbitrary, but only by setting \code{fixed_coeff = FALSE}. When \code{fixed_coeff = TRUE}, the ripples function exactly matches the function from Rumsey et al (2022). Otherwise, the coefficients are randomly generated from a standard normal distribution. All inputs are expected between zero and one
 }
 \examples{
+fname <- "ripples"
 n <- 10
-x <- matrix(runif(2*n), nrow=n)
-y <- apply(x, 1, ripples)
+p <- quack(fname, verbose=FALSE)$input_dim
+x <- matrix(runif(n*p), nrow=n)
+y <- eval_duq(fname, x)
 }
 \references{
 Rumsey et al reference needed (SPIE conference)

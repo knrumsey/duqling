@@ -6,6 +6,13 @@
 #' @param x Inputs of any dimension. See below for details.
 #' @param scale01 When TRUE, inputs are expected to be given on unit interval and are internally adjusted to their native range. Default is FALSE
 #' @details Always returns 0
+#' @examples
+#' fname <- "const_fn3"
+#' n <- 10
+#' p <- quack(fname, verbose=FALSE)$input_dim
+#' x <- matrix(runif(n*p), nrow=n)
+#' y <- eval_duq(fname, x)
+#'
 NULL
 
 #' @rdname constant

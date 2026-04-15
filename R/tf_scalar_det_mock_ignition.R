@@ -11,10 +11,11 @@
 #'
 #' @export
 #' @examples
-#' p <- 10
-#' n <- 20
+#' fname <- "ignition"
+#' n <- 10
+#' p <- quack(fname, verbose=FALSE)$input_dim
 #' x <- matrix(runif(n*p), nrow=n)
-#' y <- apply(x, 1, ignition, scale01=TRUE)
+#' y <- eval_duq(fname, x)
 ignition<-function(x, scale01=TRUE){
   r<-sqrt(sum(x[1:10]^2))
   return(log10(r^5*(1+100000*(2*stats::pnorm(sqrt(2)*10*(r-2))))))

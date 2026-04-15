@@ -21,9 +21,11 @@
 #' The density is evaluated at \code{x[1]} minus the shift \code{m}. If the argument to dgamma is negative, the density is zero.
 #' @export
 #' @examples
-#' n <- 4
-#' X <- matrix(runif(n*7), nrow=n)
-#' y <- apply(X, 1, gamma_mix, scale01=TRUE)
+#' fname <- "gamma_mix"
+#' n <- 10
+#' p <- quack(fname, verbose=FALSE)$input_dim
+#' x <- matrix(runif(n*p), nrow=n)
+#' y <- eval_duq(fname, x)
 gamma_mix <- function(x, scale01=TRUE){
   # Ranges
   RR <- cbind(c(0,    1,   0.5,  1,   0.5, 0, 0),    # min

@@ -24,9 +24,11 @@ NULL
 #' @rdname Gfunction
 #' @export
 #' @examples
+#' fname <- "Gfunction"
 #' n <- 10
-#' x <- matrix(runif(8*n), nrow=n)
-#' y <- apply(x, 1, Gfunction, scale01=TRUE)
+#' p <- quack(fname, verbose=FALSE)$input_dim
+#' x <- matrix(runif(n*p), nrow=n)
+#' y <- eval_duq(fname, x)
 Gfunction <- function(x, scale01=TRUE, a=NULL){
   if(is.null(a)){
     p <- length(x)

@@ -25,9 +25,11 @@ Dimensions 5. An attempt to model the simple machine while recognizing the prese
 A piecewise polyonmial approximation to the \code{\link[duqling]{simple_machine}}. Parameters consist of (alpha, gamma1, beta1, gamma2, beta2)
 }
 \examples{
+fname <- "simple_machine_cm"
 n <- 10
-x <- matrix(runif(3*n), nrow=n)
-y <- apply(x, 1, simple_machine)
+p <- quack(fname, verbose=FALSE)$input_dim
+x <- matrix(runif(n*p), nrow=n)
+y <- eval_duq(fname, x)
 }
 \references{
 Brynjarsdóttir, Jenný, and Anthony OʼHagan. "Learning about physical parameters: The importance of model discrepancy." Inverse problems 30.11 (2014): 114007.

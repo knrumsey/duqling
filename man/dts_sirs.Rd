@@ -38,13 +38,11 @@ Parameter description
 }
 }
 \examples{
-x <- c(I0 = 0.01, S0_without_I0 = 1.00,
-   beta = 0.12, gamma = 0.1,
-   alpha = 0, muS = 0, muI = 0,
-   muR = 0, delta = 1/90)
-set.seed(111)
-sir <- dts_sirs(x, Tf = 365)
-ts.plot(sir[,2], main="Number of infectious individuals", xlab="Time (days)", ylab="")
+fname <- "dts_sirs"
+n <- 10
+p <- quack(fname, verbose=FALSE)$input_dim
+x <- matrix(runif(n*p), nrow=n)
+y <- eval_duq(fname, x)
 }
 \references{
 add a reference

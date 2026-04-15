@@ -38,10 +38,11 @@ The five test functions from Denison, Mallick and Smith (1998) are referred to a
 }
 }
 \examples{
-n <- 100 #Number of observations
-p <- 4   #Number of variables (beyond p = 2, variables are inert)
-X <- matrix(runif(n*p), nrow=n)
-y <- apply(X, 1, dms_simple)
+fname <- "dms_simple"
+n <- 10
+p <- quack(fname, verbose=FALSE)$input_dim
+x <- matrix(runif(n*p), nrow=n)
+y <- eval_duq(fname, x)
 }
 \references{
 Denison, David GT, Bani K. Mallick, and Adrian FM Smith. "Bayesian mars." Statistics and Computing 8.4 (1998): 337-346.

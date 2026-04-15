@@ -33,9 +33,11 @@ Parameter ranges:
 For the spatio-temporal version of this model, see \code{\link[duqling]{pollutant}}
 }
 \examples{
+fname <- "pollutant_uni"
 n <- 10
-x <- matrix(runif(8*n), nrow=n)
-y <- apply(x, 1, pollutant_uni, scale01=TRUE)
+p <- quack(fname, verbose=FALSE)$input_dim
+x <- matrix(runif(n*p), nrow=n)
+y <- eval_duq(fname, x)
 }
 \references{
 Surjanovic, Sonja, and Derek Bingham. "Virtual library of simulation experiments: test functions and datasets." Simon Fraser University, Burnaby, BC, Canada, accessed May 13 (2013): 2015.

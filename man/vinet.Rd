@@ -30,9 +30,11 @@ The parameter ranges correspond to a range of reasonable values for Tantalum.
 For a univariate version of this function, see \code{\link[duqling]{pollutant_uni}}
 }
 \examples{
+fname <- "vinet"
 n <- 10
-x <- matrix(runif(3*n), nrow=n)
-y <- apply(x, 1, vinet, scale01=TRUE)
+p <- quack(fname, verbose=FALSE)$input_dim
+x <- matrix(runif(n*p), nrow=n)
+y <- eval_duq(fname, x)
 }
 \references{
 Vinet, Pascal, et al. "Universal features of the equation of state of solids." Journal of Physics: Condensed Matter 1.11 (1989): 1941.

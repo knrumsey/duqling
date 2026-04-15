@@ -13,9 +13,11 @@
 #' Rumsey et al reference needed (SPIE conference)
 #' @export
 #' @examples
+#' fname <- "ripples"
 #' n <- 10
-#' x <- matrix(runif(2*n), nrow=n)
-#' y <- apply(x, 1, ripples)
+#' p <- quack(fname, verbose=FALSE)$input_dim
+#' x <- matrix(runif(n*p), nrow=n)
+#' y <- eval_duq(fname, x)
 ripples <- function(x, scale01=TRUE, fixed_coeff=TRUE, input_dims=2, seed=NULL){
   if(!is.null(seed)) set.seed(seed)
   if(fixed_coeff == TRUE & input_dims != 2) warning("Cannot have fixed coefficients when input_dims != 2.")

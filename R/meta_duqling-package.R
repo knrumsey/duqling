@@ -13,6 +13,8 @@
 #' simulation studies easy. The comparison of various emulators is also straightforward, even
 #' across papers.
 #'
+#' @importFrom stats aggregate dgamma median pnorm predict rnorm rt sd var
+#' @importFrom utils capture.output
 #' @keywords internal
 "_PACKAGE"
 
@@ -20,3 +22,5 @@
 ## usethis namespace: start
 ## usethis namespace: end
 NULL
+
+

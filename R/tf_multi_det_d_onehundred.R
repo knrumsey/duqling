@@ -14,12 +14,11 @@
 #' UQLab - The Framework for Uncertainty Quantification. “Sensitivity: Sobol’ indices of a high-dimensional function.” Retrieved July 3, 2024, from https://www.uqlab.com/sensitivity-high-dimension.
 #' @rdname d_onehundred
 #' @examples
-#' n <- 1000
-#' p <- 100
-#' X <- matrix(runif(n*p), nrow=n, ncol=p)
-#' y <- apply(X, 1, d_onehundred, scale01=TRUE)
-#' # not run
-#' # fit <- basssPCA(X, t(y))
+#' fname <- "d_onehundred"
+#' n <- 10
+#' p <- quack(fname, verbose=FALSE)$input_dim
+#' x <- matrix(runif(n*p), nrow=n)
+#' y <- eval_duq(fname, x)
 #' @export
 d_onehundred <- function(x, scale01=TRUE, M=100){
   if(M < 55){

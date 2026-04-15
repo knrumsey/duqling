@@ -21,13 +21,13 @@ A bivariate squiggle function which has regions of low activity as well as low a
 When noise != 0, the function is stochastic with a heteroskedastic error function.
 }
 \examples{
-n1 <- 100 #Number of observations in x1
-n2 <- 70  #Number of observations in x2
-x1grid <- seq(0, 1, length.out=100)
-x2grid <- seq(0, 1, length.out=70)
-X <- expand.grid(x1grid, x2grid)
-y <- apply(X, 1, squiggle)
-image(matrix(y, nrow=length(X)), zlim=c(-1,3.5))
+fname <- "squiggle"
+n <- 10
+p <- quack(fname, verbose=FALSE)$input_dim
+x <- matrix(runif(n*p), nrow=n)
+y <- eval_duq(fname, x)
+
+show_function_2d("squiggle")
 }
 \references{
 Add reference here, if we ever publish with this function.

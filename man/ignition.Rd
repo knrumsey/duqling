@@ -21,10 +21,11 @@ Dimensions: 10 The complex mock ignition function from Section E of Hatfield et 
 From Hatfield et al. 2019, the mock-yield is r^5(1 + 100000 + (1+erf(10(r-2)))) where r is the radius from the origin in this 10-D space.
 }
 \examples{
-p <- 10
-n <- 20
+fname <- "ignition"
+n <- 10
+p <- quack(fname, verbose=FALSE)$input_dim
 x <- matrix(runif(n*p), nrow=n)
-y <- apply(x, 1, ignition, scale01=TRUE)
+y <- eval_duq(fname, x)
 }
 \references{
 Hatfield, P., Rose, S., Scott, R., Almosallam, I., Roberts, S., & Jarvis, M. (2019). Using sparse Gaussian processes for predicting robust inertial confinement fusion implosion yields. IEEE Transactions on Plasma Science, 48(1), 14-21.

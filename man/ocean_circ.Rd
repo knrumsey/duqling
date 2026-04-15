@@ -30,9 +30,11 @@ are generated, producing noisy outcomes that approximate
 the solution to the PDE at that location.
 }
 \examples{
+fname <- "ocean_circ"
 n <- 10
-x <- matrix(runif(4*n), nrow=n)
-y <- apply(x, 1, ocean_circ)
+p <- quack(fname, verbose=FALSE)$input_dim
+x <- matrix(runif(n*p), nrow=n)
+y <- eval_duq(fname, x)
 }
 \references{
 Baker, Evan, et al. "Analyzing stochastic computer models: a review with opportunities." Statistical Science 37.1 (2022): 64-89.
