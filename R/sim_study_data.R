@@ -302,11 +302,30 @@ run_one_sim_case_data <- function(k, seed, XX, yy, groups, cv_type,
       verbose = verbose
     )
 
-    pred_obj <- normalize_prediction_object(
-      preds = fit_pred$preds,
-      n_test = n_test,
-      conf_level = conf_level
+    pred_obj <- try(
+      normalize_prediction_object(
+        preds = fit_pred$preds,
+        n_test = n_test,
+        conf_level = conf_level
+      ),
+      silent = !print_error
     )
+
+    if (inherits(pred_obj, "try-error")) {
+      if (fit_pred$failure_type == "none") fit_pred$failure_type <- "pred"
+
+      if (fallback) {
+        set.seed(seed_t)
+        fit_pred$preds <- null_fallback_preds(y_train, X_test)
+        pred_obj <- normalize_prediction_object(
+          preds = fit_pred$preds,
+          n_test = n_test,
+          conf_level = conf_level
+        )
+      } else {
+        stop(paste("Invalid prediction object:", attr(pred_obj, "condition")$message))
+      }
+    }
 
     metrics <- compute_metrics_from_prediction(
       pred_obj = pred_obj,

@@ -170,6 +170,84 @@ null_fallback_preds <- function(y_train, X_test, n_draws = 1000) {
   matrix(preds_numeric, nrow = n_draws, ncol = nrow(X_test))
 }
 
+validate_numeric_preds <- function(preds, n_test) {
+  if (is.null(preds)) {
+    stop("pred_func returned NULL.")
+  }
+
+  if (is.data.frame(preds)) {
+    preds <- as.matrix(preds)
+  }
+
+  if (is.vector(preds) && !is.list(preds)) {
+    preds <- matrix(preds, nrow = 1)
+  }
+
+  if (!is.matrix(preds)) {
+    stop("pred_func did not return a numeric matrix-like object.")
+  }
+
+  if (!is.numeric(preds)) {
+    stop("pred_func returned a matrix, but it is not numeric.")
+  }
+
+  if (ncol(preds) != n_test) {
+    stop(sprintf(
+      "pred_func returned %d columns, but expected %d test points.",
+      ncol(preds), n_test
+    ))
+  }
+
+  if (nrow(preds) < 1) {
+    stop("pred_func returned a matrix with zero rows.")
+  }
+
+  if (any(!is.finite(preds))) {
+    stop("pred_func returned predictions containing NA/NaN/Inf.")
+  }
+
+  preds
+}
+
+validate_numeric_preds <- function(preds, n_test) {
+  if (is.null(preds)) {
+    stop("pred_func returned NULL.")
+  }
+
+  if (is.data.frame(preds)) {
+    preds <- as.matrix(preds)
+  }
+
+  if (is.vector(preds) && !is.list(preds)) {
+    preds <- matrix(preds, nrow = 1)
+  }
+
+  if (!is.matrix(preds)) {
+    stop("pred_func did not return a numeric matrix-like object.")
+  }
+
+  if (!is.numeric(preds)) {
+    stop("pred_func returned a matrix, but it is not numeric.")
+  }
+
+  if (ncol(preds) != n_test) {
+    stop(sprintf(
+      "pred_func returned %d columns, but expected %d test points.",
+      ncol(preds), n_test
+    ))
+  }
+
+  if (nrow(preds) < 1) {
+    stop("pred_func returned a matrix with zero rows.")
+  }
+
+  if (any(!is.finite(preds))) {
+    stop("pred_func returned predictions containing NA/NaN/Inf.")
+  }
+
+  preds
+}
+
 fit_and_predict_one_method <- function(ii, method_names, fit_func, pred_func,
                                        X_train, y_train, X_test,
                                        seed_t, fallback, print_error, verbose) {
@@ -253,10 +331,7 @@ normalize_prediction_object <- function(preds, n_test, conf_level) {
   }
 
   if (is.numeric(preds)) {
-    if (is.null(dim(preds))) {
-      preds <- matrix(preds, ncol = 1)
-    }
-
+    preds <- validate_numeric_preds(preds, n_test)
     point_preds <- colMeans(preds)
 
     n_conf <- length(conf_level)
@@ -279,19 +354,10 @@ normalize_prediction_object <- function(preds, n_test, conf_level) {
     ))
   }
 
+  preds <- validate_list_preds(preds, n_test, conf_level)
   if (is.null(preds$samples)) {
-    if (is.null(preds$sd) || is.null(preds$preds)) {
-      stop("If pred/fit function returns a list, the samples field must be specified, or both preds and sd must be provided.")
-    }
-
     mu_tmp <- as.numeric(preds$preds)
     s_tmp <- as.numeric(preds$sd)
-    mu_check <- length(mu_tmp) == n_test
-    s_check <- length(s_tmp) == n_test || length(s_tmp) == 1
-
-    if (!mu_check || !s_check) {
-      stop("preds and/or sd fields are the wrong length.")
-    }
 
     if (length(s_tmp) == 1) s_tmp <- rep(s_tmp, n_test)
 
@@ -317,12 +383,6 @@ normalize_prediction_object <- function(preds, n_test, conf_level) {
     preds$intervals <- intervals
   }
 
-  if (length(conf_level) > 0) {
-    if (any(dim(preds$intervals) != c(2, n_test, length(conf_level)))) {
-      warning("preds$intervals has the wrong dimensions; see documentation")
-      preds$intervals <- array(preds$intervals, dim = c(2, n_test, length(conf_level)))
-    }
-  }
 
   list(
     samples = preds$samples,
