@@ -20,7 +20,7 @@ show_function_2d <- function(fname, nx=201, ncol=100, pal="terrain", dims=1:2, .
   XX2 <- matrix(0.5, nrow=nrow(XX), ncol=quack(fname)$input_dim)
   XX2[,dims[1]] <- XX[,1]
   XX2[,dims[2]] <- XX[,2]
-  yy <- duq(XX2, fname, scale01=TRUE, ...)
+  yy <- duq(fname, XX2,  scale01=TRUE, ...)
   YY <- matrix(yy, nrow=nx, ncol=nx)
   graphics::image(YY, col=grDevices::hcl.colors(ncol, pal))
 }
