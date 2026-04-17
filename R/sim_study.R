@@ -398,11 +398,19 @@ run_one_sim_case <- function(rr, seed, fn, p, n, nsr, dsgn, n_test,
     )
 
     if (inherits(pred_obj, "try-error")) {
+      norm_err <- as.character(pred_obj)
+
       if (fit_pred$failure_type == "none") fit_pred$failure_type <- "pred"
+
+      if (fit_pred$error_message == "") {
+        fit_pred$error_message <- norm_err
+      } else {
+        fit_pred$error_message <- paste(fit_pred$error_message, norm_err, sep = " | ")
+      }
 
       if (fallback) {
         set.seed(seed_t)
-        fit_pred$preds <- null_fallback_preds(y_train, X_test)
+        fit_pred$preds <- null_fallback_preds(sim_data$y_train, sim_data$X_test)
         pred_obj <- normalize_prediction_object(
           preds = fit_pred$preds,
           n_test = n_test,
@@ -444,10 +452,13 @@ run_one_sim_case <- function(rr, seed, fn, p, n, nsr, dsgn, n_test,
       row$t_tot <- fit_pred$t_tot
     }
 
-    row$failure_type <- fit_pred$failure_type
-
     for (nm in names(metrics)) {
       row[[nm]] <- metrics[[nm]]
+    }
+
+    row$failure_type <- fit_pred$failure_type
+    if(print_error){
+      row$error_message = fit_pred$error_message
     }
 
     method_rows[[ii]] <- row

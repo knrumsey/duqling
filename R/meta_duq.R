@@ -42,11 +42,11 @@
 #' eval_duq(f_list[1], X)
 eval_duq <- function(f, x, z = NULL, scale01 = TRUE, ...) {
   if (is.null(nrow(x))) {
-    x <- matrix(x, nrow = 1)
+    x <- matrix(x, ncol = 1)
   }
 
   if (!is.null(z) && is.null(nrow(z))) {
-    z <- matrix(z, nrow = 1)
+    z <- matrix(z, ncol = 1)
   }
 
   has_cat <- FALSE

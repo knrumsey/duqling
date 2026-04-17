@@ -43,6 +43,11 @@ sharkfin <- function(x, scale01=TRUE, steps=3, active_dim=length(x)){
   return(y)
 }
 
+#' @rdname sharkfin
+#' @export
+sharkfin12 <- function(x, scale01=TRUE){
+  sharkfin(x, scale01, steps=3, active_dim = 12)
+}
 
 quackquack_sharkfin <- function(){
   out <- list(input_dim=3)
@@ -51,6 +56,19 @@ quackquack_sharkfin <- function(){
 
   RR <- cbind(c(0, 0, 0), c(1, 1, 1))
   rownames(RR) <- c("x1", "x2", "x3")
+  out$input_range <- RR
+  return(out)
+}
+
+quackquack_sharkfin12 <- function(){
+  out <- list(input_dim=12)
+  out$input_cat <- FALSE
+  out$response_type <- "uni"
+
+  RR <- cbind(c(rep(0, 12)), c(1, 12))
+  rownames(RR) <- c("x1", "x2", "x3", "x4",
+                    "x5", "x6", "x7", "x8",
+                    "x9", "x10", "x11", "x12")
   out$input_range <- RR
   return(out)
 }

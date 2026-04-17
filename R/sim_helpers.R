@@ -254,6 +254,7 @@ fit_and_predict_one_method <- function(ii, method_names, fit_func, pred_func,
 
   my_method <- ifelse(is.null(method_names[ii]), paste0("method", ii), method_names[ii])
   failure_type <- "none"
+  error_message <- ""
 
   fit_func_curr <- get_method_component(fit_func, ii)
 
@@ -271,6 +272,7 @@ fit_and_predict_one_method <- function(ii, method_names, fit_func, pred_func,
       failure_type <- "fit"
       if (fallback) {
         set.seed(seed_t)
+        error_message <- as.character(preds)
         preds <- null_fallback_preds(y_train, X_test)
       } else {
         stop(paste("Failure in fit_func:", attr(preds, "condition")$message))
@@ -283,6 +285,7 @@ fit_and_predict_one_method <- function(ii, method_names, fit_func, pred_func,
       method = my_method,
       preds = preds,
       failure_type = failure_type,
+      error_message = error_message,
       t_fit = NA_real_,
       t_pred = NA_real_,
       t_tot = t_tot$toc - t_tot$tic
@@ -293,6 +296,7 @@ fit_and_predict_one_method <- function(ii, method_names, fit_func, pred_func,
   fitted_object <- try(fit_func_curr(X_train, y_train), silent = !print_error)
   if (inherits(fitted_object, "try-error")) {
     if (fallback) {
+      error_message <- as.character(fitted_object)
       fitted_object <- NA
       failure_type <- "fit"
     } else {
@@ -307,6 +311,12 @@ fit_and_predict_one_method <- function(ii, method_names, fit_func, pred_func,
     if (failure_type == "none") failure_type <- "pred"
     if (fallback) {
       set.seed(seed_t)
+      if (error_message == "") {
+        error_message <- as.character(preds)
+      } else {
+        error_message <- paste("In fit:", error_message,
+                               "\n\nIn pred:", as.character(preds), sep = " | ")
+      }
       preds <- null_fallback_preds(y_train, X_test)
     } else {
       stop(paste("Failure in pred_func:", attr(preds, "condition")$message))
@@ -318,6 +328,7 @@ fit_and_predict_one_method <- function(ii, method_names, fit_func, pred_func,
     method = my_method,
     preds = preds,
     failure_type = failure_type,
+    error_message = error_message,
     t_fit = t_fit$toc - t_fit$tic,
     t_pred = t_pred$toc - t_pred$tic,
     t_tot = (t_fit$toc - t_fit$tic) + (t_pred$toc - t_pred$tic)

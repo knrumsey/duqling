@@ -48,7 +48,7 @@ get_sim_functions_dms <- function(){
 
 #' @rdname get_funcs
 #' @export
-get_paper_funcs <- function(){
+get_paper_funcs_old <- function(){
   c("const_fn",
     "forrester1",
     "forrester1_low_fidelity",
@@ -110,6 +110,73 @@ get_paper_funcs <- function(){
     "welch20",
     "onehundred")
 }
+
+
+#' @rdname get_funcs
+#' @export
+get_paper_funcs <- function(){
+  c("const_fn",
+    "forrester1",
+    "higdon1",
+    "grlee1",
+    "banana",
+    "dms_additive",
+    "dms_complicated",
+    "dms_harmonic",
+    "dms_radial",
+    "dms_simple",
+    "foursquare",
+    "lim_non_polynomial",
+    "lim_polynomial",
+    "multivalley",
+    "ripples",
+    "squiggle",
+    "star2",
+    "twin_galaxies",
+    "cube3",
+    "cube3_rotate",
+    "detpep_curve",
+    "Gfunction",
+    "ishigami",
+    "rabbits",
+    "sharkfin",
+    "park4",
+    "quad4",
+    "pollutant_uni",
+    "cube5",
+    "friedman",
+    "short_column",
+    "cantilever_D",
+    "cantilever_S",
+    "circuit",
+    "Gfunction6",
+    "grlee6",
+    "crater",
+    "piston",
+    "borehole",
+    "detpep8",
+    "ebola",
+    "robot",
+    "steel_column",
+    "sulfur",
+    "friedman10",
+    "ignition",
+    "wingweight",
+    "turb12",
+    "const_fn15",
+    "oo15",
+    "permdb",
+    "linear21",
+    "linear21_s10",
+    "linear21_s1",
+    "Gfunction18",
+    "friedman20",
+    "welch20",
+    "moon31",
+    "Gfunction40",
+    "onehundred")
+}
+
 
 
 

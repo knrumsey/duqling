@@ -312,7 +312,15 @@ run_one_sim_case_data <- function(k, seed, XX, yy, groups, cv_type,
     )
 
     if (inherits(pred_obj, "try-error")) {
+      norm_err <- as.character(pred_obj)
+
       if (fit_pred$failure_type == "none") fit_pred$failure_type <- "pred"
+
+      if (fit_pred$error_message == "") {
+        fit_pred$error_message <- norm_err
+      } else {
+        fit_pred$error_message <- paste(fit_pred$error_message, norm_err, sep = " | ")
+      }
 
       if (fallback) {
         set.seed(seed_t)
@@ -357,10 +365,13 @@ run_one_sim_case_data <- function(k, seed, XX, yy, groups, cv_type,
       row$t_tot <- fit_pred$t_tot
     }
 
-    row$failure_type <- fit_pred$failure_type
-
     for (nm in names(metrics)) {
       row[[nm]] <- metrics[[nm]]
+    }
+
+    row$failure_type <- fit_pred$failure_type
+    if(print_error){
+      row$error_message <- row$error_message
     }
 
     method_rows[[ii]] <- row

@@ -56,11 +56,20 @@ Gfunction12 <- function(x, scale01=TRUE, a=rep(c(0,6.52,9,15,25,50,99), c(2,4,2,
 
 #' @rdname Gfunction
 #' @export
-Gfunction18 <- function(x, scale01=TRUE, a=rep(c(0,1,9,18,99), c(4,4,4,4,2))){
+Gfunction18 <- function(x, scale01=TRUE, a=rep(c(0, 1, 9, 18, 99), c(4,4,4,4,2))){
   x <- x[1:18]
   u <- (abs(4*x - 2) + a)/(1+a)
   res <- prod(u)
 }
+
+#' @rdname Gfunction
+#' @export
+Gfunction40 <- function(x, scale01=TRUE, a=(1:40 - 1) / 4){
+  x <- x[1:40]
+  u <- (abs(4*x - 2) + a)/(1+a)
+  res <- prod(u)
+}
+
 
 
 
@@ -109,6 +118,19 @@ quackquack_Gfunction18 <- function(){
   RR <- cbind(rep(0, 18),
               rep(1, 18))
   rownames(RR) <- unlist(lapply(1:18,
+                                function(zz) paste0("x", zz)))
+  out$input_range <- RR
+  return(out)
+}
+
+quackquack_Gfunction40 <- function(){
+  out <- list(input_dim=40)
+  out$input_cat <- FALSE
+  out$response_type <- "uni"
+
+  RR <- cbind(rep(0, 40),
+              rep(1, 40))
+  rownames(RR) <- unlist(lapply(1:40,
                                 function(zz) paste0("x", zz)))
   out$input_range <- RR
   return(out)

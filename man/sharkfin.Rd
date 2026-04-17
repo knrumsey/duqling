@@ -2,9 +2,12 @@
 % Please edit documentation in R/tf_scalar_det_sharkfin.R
 \name{sharkfin}
 \alias{sharkfin}
+\alias{sharkfin12}
 \title{Sharkfin Function}
 \usage{
 sharkfin(x, scale01 = TRUE, steps = 3, active_dim = length(x))
+
+sharkfin12(x, scale01 = TRUE)
 }
 \arguments{
 \item{x}{Inputs of dimension (at least) 8. See below for details.}
