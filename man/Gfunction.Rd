@@ -20,7 +20,11 @@ Gfunction12(
 
 Gfunction18(x, scale01 = TRUE, a = rep(c(0, 1, 9, 18, 99), c(4, 4, 4, 4, 2)))
 
-Gfunction40(x, scale01 = TRUE, a = (1:40 - 1)/4)
+Gfunction40(
+  x,
+  scale01 = TRUE,
+  a = rep(c(0, 1, 9, 18, 99, 999), c(4, 4, 4, 4, 2, 22))
+)
 }
 \arguments{
 \item{x}{Inputs of dimension d. See below for details.}

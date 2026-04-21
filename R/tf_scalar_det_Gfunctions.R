@@ -64,7 +64,8 @@ Gfunction18 <- function(x, scale01=TRUE, a=rep(c(0, 1, 9, 18, 99), c(4,4,4,4,2))
 
 #' @rdname Gfunction
 #' @export
-Gfunction40 <- function(x, scale01=TRUE, a=(1:40 - 1) / 4){
+Gfunction40 <- function(x, scale01=TRUE,
+                        a=rep(c(0,1,9,18,99,999), c(4,4,4,4,2,22))){
   x <- x[1:40]
   u <- (abs(4*x - 2) + a)/(1+a)
   res <- prod(u)
