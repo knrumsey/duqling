@@ -52,7 +52,7 @@ linear21_s1 <- function(x, scale01=TRUE){
 #' @export
 quad <- function(x, scale01=TRUE, a = NULL, b = NULL, c = NULL){
   if(is.null(a)){
-    a <- c(-0.6, 0.3, 0.05, 1.1)
+    a <- c(-1.2, 0.6, 0.05, 1.1)
   }
   if(is.null(b)){
     b <- c(0, 0, 1, -1)
@@ -78,14 +78,14 @@ quad <- function(x, scale01=TRUE, a = NULL, b = NULL, c = NULL){
     c <- c(c, rep(0, p_c))
   }
 
-  res <- sum(a*x + b*x^2 + c*x[idx[1,]]*x[idx[2,]])
+  res <- sum(a*x + b*x^2) + sum(c*x[idx[1,]]*x[idx[2,]])
 }
 
 #' @rdname linear
 #' @export
 quad4 <- function(x, scale01=TRUE){
   quad(x, scale01,
-       a = c(-0.6, 0.3, 0.05, 1.1),
+       a = c(-1.2, 0.6, 0.05, 1.1),
        b = c(0, 0, 1, -1),
        c = c(0, 0, -0.5, 0, 0, 2)
        )

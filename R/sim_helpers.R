@@ -805,7 +805,16 @@ lookup_sigma <- function(fname){
     icf1=9.876422e-02,
     icf2=1.964187e-01,
     diablo_canyon_plume=4.958526e-01,
-    okc_plume=6.473348e-01
+    okc_plume=6.473348e-01,
+    #New functions
+    higdon1=0.5546522,
+    quad4=0.8130207,
+    turb12=2.700776,
+    linear21=7.967096,
+    linear21_s10=5.351829,
+    linear21_s1=2.886897,
+    moon31=0.1863337,
+    Gfunction40=1.829371
   )
 
   val <- sigma_lookup[[fname]]
@@ -816,7 +825,6 @@ lookup_sigma <- function(fname){
 
   return(val)
 }
-
 
 #' Human-friendly labels for derived metrics
 #'
