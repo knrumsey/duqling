@@ -663,6 +663,16 @@ make_cv_groups <- function(n, folds, seed_t) {
     groups = groups
   )
 }
+
+#' @keywords internal
+scale_range <- function(x, r = NULL){
+  if (is.null(r))
+    r <- range(x)
+  if ((r[2] - r[1]) == 0)
+    return(x - r[1])
+  return((x - r[1])/(r[2] - r[1]))
+}
+
 #' @keywords internal
 load_one_dataset <- function(dd, dnames_all, is_custom, dsets, x_scale01, custom_cnt) {
   dn <- dnames_all[dd]
