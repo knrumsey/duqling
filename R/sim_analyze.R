@@ -1481,11 +1481,24 @@ join_sim_study <- function(obj1, obj2, keep_extra_metrics = FALSE) {
   }
 
   # Suffix overlapping obj2 method names
+  # if (!is.null(method_col) &&
+  #     method_col %in% names(df1) &&
+  #     method_col %in% names(df2)) {
+  #   overlap <- intersect(unique(df1[[method_col]]), unique(df2[[method_col]]))
+  #   hit <- df2[[method_col]] %in% overlap
+  #   df2[[method_col]][hit] <- paste0(df2[[method_col]][hit], "_obj2")
+  # }
+  # Suffix overlapping obj2 method names only within the same simulation scenario
   if (!is.null(method_col) &&
       method_col %in% names(df1) &&
-      method_col %in% names(df2)) {
-    overlap <- intersect(unique(df1[[method_col]]), unique(df2[[method_col]]))
-    hit <- df2[[method_col]] %in% overlap
+      method_col %in% names(df2) &&
+      "sim_scenario" %in% names(df1) &&
+      "sim_scenario" %in% names(df2)) {
+
+    key1 <- unique(paste(df1$sim_scenario, df1[[method_col]], sep = "___"))
+    key2 <- paste(df2$sim_scenario, df2[[method_col]], sep = "___")
+
+    hit <- key2 %in% key1
     df2[[method_col]][hit] <- paste0(df2[[method_col]][hit], "_obj2")
   }
 
