@@ -553,6 +553,13 @@ paretoplot_sim_study <- function(obj,
   pareto_df$pareto <- FALSE
   pareto_df$pareto[pareto_idx] <- TRUE
 
+  # Highlight color when show_pfront
+  pareto_df$plot_col <- if (show_pfront) {
+    ifelse(pareto_df$pareto, "dodgerblue3", "black")
+  } else {
+    rep("black", nrow(pareto_df))
+  }
+
   # Plot base
   p <- ggplot2::ggplot(pareto_df,
                        ggplot2::aes(x = .data[[metric[2]]],
@@ -592,16 +599,18 @@ paretoplot_sim_study <- function(obj,
   # Add labels
   if (requireNamespace("ggrepel", quietly = TRUE)) {
     p <- p + ggrepel::geom_text_repel(
-      ggplot2::aes(label = method),
+      ggplot2::aes(label = method, color = plot_col),
       size = 3.5,
-      max.overlaps = Inf
+      max.overlaps = Inf,
+      show.legend = FALSE
     )
   } else {
     p <- p + ggplot2::geom_text(
-      ggplot2::aes(label = method),
+      ggplot2::aes(label = method, color = plot_col),
       vjust = -0.5, hjust = 0.5,
       size = 3.5,
-      check_overlap = TRUE
+      check_overlap = TRUE,
+      show.legend = FALSE
     ) +
       ggplot2::coord_cartesian(clip = "off")
   }
