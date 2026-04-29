@@ -274,12 +274,13 @@ run_one_sim_case_data <- function(k, seed, XX, yy, groups, cv_type,
     y_test  <- yy[test_indx]
   }
 
+  n_total <- nrow(XX)
+  n_train <- nrow(X_train)
   n_test <- nrow(X_test)
-  n <- nrow(X_train)
   p <- ncol(X_test)
 
   # Set fold specific seed
-  fold_seed <- get_case_seed(seed, n, "data", 0, dn, k)
+  fold_seed <- get_case_seed(seed, n_train, "data", 0, dn, k)
 
   cdn <- if (is.na(custom_data_name)) dn else custom_data_name
 
@@ -323,7 +324,7 @@ run_one_sim_case_data <- function(k, seed, XX, yy, groups, cv_type,
       }
 
       if (fallback) {
-        set.seed(seed_t)
+        set.seed(fold_seed)
         fit_pred$preds <- null_fallback_preds(y_train, X_test)
         pred_obj <- normalize_prediction_object(
           preds = fit_pred$preds,
@@ -347,13 +348,23 @@ run_one_sim_case_data <- function(k, seed, XX, yy, groups, cv_type,
       use_latent_distr = TRUE
     )
 
+    # row <- data.frame(
+    #   method = fit_pred$method,
+    #   dname = cdn,
+    #   input_dim = p,
+    #   n = n,
+    #   fold = k,
+    #   fold_size = mk,
+    #   stringsAsFactors = FALSE
+    # )
+
     row <- data.frame(
       method = fit_pred$method,
       dname = cdn,
       input_dim = p,
-      n = n,
+      n_train = n_total,
       fold = k,
-      fold_size = mk,
+      fold_size = n_train,
       stringsAsFactors = FALSE
     )
 
@@ -371,7 +382,7 @@ run_one_sim_case_data <- function(k, seed, XX, yy, groups, cv_type,
 
     row$failure_type <- fit_pred$failure_type
     if(print_error){
-      row$error_message <- row$error_message
+      row$error_message <- fit_pred$error_message
     }
 
     method_rows[[ii]] <- row
