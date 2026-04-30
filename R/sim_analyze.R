@@ -1063,79 +1063,128 @@ perfprofile_sim_study <- function(obj,
 process_sim_study <- function(df, scale_CRPS = TRUE) {
   if (!is.data.frame(df)) stop("df must be a data.frame", call. = FALSE)
 
-  # Detect source type
+  # Detect source type, but preserve existing processed objects when possible
   source_type <- if ("fname" %in% names(df)) {
     "fun"
   } else if ("dname" %in% names(df)) {
     "data"
+  } else if ("source" %in% names(df) && all(df$source %in% c("fun", "data", "mixed"), na.rm = TRUE)) {
+    # already processed-like data frame
+    unique_src <- unique(stats::na.omit(df$source))
+    if (length(unique_src) == 1) unique_src else "unknown"
   } else {
     "unknown"
   }
 
-  # Canonical ID + repetition
-  df$id <- if ("fname" %in% names(df)) df$fname else if ("dname" %in% names(df)) df$dname else NA_character_
-  df$replication <- if ("replication" %in% names(df)) df$replication else if ("fold" %in% names(df)) df$fold else NA
-
-  # Scenario string
-  if (source_type == "fun") {
-    scen_keys <- c("id","n_train","NSR","design_type","replication")
-  } else if (source_type == "data") {
-    scen_keys <- c("id","fold","fold_size","cv_type")
-  } else {
-    scen_keys <- c("id","replication")
+  # Canonical ID: preserve if already present
+  if (!("id" %in% names(df))) {
+    df$id <- if ("fname" %in% names(df)) {
+      df$fname
+    } else if ("dname" %in% names(df)) {
+      df$dname
+    } else {
+      NA_character_
+    }
   }
-  scen_keys <- intersect(scen_keys, names(df))
-  scen_mat <- df[, scen_keys, drop = FALSE]
-  for (k in scen_keys) scen_mat[[k]] <- as.character(scen_mat[[k]])
-  scen_mat[is.na(scen_mat)] <- "NA"
-  df$sim_scenario <- apply(scen_mat, 1, paste, collapse = "*")
 
-  # Scale CRPS if requested
+  # Canonical repetition: preserve if already present, otherwise use fold
+  if (!("replication" %in% names(df)) || all(is.na(df$replication))) {
+    df$replication <- if ("fold" %in% names(df)) df$fold else NA
+  }
+
+  # Check if data was already scaled.
+  if ("crps_scaled" %in% names(df)) {
+    if (any(df$crps_scaled, na.rm = TRUE) && scale_CRPS) {
+      warning("Some rows already have crps_scaled=TRUE; You may be double-scaling.")
+    }
+  }
+
+  # Scenario keys
+  if (source_type == "fun") {
+    scen_keys <- c("id", "n_train", "NSR", "design_type", "replication")
+  } else if (source_type == "data") {
+    scen_keys <- c("id", "fold", "fold_size", "cv_type")
+  } else {
+    # preserve existing scenario if already present
+    scen_keys <- c("id", "replication")
+  }
+
+  # Preserve existing sim_scenario if already present and non-missing
+  if (!("sim_scenario" %in% names(df)) || all(is.na(df$sim_scenario))) {
+    scen_keys_use <- intersect(scen_keys, names(df))
+    scen_mat <- df[, scen_keys_use, drop = FALSE]
+    for (k in scen_keys_use) scen_mat[[k]] <- as.character(scen_mat[[k]])
+    scen_mat[is.na(scen_mat)] <- "NA"
+    df$sim_scenario <- apply(scen_mat, 1, paste, collapse = "*")
+  } else {
+    scen_keys_use <- intersect(scen_keys, names(df))
+  }
+
+  # Track CRPS scaling status
+  if (!("crps_scaled" %in% names(df))) {
+    df$crps_scaled <- FALSE
+  }
+
   scaling_notes <- list(applied = FALSE, n_scaled = 0L)
+
+  # Only scale if requested and not already scaled
   if (scale_CRPS) {
     if (!"CRPS" %in% names(df)) {
       warning("scale_CRPS=TRUE but no 'CRPS' column found; skipping.")
+    } else if (all(isTRUE(df$crps_scaled))) {
+      # already scaled; do nothing
+      scaling_notes$applied <- FALSE
+      scaling_notes$n_scaled <- 0L
     } else {
       if (!exists("lookup_sigma", mode = "function")) {
         stop("lookup_sigma(fname) is not available. Please define it or attach the package that provides it.", call. = FALSE)
       }
+
       sig <- vapply(df$id, lookup_sigma, numeric(1))
       df$sigma <- sig
-      df$CRPS <- df$CRPS / df$sigma
-      df$CRPS_min <- df$CRPS_min / df$sigma
-      df$CRPS_Q1 <- df$CRPS_Q1 / df$sigma
-      df$CRPS_med <- df$CRPS_med / df$sigma
-      df$CRPS_Q3 <- df$CRPS_Q3 / df$sigma
-      df$CRPS_max <- df$CRPS_max / df$sigma
+
+      scale_cols <- c("CRPS", "CRPS_min", "CRPS_Q1", "CRPS_med", "CRPS_Q3", "CRPS_max")
+      scale_cols <- intersect(scale_cols, names(df))
+      for (cc in scale_cols) {
+        df[[cc]] <- df[[cc]] / df$sigma
+      }
+
+      df$crps_scaled <- TRUE
       scaling_notes$applied <- TRUE
       scaling_notes$n_scaled <- sum(!is.na(df$CRPS))
     }
+  } else {
+    # leave as-is; if sigma missing, don't invent it
+    if (!("sigma" %in% names(df))) df$sigma <- NA_real_
   }
 
-  # Add source column
-  df$source <- source_type
+  # Add source column if missing
+  if (!("source" %in% names(df))) {
+    df$source <- source_type
+  }
 
-  # Drop original fname/dname/fold
-  df$fname <- NULL
-  df$dname <- NULL
-  df$fold  <- NULL
+  # Drop original raw-identifying columns if present
+  if ("fname" %in% names(df)) df$fname <- NULL
+  if ("dname" %in% names(df)) df$dname <- NULL
+  if ("fold"  %in% names(df)) df$fold  <- NULL
 
-  # Rename time fields
+  # Rename time fields, but preserve already-renamed names
   rename_map <- c(
     t_tot  = "time",
     t_pred = "time_predict",
     t_fit  = "time_fit"
   )
   for (nm in names(rename_map)) {
-    if (nm %in% names(df)) {
+    if (nm %in% names(df) && !(rename_map[[nm]] %in% names(df))) {
       names(df)[names(df) == nm] <- rename_map[[nm]]
     }
   }
 
   meta <- list(
     source_type = source_type,
-    scenario_keys = scen_keys,
-    scaled = scale_CRPS && scaling_notes$applied,
+    scenario_keys = scen_keys_use,
+    scaled = isTRUE(scale_CRPS) && isTRUE(any(df$crps_scaled)),
+    crps_scaled = isTRUE(all(df$crps_scaled)),
     scaling_notes = scaling_notes,
     n_rows = nrow(df)
   )
