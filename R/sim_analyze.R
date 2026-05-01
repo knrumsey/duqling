@@ -1520,6 +1520,10 @@ join_sim_study <- function(obj1, obj2, keep_extra_metrics = FALSE) {
     stop("Both inputs must be duq_sim_study objects.", call. = FALSE)
   }
 
+  if (!identical(isTRUE(obj1$meta$crps_scaled), isTRUE(obj2$meta$crps_scaled))) {
+    warning("It appears that only one of these duq_sim_study objects were processed with scale_CRPS = TRUE. Are you sure you want to join these objects?")
+  }
+
   joined_source_type <- if (identical(obj1$meta$source_type, obj2$meta$source_type)) {
     obj1$meta$source_type
   } else {
