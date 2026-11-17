@@ -57,15 +57,14 @@ example:
 \itemize{
   \item `"bass"` requires \pkg{BASS}
   \item `"bart"` requires \pkg{BART}
-  \item `"bcart"`, `"btreelm"`, `"treegp"` require \pkg{tgp}
+  \item `"bcart"`, `"btreelm"` require \pkg{tgp}; `"treegp"` requires \pkg{GPTreeO}
   \item `"rgasp"` requires \pkg{RobustGaSP}
   \item `"gp"` requires \pkg{hetGP}
   \item `"deepgp"` requires \pkg{deepgp}
   \item etc.
 }
 
-Note: emulators based on \pkg{tgp} (e.g. \code{"bcart"}, \code{"btreelm"},
-\code{"treegp"}) are \strong{not compatible} with the \code{mc_cores} argument
+Note: emulators based on \pkg{tgp} (e.g. \code{"bcart"}, \code{"btreelm"}) are \strong{not compatible} with the \code{mc_cores} argument
 for parallelization, due to limitations in that package. Using them in
 parallel contexts may cause errors.
 }
